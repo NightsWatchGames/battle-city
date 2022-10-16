@@ -4,6 +4,6 @@ use bevy::{
     time::FixedTimestep,
 };
 
-// 坦克
+// 碰撞体
 #[derive(Component)]
-struct Tank;
+pub struct Collider;
