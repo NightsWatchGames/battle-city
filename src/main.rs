@@ -18,7 +18,8 @@ fn main() {
         .insert_resource(ClearColor(BACKGROUND_COLOR))
         .add_startup_system(setup)
         .add_system(move_tank_system)
-        .add_system(animate_shield_system)
+        .add_system(shield_animate_system)
+        .add_system(shield_remove_system)
         .add_system(bevy::window::close_on_esc)
         .run();
 }
@@ -32,14 +33,30 @@ fn setup(
     // 相机
     commands.spawn_bundle(Camera2dBundle::default());
 
+    let shield_texture_handle = asset_server.load("textures/shield.bmp");
+    let shield_texture_atlas =
+        TextureAtlas::from_grid(shield_texture_handle, Vec2::new(30.0, 30.0), 1, 2);
+    let shield_texture_atlas_handle = texture_atlases.add(shield_texture_atlas);
+
+    // 保护盾
+    let shield = commands
+        .spawn_bundle(SpriteSheetBundle {
+            texture_atlas: shield_texture_atlas_handle,
+            transform: Transform::from_scale(Vec3::splat(3.0)),
+            ..default()
+        })
+        .insert(Shield)
+        .insert(AnimationTimer(Timer::from_seconds(0.2, true)))
+        .insert(ShieldRemoveTimer(Timer::from_seconds(5.0, false)))
+        .id();
+
     // 坦克
-    let tank_y = BOTTOM_WALL + 100.0;
-    commands
+    let tank = commands
         .spawn()
         .insert(Tank)
         .insert_bundle(SpriteBundle {
             transform: Transform {
-                translation: Vec3::new(0.0, tank_y, 0.0),
+                translation: Vec3::new(0.0, BOTTOM_WALL + 100.0, 0.0),
                 ..default()
             },
             sprite: Sprite {
@@ -49,24 +66,14 @@ fn setup(
             texture: asset_server.load("textures/tank.png"),
             ..default()
         })
-        .insert(Collider);
+        .insert(Collider)
+        .id();
+
+    commands.entity(tank).add_child(shield);
 
     // 墙壁
     commands.spawn_bundle(WallBundle::new(WallLocation::Left));
     commands.spawn_bundle(WallBundle::new(WallLocation::Right));
     commands.spawn_bundle(WallBundle::new(WallLocation::Bottom));
     commands.spawn_bundle(WallBundle::new(WallLocation::Top));
-
-    let texture_handle = asset_server.load("textures/shield.bmp");
-    let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(30.0, 30.0), 1, 2);
-    let texture_atlas_handle = texture_atlases.add(texture_atlas);
-    commands
-        .spawn_bundle(SpriteSheetBundle {
-            texture_atlas: texture_atlas_handle,
-            transform: Transform::from_scale(Vec3::splat(6.0)),
-            ..default()
-        })
-        .insert(Shield)
-        .insert(AnimationTimer(Timer::from_seconds(0.2, true)));
-        
 }

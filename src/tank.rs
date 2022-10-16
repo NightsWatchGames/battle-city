@@ -1,10 +1,7 @@
-use crate::wall::*;
 use crate::common::*;
+use crate::wall::*;
 
-use bevy::{
-    prelude::*,
-    sprite::collide_aabb::{collide, Collision},
-};
+use bevy::prelude::*;
 
 pub const TANK_SIZE: Vec2 = Vec2::new(80.0, 80.0);
 pub const TANK_SPEED: f32 = 500.0;
@@ -19,6 +16,10 @@ pub struct Tank;
 #[derive(Component)]
 pub struct Shield;
 
+// 出生保护盾计时
+#[derive(Component, Deref, DerefMut)]
+pub struct ShieldRemoveTimer(pub Timer);
+
 // 移动坦克
 pub fn move_tank_system(
     keyboard_input: Res<Input<KeyCode>>,
@@ -30,7 +31,6 @@ pub fn move_tank_system(
     let mut x_direction = 0.0;
     // y轴移动
     let mut y_direction = 0.0;
-    
 
     // 一次只能移动一个方向
     if keyboard_input.pressed(KeyCode::Left) {
@@ -59,14 +59,17 @@ pub fn move_tank_system(
 }
 
 // 保护盾动画播放
-pub fn animate_shield_system(
+pub fn shield_animate_system(
     time: Res<Time>,
     texture_atlases: Res<Assets<TextureAtlas>>,
-    mut query: Query<(
-        &mut AnimationTimer,
-        &mut TextureAtlasSprite,
-        &Handle<TextureAtlas>,
-    ), With<Shield>>,
+    mut query: Query<
+        (
+            &mut AnimationTimer,
+            &mut TextureAtlasSprite,
+            &Handle<TextureAtlas>,
+        ),
+        With<Shield>,
+    >,
 ) {
     for (mut timer, mut sprite, texture_atlas_handle) in &mut query {
         timer.tick(time.delta());
@@ -74,6 +77,21 @@ pub fn animate_shield_system(
             let texture_atlas = texture_atlases.get(texture_atlas_handle).unwrap();
             // 切换到下一个sprite
             sprite.index = (sprite.index + 1) % texture_atlas.textures.len();
+        }
+    }
+}
+
+// 移除保护盾
+pub fn shield_remove_system(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut query: Query<(Entity, &mut ShieldRemoveTimer), With<Shield>>,
+) {
+    for (entity, mut timer) in query.iter_mut() {
+        timer.tick(time.delta());
+
+        if timer.just_finished() {
+            commands.entity(entity).despawn();
         }
     }
 }

@@ -1,8 +1,4 @@
-use bevy::{
-    prelude::*,
-    sprite::collide_aabb::{collide, Collision},
-    time::FixedTimestep,
-};
+use bevy::prelude::*;
 
 // 碰撞体
 #[derive(Component)]
