@@ -18,6 +18,7 @@ fn main() {
         .insert_resource(ClearColor(BACKGROUND_COLOR))
         .add_startup_system(setup)
         .add_system(move_tank_system)
+        .add_system(tank_animate_system)
         .add_system(shield_animate_system)
         .add_system(shield_remove_system)
         .add_system(bevy::window::close_on_esc)
@@ -38,14 +39,19 @@ fn setup(
         TextureAtlas::from_grid(shield_texture_handle, Vec2::new(30.0, 30.0), 1, 2);
     let shield_texture_atlas_handle = texture_atlases.add(shield_texture_atlas);
 
+    let tank_texture_handle = asset_server.load("textures/tank1.bmp");
+    let tank_texture_atlas =
+        TextureAtlas::from_grid(tank_texture_handle, Vec2::new(28.0, 28.0), 2, 4);
+    let tank_texture_atlas_handle = texture_atlases.add(tank_texture_atlas);
+
     // 保护盾
     let shield = commands
-        .spawn_bundle(SpriteSheetBundle {
+        .spawn()
+        .insert(Shield)
+        .insert_bundle(SpriteSheetBundle {
             texture_atlas: shield_texture_atlas_handle,
-            transform: Transform::from_scale(Vec3::splat(3.0)),
             ..default()
         })
-        .insert(Shield)
         .insert(AnimationTimer(Timer::from_seconds(0.2, true)))
         .insert(ShieldRemoveTimer(Timer::from_seconds(5.0, false)))
         .id();
@@ -54,19 +60,17 @@ fn setup(
     let tank = commands
         .spawn()
         .insert(Tank)
-        .insert_bundle(SpriteBundle {
+        .insert_bundle(SpriteSheetBundle {
+            texture_atlas: tank_texture_atlas_handle,
             transform: Transform {
                 translation: Vec3::new(0.0, BOTTOM_WALL + 100.0, 0.0),
                 ..default()
             },
-            sprite: Sprite {
-                custom_size: Some(TANK_SIZE),
-                ..default()
-            },
-            texture: asset_server.load("textures/tank.png"),
             ..default()
         })
+        .insert(AnimationTimer(Timer::from_seconds(0.2, true)))
         .insert(Collider)
+        .insert(common::Direction::Up)
         .id();
 
     commands.entity(tank).add_child(shield);
