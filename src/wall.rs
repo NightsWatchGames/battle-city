@@ -1,8 +1,6 @@
 use crate::collision::*;
-use bevy::{
-    prelude::*,
-    sprite::collide_aabb::{collide, Collision},
-};
+
+use bevy::prelude::*;
 
 
 pub const WALL_THICKNESS: f32 = 10.0;
@@ -15,7 +13,6 @@ pub const TOP_WALL: f32 = 300.;
 // 墙壁bundle
 #[derive(Bundle)]
 pub struct WallBundle {
-    #[bundle]
     sprite_bundle: SpriteBundle,  // 嵌套bundle
     collider: Collider,
 }

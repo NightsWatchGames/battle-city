@@ -5,7 +5,8 @@ edition = "2021"
 
 
 [dependencies.bevy]
-version = "0.8.1"
+# version = "0.8.1"
+git = "https://github.com/bevyengine/bevy?rev=a658bfef19992c3b0e7bbbfde24bc88cbb098e27"
 features = [
     "bmp"
 ]

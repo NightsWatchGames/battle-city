@@ -11,3 +11,6 @@
 - https://arewegameyet.rs/
 - https://itch.io/jam/bevy-jam-2
 - [Unity制作坦克大战](https://www.bilibili.com/video/BV1PW41197Su)
+
+## 问题
+**1.2d游戏角色改变方向时，是切换sprite还是进行sprite旋转？**

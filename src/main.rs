@@ -32,35 +32,33 @@ fn setup(
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
     // 相机
-    commands.spawn_bundle(Camera2dBundle::default());
+    commands.spawn(Camera2dBundle::default());
 
     let shield_texture_handle = asset_server.load("textures/shield.bmp");
     let shield_texture_atlas =
-        TextureAtlas::from_grid(shield_texture_handle, Vec2::new(30.0, 30.0), 1, 2);
+        TextureAtlas::from_grid(shield_texture_handle, Vec2::new(30.0, 30.0), 1, 2, None, None);
     let shield_texture_atlas_handle = texture_atlases.add(shield_texture_atlas);
 
     let tank_texture_handle = asset_server.load("textures/tank1.bmp");
     let tank_texture_atlas =
-        TextureAtlas::from_grid(tank_texture_handle, Vec2::new(28.0, 28.0), 2, 4);
+        TextureAtlas::from_grid(tank_texture_handle, Vec2::new(28.0, 28.0), 2, 4, None, None);
     let tank_texture_atlas_handle = texture_atlases.add(tank_texture_atlas);
 
     // 保护盾
     let shield = commands
-        .spawn()
-        .insert(Shield)
-        .insert_bundle(SpriteSheetBundle {
+        .spawn(Shield)
+        .insert(SpriteSheetBundle {
             texture_atlas: shield_texture_atlas_handle,
             ..default()
         })
-        .insert(AnimationTimer(Timer::from_seconds(0.2, true)))
-        .insert(ShieldRemoveTimer(Timer::from_seconds(5.0, false)))
+        .insert(AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)))
+        .insert(ShieldRemoveTimer(Timer::from_seconds(5.0, TimerMode::Once)))
         .id();
 
     // 坦克
     let tank = commands
-        .spawn()
-        .insert(Tank)
-        .insert_bundle(SpriteSheetBundle {
+        .spawn(Tank)
+        .insert(SpriteSheetBundle {
             texture_atlas: tank_texture_atlas_handle,
             transform: Transform {
                 translation: Vec3::new(0.0, BOTTOM_WALL + 100.0, 0.0),
@@ -68,7 +66,7 @@ fn setup(
             },
             ..default()
         })
-        .insert(AnimationTimer(Timer::from_seconds(0.2, true)))
+        .insert(AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)))
         .insert(Collider)
         .insert(common::Direction::Up)
         .id();
@@ -76,8 +74,8 @@ fn setup(
     commands.entity(tank).add_child(shield);
 
     // 墙壁
-    commands.spawn_bundle(WallBundle::new(WallLocation::Left));
-    commands.spawn_bundle(WallBundle::new(WallLocation::Right));
-    commands.spawn_bundle(WallBundle::new(WallLocation::Bottom));
-    commands.spawn_bundle(WallBundle::new(WallLocation::Top));
+    commands.spawn(WallBundle::new(WallLocation::Left));
+    commands.spawn(WallBundle::new(WallLocation::Right));
+    commands.spawn(WallBundle::new(WallLocation::Bottom));
+    commands.spawn(WallBundle::new(WallLocation::Top));
 }
