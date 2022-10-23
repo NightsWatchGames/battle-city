@@ -1,14 +1,16 @@
+mod bullet;
 mod collision;
 mod common;
 mod tank;
 mod wall;
 
+use bullet::*;
 use collision::*;
 use common::*;
 use tank::*;
 use wall::*;
 
-use bevy::prelude::*;
+use bevy::{prelude::*, time::FixedTimestep};
 
 const BACKGROUND_COLOR: Color = Color::BLACK;
 
@@ -17,7 +19,13 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .insert_resource(ClearColor(BACKGROUND_COLOR))
         .add_startup_system(setup)
-        .add_system(move_tank_system)
+        .add_system_set(
+            SystemSet::new()
+                .with_run_criteria(FixedTimestep::step(TIME_STEP as f64))
+                .with_system(tank_move_system)
+                .with_system(bullet_move_system),
+        )
+        .add_system(tank_attack_system)
         .add_system(tank_animate_system)
         .add_system(shield_animate_system)
         .add_system(shield_remove_system)
@@ -35,8 +43,14 @@ fn setup(
     commands.spawn(Camera2dBundle::default());
 
     let shield_texture_handle = asset_server.load("textures/shield.bmp");
-    let shield_texture_atlas =
-        TextureAtlas::from_grid(shield_texture_handle, Vec2::new(30.0, 30.0), 1, 2, None, None);
+    let shield_texture_atlas = TextureAtlas::from_grid(
+        shield_texture_handle,
+        Vec2::new(30.0, 30.0),
+        1,
+        2,
+        None,
+        None,
+    );
     let shield_texture_atlas_handle = texture_atlases.add(shield_texture_atlas);
 
     let tank_texture_handle = asset_server.load("textures/tank1.bmp");
@@ -51,7 +65,10 @@ fn setup(
             texture_atlas: shield_texture_atlas_handle,
             ..default()
         })
-        .insert(AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)))
+        .insert(AnimationTimer(Timer::from_seconds(
+            0.2,
+            TimerMode::Repeating,
+        )))
         .insert(ShieldRemoveTimer(Timer::from_seconds(5.0, TimerMode::Once)))
         .id();
 
@@ -66,7 +83,14 @@ fn setup(
             },
             ..default()
         })
-        .insert(AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)))
+        .insert(AnimationTimer(Timer::from_seconds(
+            0.2,
+            TimerMode::Repeating,
+        )))
+        .insert(TankRefreshBulletTimer(Timer::from_seconds(
+            TANK_REFRESH_BULLET_INTERVAL,
+            TimerMode::Once,
+        )))
         .insert(Collider)
         .insert(common::Direction::Up)
         .id();
