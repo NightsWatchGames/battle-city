@@ -1,12 +1,14 @@
 mod bullet;
 mod collision;
 mod common;
+mod map;
 mod tank;
 mod wall;
 
 use bullet::*;
 use collision::*;
 use common::*;
+use map::*;
 use tank::*;
 use wall::*;
 
@@ -29,6 +31,7 @@ fn main() {
         .add_system(tank_animate_system)
         .add_system(shield_animate_system)
         .add_system(shield_remove_system)
+        .add_system(water_animate_system)
         .add_system(bevy::window::close_on_esc)
         .run();
 }
@@ -102,4 +105,34 @@ fn setup(
     commands.spawn(WallBundle::new(WallLocation::Right));
     commands.spawn(WallBundle::new(WallLocation::Bottom));
     commands.spawn(WallBundle::new(WallLocation::Top));
+
+    // 地图项
+    spawn_map_item(
+        &mut commands,
+        &asset_server,
+        &mut texture_atlases,
+        Vec3::new(0.0, BOTTOM_WALL + 300.0, 0.0),
+        MapItem::Home,
+    );
+    spawn_map_item(
+        &mut commands,
+        &asset_server,
+        &mut texture_atlases,
+        Vec3::new(0.0, BOTTOM_WALL + 350.0, 0.0),
+        MapItem::Tree,
+    );
+    spawn_map_item(
+        &mut commands,
+        &asset_server,
+        &mut texture_atlases,
+        Vec3::new(0.0, BOTTOM_WALL + 400.0, 0.0),
+        MapItem::Water,
+    );
+    spawn_map_item(
+        &mut commands,
+        &asset_server,
+        &mut texture_atlases,
+        Vec3::new(0.0, BOTTOM_WALL + 450.0, 0.0),
+        MapItem::IronWall,
+    );
 }

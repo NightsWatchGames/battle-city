@@ -18,7 +18,7 @@ pub fn spawn_bullet(
 ) {
     let bullet_texture_handle = asset_server.load("textures/bullet.bmp");
     let bullet_texture_atlas =
-        TextureAtlas::from_grid(bullet_texture_handle, Vec2::new(7.0, 8.0), 1, 4, None, None);
+        TextureAtlas::from_grid(bullet_texture_handle, Vec2::new(7.0, 8.0), 4, 1, None, None);
     let bullet_texture_atlas_handle = texture_atlases.add(bullet_texture_atlas);
 
     commands

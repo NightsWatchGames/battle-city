@@ -89,16 +89,16 @@ pub fn tank_animate_system(
             let sprites_each_direction = texture_atlas.len() / 4;
             match direction {
                 common::Direction::Up => {
-                    sprite.index = (sprite.index + 1) % 2 + sprites_each_direction * 0;
+                    sprite.index = (sprite.index + 1) % sprites_each_direction + sprites_each_direction * 0;
                 },
                 common::Direction::Right => {
-                    sprite.index = (sprite.index + 1) % 2 + sprites_each_direction * 1;
+                    sprite.index = (sprite.index + 1) % sprites_each_direction + sprites_each_direction * 1;
                 },
                 common::Direction::Down => {
-                    sprite.index = (sprite.index + 1) % 2 + sprites_each_direction * 2;
+                    sprite.index = (sprite.index + 1) % sprites_each_direction + sprites_each_direction * 2;
                 },
                 common::Direction::Left => {
-                    sprite.index = (sprite.index + 1) % 2 + sprites_each_direction * 3;
+                    sprite.index = (sprite.index + 1) % sprites_each_direction + sprites_each_direction * 3;
                 },
             }
         }
