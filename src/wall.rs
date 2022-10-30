@@ -1,5 +1,3 @@
-use crate::collision::*;
-
 use bevy::prelude::*;
 
 
@@ -13,8 +11,9 @@ pub const TOP_WALL: f32 = 300.;
 // 墙壁bundle
 #[derive(Bundle)]
 pub struct WallBundle {
+    #[bundle]
     sprite_bundle: SpriteBundle,  // 嵌套bundle
-    collider: Collider,
+    // collider: Collider,
 }
 
 // 墙壁位置
@@ -68,7 +67,7 @@ impl WallBundle {
                 },
                 ..default()
             },
-            collider: Collider,
+            // collider: Collider,
         }
     }
 }

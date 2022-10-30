@@ -1,8 +1,8 @@
-use crate::common;
-use crate::common::*;
+use crate::common::{self, *};
 use crate::wall::*;
 
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::*;
 
 // 地图项
 #[derive(Component, Clone, PartialEq)]
@@ -19,9 +19,6 @@ pub enum MapItem {
     Home,
 }
 
-#[derive(Component)]
-pub struct IronWall;
-
 pub fn spawn_map_item(
     commands: &mut Commands,
     asset_server: &Res<AssetServer>,
@@ -31,11 +28,12 @@ pub fn spawn_map_item(
 ) {
     let map_texture_handle = asset_server.load("textures/map.bmp");
     let map_texture_atlas =
-        TextureAtlas::from_grid(map_texture_handle, Vec2::new(32.0, 32.0), 7, 1, None, None);
+        TextureAtlas::from_grid(map_texture_handle, Vec2::new(32.0, 32.0), 7, 1);
     let map_texture_atlas_handle = texture_atlases.add(map_texture_atlas);
 
     let map_item_entity = commands
-        .spawn(SpriteSheetBundle {
+        .spawn()
+        .insert_bundle(SpriteSheetBundle {
             texture_atlas: map_texture_atlas_handle,
             sprite: TextureAtlasSprite {
                 index: match map_item {
@@ -61,8 +59,14 @@ pub fn spawn_map_item(
             .entity(map_item_entity)
             .insert(AnimationTimer(Timer::from_seconds(
                 0.5,
-                TimerMode::Repeating,
+                true
             )));
+    }
+    if map_item == MapItem::IronWall {
+        commands
+            .entity(map_item_entity)
+            .insert(Collider::cuboid(32.0, 32.0))
+            .insert(Sensor);
     }
 }
 

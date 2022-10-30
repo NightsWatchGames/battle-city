@@ -1,9 +1,9 @@
 use crate::bullet::spawn_bullet;
-use crate::common::*;
 use crate::wall::*;
-use crate::common;
+use crate::common::{self, *, Direction};
 
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::*;
 
 pub const TANK_SIZE: Vec2 = Vec2::new(80.0, 80.0);
 pub const TANK_SPEED: f32 = 200.0;
@@ -17,6 +17,15 @@ pub const TANK_REFRESH_BULLET_INTERVAL: f32 = 2.0;
 #[derive(Component)]
 pub struct Tank;
 
+// 可移动方向
+#[derive(Component)]
+pub struct Movable {
+    pub can_up: bool,
+    pub can_down: bool,
+    pub can_left: bool,
+    pub can_right: bool,
+}
+
 // 坦克刷新子弹计时器
 #[derive(Component, Deref, DerefMut)]
 pub struct TankRefreshBulletTimer(pub Timer);
@@ -29,12 +38,34 @@ pub struct Shield;
 #[derive(Component, Deref, DerefMut)]
 pub struct ShieldRemoveTimer(pub Timer);
 
+impl Movable {
+    fn enable_all(&mut self) {
+        self.can_up = true;
+        self.can_down = true;
+        self.can_left = true;
+        self.can_right = true;
+    }
+    fn disable_except(&mut self, direction: common::Direction) {
+        self.can_up = false;
+        self.can_down = false;
+        self.can_left = false;
+        self.can_right = false;
+
+        match direction {
+            common::Direction::Up => { self.can_up = true },
+            common::Direction::Down => { self.can_down = true },
+            common::Direction::Left => { self.can_left = true },
+            common::Direction::Right => { self.can_right = true },
+        }
+    }
+}
+
 // 移动坦克
 pub fn tank_move_system(
     keyboard_input: Res<Input<KeyCode>>,
-    mut transform_query: Query<(&mut Transform, &mut common::Direction), With<Tank>>,
+    mut transform_query: Query<(&mut Transform, &mut common::Direction, &Movable), With<Tank>>,
 ) {
-    let (mut tank_transform, mut direction) = transform_query.single_mut();
+    let (mut tank_transform, mut direction, movable) = transform_query.single_mut();
 
     let mut tank_x_position = tank_transform.translation.x;
     let mut tank_y_position = tank_transform.translation.y;
@@ -42,17 +73,25 @@ pub fn tank_move_system(
     // 一次只能移动一个方向
     // 根据速度时间计算新坐标
     if keyboard_input.pressed(KeyCode::Left) {
-        tank_x_position -= 1.0 * TANK_SPEED * TIME_STEP;
-        *direction = common::Direction::Left;
+        if movable.can_left {
+            tank_x_position -= 1.0 * TANK_SPEED * TIME_STEP;
+            *direction = common::Direction::Left;
+        }
     } else if keyboard_input.pressed(KeyCode::Right) {
-        tank_x_position += 1.0 * TANK_SPEED * TIME_STEP;
-        *direction = common::Direction::Right;
+        if movable.can_right {
+            tank_x_position += 1.0 * TANK_SPEED * TIME_STEP;
+            *direction = common::Direction::Right;
+        }
     } else if keyboard_input.pressed(KeyCode::Up) {
-        tank_y_position += 1.0 * TANK_SPEED * TIME_STEP;
-        *direction = common::Direction::Up;
+        if movable.can_up {
+            tank_y_position += 1.0 * TANK_SPEED * TIME_STEP;
+            *direction = common::Direction::Up;
+        }
     } else if keyboard_input.pressed(KeyCode::Down) {
-        tank_y_position -= 1.0 * TANK_SPEED * TIME_STEP;
-        *direction = common::Direction::Down;
+        if movable.can_down {
+            tank_y_position -= 1.0 * TANK_SPEED * TIME_STEP;
+            *direction = common::Direction::Down;
+        }
     } else {
         return;
     }
@@ -123,7 +162,38 @@ pub fn tank_attack_system(
             }
         }
     }
+}
 
+// 坦克碰撞
+pub fn tank_collision_system(mut collision_events: EventReader<CollisionEvent>, mut query: Query<(Entity, &mut Movable, &common::Direction), With<Tank>>) {
+    for (entity, mut movable, direction) in &mut query {
+        for event in collision_events.iter() {
+            match event {
+                CollisionEvent::Started(entity1, entity2, flags) => {
+                    println!("tank: {:?}, collision entity1: {:?}, entity2: {:?}", entity, entity1, entity2);
+                    if entity == *entity1 || entity == *entity2 {
+                        match direction {
+                            common::Direction::Up => { movable.disable_except(common::Direction::Down) },
+                            common::Direction::Down => { movable.disable_except(common::Direction::Up) },
+                            common::Direction::Left => { movable.disable_except(common::Direction::Right) },
+                            common::Direction::Right => { movable.disable_except(common::Direction::Left) },
+                        }
+                    }
+                },
+                CollisionEvent::Stopped(entity1, entity2, flags) => {
+                    println!("tank: {:?}, collision entity1: {:?}, entity2: {:?}", entity, entity1, entity2);
+                    if entity == *entity1 || entity == *entity2 {
+                        match direction {
+                            common::Direction::Up => { movable.enable_all() },
+                            common::Direction::Down => { movable.enable_all() },
+                            common::Direction::Left => { movable.enable_all() },
+                            common::Direction::Right => { movable.enable_all() },
+                        }
+                    }
+                },
+            }
+        }
+    }
 }
 
 // 保护盾动画播放

@@ -1,4 +1,4 @@
-use crate::common;
+use crate::common::{self, *};
 use crate::common::*;
 use crate::wall::*;
 
@@ -18,12 +18,13 @@ pub fn spawn_bullet(
 ) {
     let bullet_texture_handle = asset_server.load("textures/bullet.bmp");
     let bullet_texture_atlas =
-        TextureAtlas::from_grid(bullet_texture_handle, Vec2::new(7.0, 8.0), 4, 1, None, None);
+        TextureAtlas::from_grid(bullet_texture_handle, Vec2::new(7.0, 8.0), 4, 1);
     let bullet_texture_atlas_handle = texture_atlases.add(bullet_texture_atlas);
 
     commands
-        .spawn(Bullet)
-        .insert(SpriteSheetBundle {
+        .spawn()
+        .insert(Bullet)
+        .insert_bundle(SpriteSheetBundle {
             texture_atlas: bullet_texture_atlas_handle,
             sprite: TextureAtlasSprite { 
                 index: match direction {
