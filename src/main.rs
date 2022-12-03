@@ -13,6 +13,7 @@ use wall::*;
 use bevy::{prelude::*, time::FixedTimestep};
 use bevy_ecs_tilemap::prelude::*;
 use bevy_rapier2d::prelude::*;
+use bevy_inspector_egui::prelude::*;
 
 const BACKGROUND_COLOR: Color = Color::BLACK;
 
@@ -22,6 +23,7 @@ fn main() {
         .add_plugin(TilemapPlugin)
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
         .add_plugin(RapierDebugRenderPlugin::default())
+        // .add_plugin(WorldInspectorPlugin::new())
         .insert_resource(ClearColor(BACKGROUND_COLOR))
         .add_startup_system(setup)
         .add_system_set(
@@ -50,35 +52,33 @@ fn setup(
 ) {
     rapier_config.gravity = Vec2::ZERO;
     // 相机
-    commands.spawn_bundle(Camera2dBundle::default());
+    commands.spawn(Camera2dBundle::default());
 
     let shield_texture_handle = asset_server.load("textures/shield.bmp");
     let shield_texture_atlas =
-        TextureAtlas::from_grid(shield_texture_handle, Vec2::new(30.0, 30.0), 1, 2);
+        TextureAtlas::from_grid(shield_texture_handle, Vec2::new(30.0, 30.0), 1, 2, None, None);
     let shield_texture_atlas_handle = texture_atlases.add(shield_texture_atlas);
 
     let tank_texture_handle = asset_server.load("textures/tank1.bmp");
     let tank_texture_atlas =
-        TextureAtlas::from_grid(tank_texture_handle, Vec2::new(28.0, 28.0), 2, 4);
+        TextureAtlas::from_grid(tank_texture_handle, Vec2::new(28.0, 28.0), 2, 4, None, None);
     let tank_texture_atlas_handle = texture_atlases.add(tank_texture_atlas);
 
     // 保护盾
     let shield = commands
-        .spawn()
-        .insert(Shield)
-        .insert_bundle(SpriteSheetBundle {
+        .spawn(Shield)
+        .insert(SpriteSheetBundle {
             texture_atlas: shield_texture_atlas_handle,
             ..default()
         })
-        .insert(AnimationTimer(Timer::from_seconds(0.2, true)))
-        .insert(ShieldRemoveTimer(Timer::from_seconds(5.0, true)))
+        .insert(AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)))
+        .insert(ShieldRemoveTimer(Timer::from_seconds(5.0, TimerMode::Repeating)))
         .id();
 
     // 坦克
     let tank = commands
-        .spawn()
-        .insert(Tank)
-        .insert_bundle(SpriteSheetBundle {
+        .spawn(Tank)
+        .insert(SpriteSheetBundle {
             texture_atlas: tank_texture_atlas_handle,
             transform: Transform {
                 translation: Vec3::new(0.0, BOTTOM_WALL + 100.0, 0.0),
@@ -86,10 +86,10 @@ fn setup(
             },
             ..default()
         })
-        .insert(AnimationTimer(Timer::from_seconds(0.2, true)))
+        .insert(AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)))
         .insert(TankRefreshBulletTimer(Timer::from_seconds(
             TANK_REFRESH_BULLET_INTERVAL,
-            true,
+            TimerMode::Repeating,
         )))
         .insert(common::Direction::Up)
         .insert(RigidBody::Dynamic)
@@ -103,17 +103,13 @@ fn setup(
 
     // 墙壁
     commands
-        .spawn()
-        .insert_bundle(WallBundle::new(WallLocation::Left));
+        .spawn(WallBundle::new(WallLocation::Left));
     commands
-        .spawn()
-        .insert_bundle(WallBundle::new(WallLocation::Right));
+        .spawn(WallBundle::new(WallLocation::Right));
     commands
-        .spawn()
-        .insert_bundle(WallBundle::new(WallLocation::Bottom));
+        .spawn(WallBundle::new(WallLocation::Bottom));
     commands
-        .spawn()
-        .insert_bundle(WallBundle::new(WallLocation::Top));
+        .spawn(WallBundle::new(WallLocation::Top));
 
     // 地图项
     spawn_map_item(
@@ -146,7 +142,7 @@ fn setup(
     );
 
     commands
-        .spawn_bundle(TransformBundle::from(Transform::from_xyz(200.0, 100.0, 0.0)))
+        .spawn(TransformBundle::from(Transform::from_xyz(200.0, 100.0, 0.0)))
         .insert(Sensor)
         .insert(Collider::cuboid(80.0, 30.0));
 }

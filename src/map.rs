@@ -28,12 +28,11 @@ pub fn spawn_map_item(
 ) {
     let map_texture_handle = asset_server.load("textures/map.bmp");
     let map_texture_atlas =
-        TextureAtlas::from_grid(map_texture_handle, Vec2::new(32.0, 32.0), 7, 1);
+        TextureAtlas::from_grid(map_texture_handle, Vec2::new(32.0, 32.0), 7, 1, None, None);
     let map_texture_atlas_handle = texture_atlases.add(map_texture_atlas);
 
     let map_item_entity = commands
-        .spawn()
-        .insert_bundle(SpriteSheetBundle {
+        .spawn(SpriteSheetBundle {
             texture_atlas: map_texture_atlas_handle,
             sprite: TextureAtlasSprite {
                 index: match map_item {
@@ -59,7 +58,7 @@ pub fn spawn_map_item(
             .entity(map_item_entity)
             .insert(AnimationTimer(Timer::from_seconds(
                 0.5,
-                true
+                TimerMode::Repeating
             )));
     }
     if map_item == MapItem::IronWall {

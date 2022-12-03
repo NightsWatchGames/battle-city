@@ -229,7 +229,7 @@ pub fn shield_remove_system(
         timer.tick(time.delta());
 
         if timer.just_finished() {
-            commands.entity(entity).despawn();
+            commands.entity(entity);
         }
     }
 }
