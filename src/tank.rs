@@ -221,6 +221,12 @@ pub fn tank_attack(
                         },
                         ..default()
                     })
+                    .insert((
+                        Collider::cuboid(2.0, 2.0),
+                        Sensor,
+                        RigidBody::Dynamic,
+                        ActiveEvents::COLLISION_EVENTS
+                    ))
                     .insert(direction.clone());
                 refresh_bullet_timer.reset();
             }
@@ -244,16 +250,16 @@ pub fn check_tank_collision(
                     if entity == *entity1 || entity == *entity2 {
                         match direction {
                             common::Direction::Up => {
-                                movable.disable_except(common::Direction::Down)
+                                movable.can_up = false;
                             }
                             common::Direction::Down => {
-                                movable.disable_except(common::Direction::Up)
+                                movable.can_down = false;
                             }
                             common::Direction::Left => {
-                                movable.disable_except(common::Direction::Right)
+                                movable.can_left = false;
                             }
                             common::Direction::Right => {
-                                movable.disable_except(common::Direction::Left)
+                                movable.can_right = false;
                             }
                         }
                     }

@@ -61,7 +61,7 @@ pub fn spawn_map_item(
                 TimerMode::Repeating
             )));
     }
-    if map_item == MapItem::IronWall {
+    if map_item == MapItem::IronWall || map_item == MapItem::Home {
         commands
             .entity(map_item_entity)
             .insert(Collider::cuboid(18.0, 18.0))
