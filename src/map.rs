@@ -64,13 +64,13 @@ pub fn spawn_map_item(
     if map_item == MapItem::IronWall {
         commands
             .entity(map_item_entity)
-            .insert(Collider::cuboid(32.0, 32.0))
+            .insert(Collider::cuboid(18.0, 18.0))
             .insert(Sensor);
     }
 }
 
 // 水动画播放
-pub fn water_animate_system(
+pub fn animate_water(
     time: Res<Time>,
     mut query: Query<(
         &mut AnimationTimer,

@@ -1,6 +1,6 @@
-use crate::bullet::spawn_bullet;
+use crate::bullet::*;
+use crate::common::{self, *};
 use crate::wall::*;
-use crate::common::{self, *, Direction};
 
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -52,24 +52,33 @@ impl Movable {
         self.can_right = false;
 
         match direction {
-            common::Direction::Up => { self.can_up = true },
-            common::Direction::Down => { self.can_down = true },
-            common::Direction::Left => { self.can_left = true },
-            common::Direction::Right => { self.can_right = true },
+            common::Direction::Up => self.can_up = true,
+            common::Direction::Down => self.can_down = true,
+            common::Direction::Left => self.can_left = true,
+            common::Direction::Right => self.can_right = true,
         }
     }
 }
 
 // 移动坦克
-pub fn tank_move_system(
+pub fn move_tank(
     keyboard_input: Res<Input<KeyCode>>,
-    mut transform_query: Query<(&mut Transform, &mut common::Direction, &Movable), With<Tank>>,
+    mut transform_query: Query<
+        (
+            &mut Transform,
+            &mut common::Direction,
+            &Movable,
+            &mut TextureAtlasSprite,
+        ),
+        With<Tank>,
+    >,
 ) {
-    let (mut tank_transform, mut direction, movable) = transform_query.single_mut();
+    let (mut tank_transform, mut direction, movable, mut sprite) = transform_query.single_mut();
 
     let mut tank_x_position = tank_transform.translation.x;
     let mut tank_y_position = tank_transform.translation.y;
 
+    let ori_direction = direction.clone();
     // 一次只能移动一个方向
     // 根据速度时间计算新坐标
     if keyboard_input.pressed(KeyCode::Left) {
@@ -96,7 +105,24 @@ pub fn tank_move_system(
         return;
     }
 
-    // 区域边界，确保坦克不会超出边界
+    if direction.clone() != ori_direction {
+        match *direction {
+            common::Direction::Up => {
+                sprite.index = 0;
+            }
+            common::Direction::Right => {
+                sprite.index = 2;
+            }
+            common::Direction::Down => {
+                sprite.index = 4;
+            }
+            common::Direction::Left => {
+                sprite.index = 6;
+            }
+        }
+    }
+
+    // TODO 利用碰撞   区域边界，确保坦克不会超出边界
     let left_bound = LEFT_WALL + WALL_THICKNESS / 2.0 + TANK_SIZE.x / 2.0 + TANK_PADDING;
     let right_bound = RIGHT_WALL - WALL_THICKNESS / 2.0 - TANK_SIZE.x / 2.0 - TANK_PADDING;
     let bottom_bound = BOTTOM_WALL + WALL_THICKNESS / 2.0 + TANK_SIZE.x / 2.0 + TANK_PADDING;
@@ -106,7 +132,7 @@ pub fn tank_move_system(
 }
 
 // 坦克移动动画播放
-pub fn tank_animate_system(
+pub fn animate_tank(
     time: Res<Time>,
     texture_atlases: Res<Assets<TextureAtlas>>,
     mut query: Query<
@@ -128,24 +154,28 @@ pub fn tank_animate_system(
             let sprites_each_direction = texture_atlas.len() / 4;
             match direction {
                 common::Direction::Up => {
-                    sprite.index = (sprite.index + 1) % sprites_each_direction + sprites_each_direction * 0;
-                },
+                    sprite.index =
+                        (sprite.index + 1) % sprites_each_direction + sprites_each_direction * 0;
+                }
                 common::Direction::Right => {
-                    sprite.index = (sprite.index + 1) % sprites_each_direction + sprites_each_direction * 1;
-                },
+                    sprite.index =
+                        (sprite.index + 1) % sprites_each_direction + sprites_each_direction * 1;
+                }
                 common::Direction::Down => {
-                    sprite.index = (sprite.index + 1) % sprites_each_direction + sprites_each_direction * 2;
-                },
+                    sprite.index =
+                        (sprite.index + 1) % sprites_each_direction + sprites_each_direction * 2;
+                }
                 common::Direction::Left => {
-                    sprite.index = (sprite.index + 1) % sprites_each_direction + sprites_each_direction * 3;
-                },
+                    sprite.index =
+                        (sprite.index + 1) % sprites_each_direction + sprites_each_direction * 3;
+                }
             }
         }
     }
 }
 
 // 坦克攻击
-pub fn tank_attack_system(
+pub fn tank_attack(
     keyboard_input: Res<Input<KeyCode>>,
     mut query: Query<(&Transform, &common::Direction, &mut TankRefreshBulletTimer), With<Tank>>,
     time: Res<Time>,
@@ -155,9 +185,43 @@ pub fn tank_attack_system(
 ) {
     for (transform, direction, mut refresh_bullet_timer) in &mut query {
         refresh_bullet_timer.tick(time.delta());
-        if keyboard_input.pressed(KeyCode::Space) {
+        if keyboard_input.just_pressed(KeyCode::Space) {
             if refresh_bullet_timer.finished() {
-                spawn_bullet(&mut commands, &asset_server, &mut texture_atlases, direction.clone(), transform);
+                let bullet_texture_handle = asset_server.load("textures/bullet.bmp");
+                let bullet_texture_atlas = TextureAtlas::from_grid(
+                    bullet_texture_handle,
+                    Vec2::new(7.0, 8.0),
+                    4,
+                    1,
+                    None,
+                    None,
+                );
+                let bullet_texture_atlas_handle = texture_atlases.add(bullet_texture_atlas);
+
+                commands
+                    .spawn(Bullet)
+                    .insert(SpriteSheetBundle {
+                        texture_atlas: bullet_texture_atlas_handle,
+                        sprite: TextureAtlasSprite {
+                            index: match direction {
+                                common::Direction::Up => 0,
+                                common::Direction::Right => 1,
+                                common::Direction::Down => 2,
+                                common::Direction::Left => 3,
+                            },
+                            ..default()
+                        },
+                        transform: Transform {
+                            translation: Vec3::new(
+                                transform.translation.x,
+                                transform.translation.y,
+                                transform.translation.z,
+                            ),
+                            ..default()
+                        },
+                        ..default()
+                    })
+                    .insert(direction.clone());
                 refresh_bullet_timer.reset();
             }
         }
@@ -165,39 +229,53 @@ pub fn tank_attack_system(
 }
 
 // 坦克碰撞
-pub fn tank_collision_system(mut collision_events: EventReader<CollisionEvent>, mut query: Query<(Entity, &mut Movable, &common::Direction), With<Tank>>) {
+pub fn check_tank_collision(
+    mut collision_events: EventReader<CollisionEvent>,
+    mut query: Query<(Entity, &mut Movable, &common::Direction), With<Tank>>,
+) {
     for (entity, mut movable, direction) in &mut query {
         for event in collision_events.iter() {
             match event {
                 CollisionEvent::Started(entity1, entity2, flags) => {
-                    println!("tank: {:?}, collision entity1: {:?}, entity2: {:?}", entity, entity1, entity2);
+                    println!(
+                        "tank: {:?}, collision entity1: {:?}, entity2: {:?}",
+                        entity, entity1, entity2
+                    );
                     if entity == *entity1 || entity == *entity2 {
                         match direction {
-                            common::Direction::Up => { movable.disable_except(common::Direction::Down) },
-                            common::Direction::Down => { movable.disable_except(common::Direction::Up) },
-                            common::Direction::Left => { movable.disable_except(common::Direction::Right) },
-                            common::Direction::Right => { movable.disable_except(common::Direction::Left) },
+                            common::Direction::Up => {
+                                movable.disable_except(common::Direction::Down)
+                            }
+                            common::Direction::Down => {
+                                movable.disable_except(common::Direction::Up)
+                            }
+                            common::Direction::Left => {
+                                movable.disable_except(common::Direction::Right)
+                            }
+                            common::Direction::Right => {
+                                movable.disable_except(common::Direction::Left)
+                            }
                         }
                     }
-                },
+                }
                 CollisionEvent::Stopped(entity1, entity2, flags) => {
-                    println!("tank: {:?}, collision entity1: {:?}, entity2: {:?}", entity, entity1, entity2);
+                    println!(
+                        "tank: {:?}, collision entity1: {:?}, entity2: {:?}",
+                        entity, entity1, entity2
+                    );
                     if entity == *entity1 || entity == *entity2 {
                         match direction {
-                            common::Direction::Up => { movable.enable_all() },
-                            common::Direction::Down => { movable.enable_all() },
-                            common::Direction::Left => { movable.enable_all() },
-                            common::Direction::Right => { movable.enable_all() },
+                            _ => movable.enable_all(),
                         }
                     }
-                },
+                }
             }
         }
     }
 }
 
 // 保护盾动画播放
-pub fn shield_animate_system(
+pub fn animate_shield(
     time: Res<Time>,
     texture_atlases: Res<Assets<TextureAtlas>>,
     mut query: Query<
@@ -220,7 +298,7 @@ pub fn shield_animate_system(
 }
 
 // 移除保护盾
-pub fn shield_remove_system(
+pub fn remove_shield(
     mut commands: Commands,
     time: Res<Time>,
     mut query: Query<(Entity, &mut ShieldRemoveTimer), With<Shield>>,
@@ -228,8 +306,8 @@ pub fn shield_remove_system(
     for (entity, mut timer) in query.iter_mut() {
         timer.tick(time.delta());
 
-        if timer.just_finished() {
-            commands.entity(entity);
+        if timer.finished() {
+            commands.entity(entity).despawn();
         }
     }
 }

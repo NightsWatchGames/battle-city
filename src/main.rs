@@ -29,16 +29,17 @@ fn main() {
         .add_system_set(
             SystemSet::new()
                 .with_run_criteria(FixedTimestep::step(TIME_STEP as f64))
-                .with_system(tank_move_system)
-                .with_system(bullet_move_system),
+                .with_system(move_tank)
+                .with_system(move_bullet),
         )
-        .add_system(tank_attack_system)
-        .add_system(tank_animate_system)
-        .add_system(shield_animate_system)
-        .add_system(shield_remove_system)
-        .add_system(water_animate_system)
+        .add_system(tank_attack)
+        .add_system(animate_tank)
+        .add_system(animate_shield)
+        .add_system(remove_shield)
+        .add_system(animate_water)
         .add_system_to_stage(CoreStage::PostUpdate, display_events)
-        .add_system_to_stage(CoreStage::PostUpdate, tank_collision_system)
+        .add_system_to_stage(CoreStage::PostUpdate, check_tank_collision)
+        .add_system_to_stage(CoreStage::PostUpdate, check_bullet_collision)
         .add_system(bevy::window::close_on_esc)
         .run();
 }
@@ -72,7 +73,7 @@ fn setup(
             ..default()
         })
         .insert(AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)))
-        .insert(ShieldRemoveTimer(Timer::from_seconds(5.0, TimerMode::Repeating)))
+        .insert(ShieldRemoveTimer(Timer::from_seconds(5.0, TimerMode::Once)))
         .id();
 
     // 坦克
@@ -89,11 +90,11 @@ fn setup(
         .insert(AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)))
         .insert(TankRefreshBulletTimer(Timer::from_seconds(
             TANK_REFRESH_BULLET_INTERVAL,
-            TimerMode::Repeating,
+            TimerMode::Once,
         )))
         .insert(common::Direction::Up)
         .insert(RigidBody::Dynamic)
-        .insert(Collider::cuboid(28.0, 28.0))
+        .insert(Collider::cuboid(18.0, 18.0))
         .insert(ActiveEvents::COLLISION_EVENTS)
         .insert(Sensor)
         .insert(Movable{can_up: true, can_down: true, can_left: true, can_right: true})

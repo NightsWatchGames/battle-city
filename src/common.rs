@@ -4,7 +4,7 @@ use bevy::prelude::*;
 pub const TIME_STEP: f32 = 1.0 / 60.0;
 
 // 方向
-#[derive(Component, Clone)]
+#[derive(Component, Clone, PartialEq, Eq)]
 pub enum Direction {
     Left,
     Right,

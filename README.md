@@ -1,5 +1,7 @@
 # tank-war
 坦克大战游戏。
+- [ ] 场景保存和载入
+- [ ] 支持手柄、键盘
 
 阅读
 - https://mbuffett.com/posts/bevy-snake-tutorial/
