@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 
-
 pub const WALL_THICKNESS: f32 = 10.0;
 // 墙壁x轴和y轴坐标
 pub const LEFT_WALL: f32 = -450.;
@@ -12,8 +11,8 @@ pub const TOP_WALL: f32 = 300.;
 #[derive(Bundle)]
 pub struct WallBundle {
     #[bundle]
-    sprite_bundle: SpriteBundle,  // 嵌套bundle
-    // collider: Collider,
+    sprite_bundle: SpriteBundle, // 嵌套bundle
+                                 // collider: Collider,
 }
 
 // 墙壁位置
@@ -57,8 +56,8 @@ impl WallBundle {
         WallBundle {
             sprite_bundle: SpriteBundle {
                 transform: Transform {
-                    translation: location.position().extend(0.0),  // z轴坐标0
-                    scale: location.size().extend(1.0),  // https://github.com/bevyengine/bevy/issues/4149
+                    translation: location.position().extend(0.0), // z轴坐标0
+                    scale: location.size().extend(1.0), // https://github.com/bevyengine/bevy/issues/4149
                     ..default()
                 },
                 sprite: Sprite {
