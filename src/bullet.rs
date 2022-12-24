@@ -11,21 +11,45 @@ pub const BULLET_SPEED: f32 = 300.0;
 pub struct Bullet;
 
 // 炮弹移动
-// TODO 撞墙消失
-pub fn move_bullet(mut transform_query: Query<(&mut Transform, &common::Direction), With<Bullet>>) {
-    for (mut bullet_transform, direction) in &mut transform_query {
+// 撞墙消失
+pub fn move_bullet(
+    mut commands: Commands,
+    mut transform_query: Query<(Entity, &mut Transform, &common::Direction), With<Bullet>>,
+) {
+    let bullet_movement = 1.0 * BULLET_SPEED * TIME_STEP;
+    for (entity, mut bullet_transform, direction) in &mut transform_query {
         match direction {
             common::Direction::Left => {
-                bullet_transform.translation.x -= 1.0 * BULLET_SPEED * TIME_STEP
+                if bullet_transform.translation.x - bullet_movement < LEFT_WALL + WALL_THICKNESS {
+                    bullet_transform.translation.x = LEFT_WALL + WALL_THICKNESS;
+                    commands.entity(entity).despawn();
+                } else {
+                    bullet_transform.translation.x -= bullet_movement
+                }
             }
             common::Direction::Right => {
-                bullet_transform.translation.x += 1.0 * BULLET_SPEED * TIME_STEP
+                if bullet_transform.translation.x + bullet_movement > RIGHT_WALL - WALL_THICKNESS {
+                    bullet_transform.translation.x = RIGHT_WALL - WALL_THICKNESS;
+                    commands.entity(entity).despawn();
+                } else {
+                    bullet_transform.translation.x += bullet_movement
+                }
             }
             common::Direction::Up => {
-                bullet_transform.translation.y += 1.0 * BULLET_SPEED * TIME_STEP
+                if bullet_transform.translation.y + bullet_movement > TOP_WALL - WALL_THICKNESS {
+                    bullet_transform.translation.y = TOP_WALL - WALL_THICKNESS;
+                    commands.entity(entity).despawn();
+                } else {
+                    bullet_transform.translation.y += bullet_movement
+                }
             }
             common::Direction::Down => {
-                bullet_transform.translation.y -= 1.0 * BULLET_SPEED * TIME_STEP
+                if bullet_transform.translation.y - bullet_movement < BOTTOM_WALL + WALL_THICKNESS {
+                    bullet_transform.translation.y = BOTTOM_WALL + WALL_THICKNESS;
+                    commands.entity(entity).despawn();
+                } else {
+                    bullet_transform.translation.y -= bullet_movement
+                }
             }
         }
     }
