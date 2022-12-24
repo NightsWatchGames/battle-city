@@ -12,8 +12,8 @@ use wall::*;
 
 use bevy::{prelude::*, time::FixedTimestep};
 use bevy_ecs_tilemap::prelude::*;
-use bevy_rapier2d::prelude::*;
 use bevy_inspector_egui::prelude::*;
+use bevy_rapier2d::prelude::*;
 
 const BACKGROUND_COLOR: Color = Color::BLACK;
 
@@ -56,8 +56,14 @@ fn setup(
     commands.spawn(Camera2dBundle::default());
 
     let shield_texture_handle = asset_server.load("textures/shield.bmp");
-    let shield_texture_atlas =
-        TextureAtlas::from_grid(shield_texture_handle, Vec2::new(30.0, 30.0), 1, 2, None, None);
+    let shield_texture_atlas = TextureAtlas::from_grid(
+        shield_texture_handle,
+        Vec2::new(30.0, 30.0),
+        1,
+        2,
+        None,
+        None,
+    );
     let shield_texture_atlas_handle = texture_atlases.add(shield_texture_atlas);
 
     let tank_texture_handle = asset_server.load("textures/tank1.bmp");
@@ -72,7 +78,10 @@ fn setup(
             texture_atlas: shield_texture_atlas_handle,
             ..default()
         })
-        .insert(AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)))
+        .insert(AnimationTimer(Timer::from_seconds(
+            0.2,
+            TimerMode::Repeating,
+        )))
         .insert(ShieldRemoveTimer(Timer::from_seconds(5.0, TimerMode::Once)))
         .id();
 
@@ -87,7 +96,10 @@ fn setup(
             },
             ..default()
         })
-        .insert(AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)))
+        .insert(AnimationTimer(Timer::from_seconds(
+            0.2,
+            TimerMode::Repeating,
+        )))
         .insert(TankRefreshBulletTimer(Timer::from_seconds(
             TANK_REFRESH_BULLET_INTERVAL,
             TimerMode::Once,
@@ -97,20 +109,21 @@ fn setup(
         .insert(Collider::cuboid(18.0, 18.0))
         .insert(ActiveEvents::COLLISION_EVENTS)
         .insert(Sensor)
-        .insert(Movable{can_up: true, can_down: true, can_left: true, can_right: true})
+        .insert(Movable {
+            can_up: true,
+            can_down: true,
+            can_left: true,
+            can_right: true,
+        })
         .id();
 
     commands.entity(tank).add_child(shield);
 
     // 墙壁
-    commands
-        .spawn(WallBundle::new(WallLocation::Left));
-    commands
-        .spawn(WallBundle::new(WallLocation::Right));
-    commands
-        .spawn(WallBundle::new(WallLocation::Bottom));
-    commands
-        .spawn(WallBundle::new(WallLocation::Top));
+    commands.spawn(WallBundle::new(WallLocation::Left));
+    commands.spawn(WallBundle::new(WallLocation::Right));
+    commands.spawn(WallBundle::new(WallLocation::Bottom));
+    commands.spawn(WallBundle::new(WallLocation::Top));
 
     // 地图项
     spawn_map_item(
@@ -143,7 +156,9 @@ fn setup(
     );
 
     commands
-        .spawn(TransformBundle::from(Transform::from_xyz(200.0, 100.0, 0.0)))
+        .spawn(TransformBundle::from(Transform::from_xyz(
+            200.0, 100.0, 0.0,
+        )))
         .insert(Sensor)
         .insert(Collider::cuboid(80.0, 30.0));
 }
@@ -152,11 +167,11 @@ fn display_events(
     mut collision_events: EventReader<CollisionEvent>,
     mut contact_force_events: EventReader<ContactForceEvent>,
 ) {
-    for collision_event in collision_events.iter() {
+    for _collision_event in collision_events.iter() {
         // println!("Received collision event: {:?}", collision_event);
     }
 
-    for contact_force_event in contact_force_events.iter() {
+    for _contact_force_event in contact_force_events.iter() {
         // println!("Received contact force event: {:?}", contact_force_event);
     }
 }

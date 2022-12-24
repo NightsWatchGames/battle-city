@@ -1,6 +1,4 @@
-use crate::common::{self, *};
-use crate::wall::*;
-
+use crate::common::AnimationTimer;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
@@ -58,7 +56,7 @@ pub fn spawn_map_item(
             .entity(map_item_entity)
             .insert(AnimationTimer(Timer::from_seconds(
                 0.5,
-                TimerMode::Repeating
+                TimerMode::Repeating,
             )));
     }
     if map_item == MapItem::IronWall || map_item == MapItem::Home {
@@ -72,11 +70,7 @@ pub fn spawn_map_item(
 // 水动画播放
 pub fn animate_water(
     time: Res<Time>,
-    mut query: Query<(
-        &mut AnimationTimer,
-        &mut TextureAtlasSprite,
-        &MapItem,
-    )>,
+    mut query: Query<(&mut AnimationTimer, &mut TextureAtlasSprite, &MapItem)>,
 ) {
     for (mut timer, mut sprite, map_item) in &mut query {
         timer.tick(time.delta());

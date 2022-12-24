@@ -1,9 +1,9 @@
+use bevy::prelude::*;
+use bevy_rapier2d::prelude::*;
+
 use crate::bullet::*;
 use crate::common::{self, *};
 use crate::wall::*;
-
-use bevy::prelude::*;
-use bevy_rapier2d::prelude::*;
 
 pub const TANK_SIZE: Vec2 = Vec2::new(80.0, 80.0);
 pub const TANK_SPEED: f32 = 200.0;
@@ -225,7 +225,7 @@ pub fn tank_attack(
                         Collider::cuboid(2.0, 2.0),
                         Sensor,
                         RigidBody::Dynamic,
-                        ActiveEvents::COLLISION_EVENTS
+                        ActiveEvents::COLLISION_EVENTS,
                     ))
                     .insert(direction.clone());
                 refresh_bullet_timer.reset();
@@ -242,7 +242,7 @@ pub fn check_tank_collision(
     for (entity, mut movable, direction) in &mut query {
         for event in collision_events.iter() {
             match event {
-                CollisionEvent::Started(entity1, entity2, flags) => {
+                CollisionEvent::Started(entity1, entity2, _flags) => {
                     println!(
                         "tank: {:?}, collision entity1: {:?}, entity2: {:?}",
                         entity, entity1, entity2
@@ -264,7 +264,7 @@ pub fn check_tank_collision(
                         }
                     }
                 }
-                CollisionEvent::Stopped(entity1, entity2, flags) => {
+                CollisionEvent::Stopped(entity1, entity2, _flags) => {
                     println!(
                         "tank: {:?}, collision entity1: {:?}, entity2: {:?}",
                         entity, entity1, entity2
