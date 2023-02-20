@@ -25,6 +25,10 @@ fn main() {
         .add_plugin(RapierDebugRenderPlugin::default())
         .add_plugin(WorldInspectorPlugin::new())
         .insert_resource(ClearColor(BACKGROUND_COLOR))
+        .add_startup_system(setup_camera)
+        .add_startup_system(setup_rapier)
+        .add_startup_system(setup_wall)
+        .add_startup_system(setup_tank)
         .add_startup_system(setup)
         .add_system_set(
             SystemSet::new()
@@ -38,10 +42,17 @@ fn main() {
         .add_system(remove_shield)
         .add_system(animate_water)
         .add_system_to_stage(CoreStage::PostUpdate, display_events)
-        .add_system_to_stage(CoreStage::PostUpdate, check_tank_collision)
         .add_system_to_stage(CoreStage::PostUpdate, check_bullet_collision)
         .add_system(bevy::window::close_on_esc)
         .run();
+}
+
+fn setup_camera(mut commands: Commands) {
+    commands.spawn(Camera2dBundle::default());
+}
+
+fn setup_rapier(mut rapier_config: ResMut<RapierConfiguration>) {
+    rapier_config.gravity = Vec2::ZERO;
 }
 
 // setup系统 添加entities到世界
@@ -49,82 +60,7 @@ fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
-    mut rapier_config: ResMut<RapierConfiguration>,
 ) {
-    rapier_config.gravity = Vec2::ZERO;
-    // 相机
-    commands.spawn(Camera2dBundle::default());
-
-    let shield_texture_handle = asset_server.load("textures/shield.bmp");
-    let shield_texture_atlas = TextureAtlas::from_grid(
-        shield_texture_handle,
-        Vec2::new(30.0, 30.0),
-        1,
-        2,
-        None,
-        None,
-    );
-    let shield_texture_atlas_handle = texture_atlases.add(shield_texture_atlas);
-
-    let tank_texture_handle = asset_server.load("textures/tank1.bmp");
-    let tank_texture_atlas =
-        TextureAtlas::from_grid(tank_texture_handle, Vec2::new(28.0, 28.0), 2, 4, None, None);
-    let tank_texture_atlas_handle = texture_atlases.add(tank_texture_atlas);
-
-    // 保护盾
-    let shield = commands
-        .spawn(Shield)
-        .insert(SpriteSheetBundle {
-            texture_atlas: shield_texture_atlas_handle,
-            ..default()
-        })
-        .insert(AnimationTimer(Timer::from_seconds(
-            0.2,
-            TimerMode::Repeating,
-        )))
-        .insert(ShieldRemoveTimer(Timer::from_seconds(5.0, TimerMode::Once)))
-        .id();
-
-    // 坦克
-    let tank = commands
-        .spawn(Tank)
-        .insert(SpriteSheetBundle {
-            texture_atlas: tank_texture_atlas_handle,
-            transform: Transform {
-                translation: Vec3::new(0.0, BOTTOM_WALL + 100.0, 0.0),
-                ..default()
-            },
-            ..default()
-        })
-        .insert(AnimationTimer(Timer::from_seconds(
-            0.2,
-            TimerMode::Repeating,
-        )))
-        .insert(TankRefreshBulletTimer(Timer::from_seconds(
-            TANK_REFRESH_BULLET_INTERVAL,
-            TimerMode::Once,
-        )))
-        .insert(common::Direction::Up)
-        .insert(RigidBody::Dynamic)
-        .insert(Collider::cuboid(18.0, 18.0))
-        .insert(ActiveEvents::COLLISION_EVENTS)
-        .insert(Sensor)
-        .insert(Movable {
-            can_up: true,
-            can_down: true,
-            can_left: true,
-            can_right: true,
-        })
-        .id();
-
-    commands.entity(tank).add_child(shield);
-
-    // 墙壁
-    commands.spawn(WallBundle::new(WallLocation::Left));
-    commands.spawn(WallBundle::new(WallLocation::Right));
-    commands.spawn(WallBundle::new(WallLocation::Bottom));
-    commands.spawn(WallBundle::new(WallLocation::Top));
-
     // 地图项
     spawn_map_item(
         &mut commands,
@@ -159,7 +95,7 @@ fn setup(
         .spawn(TransformBundle::from(Transform::from_xyz(
             200.0, 100.0, 0.0,
         )))
-        .insert(Sensor)
+        .insert(RigidBody::Fixed)
         .insert(Collider::cuboid(80.0, 30.0));
 }
 

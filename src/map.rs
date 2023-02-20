@@ -63,7 +63,7 @@ pub fn spawn_map_item(
         commands
             .entity(map_item_entity)
             .insert(Collider::cuboid(18.0, 18.0))
-            .insert(Sensor);
+            .insert(RigidBody::Fixed);
     }
 }
 

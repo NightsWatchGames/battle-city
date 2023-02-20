@@ -17,15 +17,6 @@ pub const TANK_REFRESH_BULLET_INTERVAL: f32 = 2.0;
 #[derive(Component)]
 pub struct Tank;
 
-// 可移动方向
-#[derive(Component)]
-pub struct Movable {
-    pub can_up: bool,
-    pub can_down: bool,
-    pub can_left: bool,
-    pub can_right: bool,
-}
-
 // 坦克刷新子弹计时器
 #[derive(Component, Deref, DerefMut)]
 pub struct TankRefreshBulletTimer(pub Timer);
@@ -38,26 +29,68 @@ pub struct Shield;
 #[derive(Component, Deref, DerefMut)]
 pub struct ShieldRemoveTimer(pub Timer);
 
-impl Movable {
-    fn enable_all(&mut self) {
-        self.can_up = true;
-        self.can_down = true;
-        self.can_left = true;
-        self.can_right = true;
-    }
-    fn disable_except(&mut self, direction: common::Direction) {
-        self.can_up = false;
-        self.can_down = false;
-        self.can_left = false;
-        self.can_right = false;
+pub fn setup_tank(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+) {
+    let shield_texture_handle = asset_server.load("textures/shield.bmp");
+    let shield_texture_atlas = TextureAtlas::from_grid(
+        shield_texture_handle,
+        Vec2::new(30.0, 30.0),
+        1,
+        2,
+        None,
+        None,
+    );
+    let shield_texture_atlas_handle = texture_atlases.add(shield_texture_atlas);
 
-        match direction {
-            common::Direction::Up => self.can_up = true,
-            common::Direction::Down => self.can_down = true,
-            common::Direction::Left => self.can_left = true,
-            common::Direction::Right => self.can_right = true,
-        }
-    }
+    let tank_texture_handle = asset_server.load("textures/tank1.bmp");
+    let tank_texture_atlas =
+        TextureAtlas::from_grid(tank_texture_handle, Vec2::new(28.0, 28.0), 2, 4, None, None);
+    let tank_texture_atlas_handle = texture_atlases.add(tank_texture_atlas);
+
+    // 保护盾
+    let shield = commands
+        .spawn(Shield)
+        .insert(SpriteSheetBundle {
+            texture_atlas: shield_texture_atlas_handle,
+            ..default()
+        })
+        .insert(AnimationTimer(Timer::from_seconds(
+            0.2,
+            TimerMode::Repeating,
+        )))
+        .insert(ShieldRemoveTimer(Timer::from_seconds(5.0, TimerMode::Once)))
+        .id();
+
+    // 坦克
+    let tank = commands
+        .spawn(Tank)
+        .insert(SpriteSheetBundle {
+            texture_atlas: tank_texture_atlas_handle,
+            transform: Transform {
+                translation: Vec3::new(0.0, BOTTOM_WALL + 100.0, 0.0),
+                ..default()
+            },
+            ..default()
+        })
+        .insert(AnimationTimer(Timer::from_seconds(
+            0.2,
+            TimerMode::Repeating,
+        )))
+        .insert(TankRefreshBulletTimer(Timer::from_seconds(
+            TANK_REFRESH_BULLET_INTERVAL,
+            TimerMode::Once,
+        )))
+        .insert(common::Direction::Up)
+        .insert(RigidBody::Dynamic)
+        .insert(Collider::cuboid(18.0, 18.0))
+        .insert(ActiveEvents::COLLISION_EVENTS)
+        .insert(LockedAxes::ROTATION_LOCKED)
+        .id();
+
+    commands.entity(tank).add_child(shield);
 }
 
 // 移动坦克
@@ -67,68 +100,59 @@ pub fn move_tank(
         (
             &mut Transform,
             &mut common::Direction,
-            &Movable,
             &mut TextureAtlasSprite,
         ),
         With<Tank>,
     >,
 ) {
-    let (mut tank_transform, mut direction, movable, mut sprite) = transform_query.single_mut();
+    for (mut tank_transform, mut direction, mut sprite) in &mut transform_query {
+        let mut tank_x_position = tank_transform.translation.x;
+        let mut tank_y_position = tank_transform.translation.y;
 
-    let mut tank_x_position = tank_transform.translation.x;
-    let mut tank_y_position = tank_transform.translation.y;
-
-    let ori_direction = direction.clone();
-    // 一次只能移动一个方向
-    // 根据速度时间计算新坐标
-    if keyboard_input.pressed(KeyCode::Left) {
-        if movable.can_left {
+        let ori_direction = direction.clone();
+        // 一次只能移动一个方向
+        // 根据速度时间计算新坐标
+        if keyboard_input.pressed(KeyCode::Left) {
             tank_x_position -= 1.0 * TANK_SPEED * TIME_STEP;
             *direction = common::Direction::Left;
-        }
-    } else if keyboard_input.pressed(KeyCode::Right) {
-        if movable.can_right {
+        } else if keyboard_input.pressed(KeyCode::Right) {
             tank_x_position += 1.0 * TANK_SPEED * TIME_STEP;
             *direction = common::Direction::Right;
-        }
-    } else if keyboard_input.pressed(KeyCode::Up) {
-        if movable.can_up {
+        } else if keyboard_input.pressed(KeyCode::Up) {
             tank_y_position += 1.0 * TANK_SPEED * TIME_STEP;
             *direction = common::Direction::Up;
-        }
-    } else if keyboard_input.pressed(KeyCode::Down) {
-        if movable.can_down {
+        } else if keyboard_input.pressed(KeyCode::Down) {
             tank_y_position -= 1.0 * TANK_SPEED * TIME_STEP;
             *direction = common::Direction::Down;
+        } else {
+            return;
         }
-    } else {
-        return;
-    }
 
-    if direction.clone() != ori_direction {
-        match *direction {
-            common::Direction::Up => {
-                sprite.index = 0;
-            }
-            common::Direction::Right => {
-                sprite.index = 2;
-            }
-            common::Direction::Down => {
-                sprite.index = 4;
-            }
-            common::Direction::Left => {
-                sprite.index = 6;
+        if direction.clone() != ori_direction {
+            match *direction {
+                common::Direction::Up => {
+                    sprite.index = 0;
+                }
+                common::Direction::Right => {
+                    sprite.index = 2;
+                }
+                common::Direction::Down => {
+                    sprite.index = 4;
+                }
+                common::Direction::Left => {
+                    sprite.index = 6;
+                }
             }
         }
-    }
 
-    // TODO 利用碰撞   区域边界，确保坦克不会超出边界
-    let left_bound = LEFT_WALL + WALL_THICKNESS / 2.0 + TANK_SIZE.x / 2.0 + TANK_PADDING;
-    let right_bound = RIGHT_WALL - WALL_THICKNESS / 2.0 - TANK_SIZE.x / 2.0 - TANK_PADDING;
-    let bottom_bound = BOTTOM_WALL + WALL_THICKNESS / 2.0 + TANK_SIZE.x / 2.0 + TANK_PADDING;
-    let top_bound = TOP_WALL - WALL_THICKNESS / 2.0 - TANK_SIZE.x / 2.0 - TANK_PADDING;
-    tank_transform.translation.x = tank_x_position.clamp(left_bound, right_bound);
-    tank_transform.translation.y = tank_y_position.clamp(bottom_bound, top_bound);
+        // TODO 利用碰撞   区域边界，确保坦克不会超出边界
+        let left_bound = LEFT_WALL + WALL_THICKNESS / 2.0 + TANK_SIZE.x / 2.0 + TANK_PADDING;
+        let right_bound = RIGHT_WALL - WALL_THICKNESS / 2.0 - TANK_SIZE.x / 2.0 - TANK_PADDING;
+        let bottom_bound = BOTTOM_WALL + WALL_THICKNESS / 2.0 + TANK_SIZE.x / 2.0 + TANK_PADDING;
+        let top_bound = TOP_WALL - WALL_THICKNESS / 2.0 - TANK_SIZE.x / 2.0 - TANK_PADDING;
+        tank_transform.translation.x = tank_x_position.clamp(left_bound, right_bound);
+        tank_transform.translation.y = tank_y_position.clamp(bottom_bound, top_bound);
+    }
 }
 
 // 坦克移动动画播放
@@ -229,52 +253,6 @@ pub fn tank_attack(
                     ))
                     .insert(direction.clone());
                 refresh_bullet_timer.reset();
-            }
-        }
-    }
-}
-
-// 坦克碰撞
-pub fn check_tank_collision(
-    mut collision_events: EventReader<CollisionEvent>,
-    mut query: Query<(Entity, &mut Movable, &common::Direction), With<Tank>>,
-) {
-    for (entity, mut movable, direction) in &mut query {
-        for event in collision_events.iter() {
-            match event {
-                CollisionEvent::Started(entity1, entity2, _flags) => {
-                    println!(
-                        "tank: {:?}, collision entity1: {:?}, entity2: {:?}",
-                        entity, entity1, entity2
-                    );
-                    if entity == *entity1 || entity == *entity2 {
-                        match direction {
-                            common::Direction::Up => {
-                                movable.can_up = false;
-                            }
-                            common::Direction::Down => {
-                                movable.can_down = false;
-                            }
-                            common::Direction::Left => {
-                                movable.can_left = false;
-                            }
-                            common::Direction::Right => {
-                                movable.can_right = false;
-                            }
-                        }
-                    }
-                }
-                CollisionEvent::Stopped(entity1, entity2, _flags) => {
-                    println!(
-                        "tank: {:?}, collision entity1: {:?}, entity2: {:?}",
-                        entity, entity1, entity2
-                    );
-                    if entity == *entity1 || entity == *entity2 {
-                        match direction {
-                            _ => movable.enable_all(),
-                        }
-                    }
-                }
             }
         }
     }

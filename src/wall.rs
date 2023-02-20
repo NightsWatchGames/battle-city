@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::Collider;
 
 pub const WALL_THICKNESS: f32 = 10.0;
 // 墙壁x轴和y轴坐标
@@ -12,7 +13,6 @@ pub const TOP_WALL: f32 = 300.;
 pub struct WallBundle {
     #[bundle]
     sprite_bundle: SpriteBundle, // 嵌套bundle
-                                 // collider: Collider,
 }
 
 // 墙壁位置
@@ -69,4 +69,11 @@ impl WallBundle {
             // collider: Collider,
         }
     }
+}
+
+pub fn setup_wall(mut commands: Commands) {
+    commands.spawn(WallBundle::new(WallLocation::Left));
+    commands.spawn(WallBundle::new(WallLocation::Right));
+    commands.spawn(WallBundle::new(WallLocation::Bottom));
+    commands.spawn(WallBundle::new(WallLocation::Top));
 }

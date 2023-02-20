@@ -1,12 +1,13 @@
 # tank-war
 坦克大战游戏。
-- [ ] 场景保存和载入
+- [ ] LDTK关卡编辑
+- [ ] LDTK关卡载入
 - [ ] 利用物理引擎进行碰撞检测
 - [ ] 支持手柄、键盘
+- [ ] 精灵动画
+- [ ] 本地多人模式
 
 阅读
-- https://mbuffett.com/posts/bevy-snake-tutorial/
-- https://caballerocoll.com/blog/bevy-chess-tutorial/
 - [Bevy Basics - Youtube](https://www.youtube.com/playlist?list=PL6uRoaCCw7GN_lJxpKS3j-KXuThRiSXc6)
 
 ## 参考资料
