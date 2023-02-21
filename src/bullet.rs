@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::common::{self, *};
-use crate::map::MapItem;
+use crate::level::LevelItem;
 use crate::wall::*;
 
 pub const BULLET_SPEED: f32 = 300.0;
@@ -60,7 +60,7 @@ pub fn check_bullet_collision(
     mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
     mut query: Query<Entity, With<Bullet>>,
-    map_item_query: Query<&MapItem>,
+    level_item_query: Query<&LevelItem>,
 ) {
     for entity in &mut query {
         for event in collision_events.iter() {
@@ -78,20 +78,20 @@ pub fn check_bullet_collision(
                         } else {
                             *entity1
                         };
-                        if map_item_query.contains(other_entity) {
-                            let map_item = map_item_query
-                                .get_component::<MapItem>(other_entity)
+                        if level_item_query.contains(other_entity) {
+                            let level_item = level_item_query
+                                .get_component::<LevelItem>(other_entity)
                                 .unwrap();
-                            match map_item {
-                                MapItem::Home => {
+                            match level_item {
+                                LevelItem::Home => {
                                     // Game Over
                                     println!("Game over");
                                 }
-                                MapItem::StoneWall => {
+                                LevelItem::StoneWall => {
                                     // 石墙消失
                                     commands.entity(other_entity).despawn();
                                 }
-                                MapItem::IronWall => {
+                                LevelItem::IronWall => {
                                     // 子弹消失
                                     commands.entity(entity).despawn();
                                 }

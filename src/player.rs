@@ -5,17 +5,14 @@ use crate::bullet::*;
 use crate::common::{self, *};
 use crate::wall::*;
 
-pub const TANK_SIZE: Vec2 = Vec2::new(80.0, 80.0);
 pub const TANK_SPEED: f32 = 200.0;
-// 坦克离墙最近距离限制
-pub const TANK_PADDING: f32 = 10.0;
 
 // 坦克刷新子弹间隔
 pub const TANK_REFRESH_BULLET_INTERVAL: f32 = 2.0;
 
-// 坦克
+// 玩家坦克
 #[derive(Component)]
-pub struct Tank;
+pub struct Player;
 
 // 坦克刷新子弹计时器
 #[derive(Component, Deref, DerefMut)]
@@ -29,7 +26,7 @@ pub struct Shield;
 #[derive(Component, Deref, DerefMut)]
 pub struct ShieldRemoveTimer(pub Timer);
 
-pub fn setup_tank(
+pub fn setup_player(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
@@ -66,7 +63,7 @@ pub fn setup_tank(
 
     // 坦克
     let tank = commands
-        .spawn(Tank)
+        .spawn(Player)
         .insert(SpriteSheetBundle {
             texture_atlas: tank_texture_atlas_handle,
             transform: Transform {
@@ -94,7 +91,7 @@ pub fn setup_tank(
 }
 
 // 移动坦克
-pub fn move_tank(
+pub fn player_move(
     keyboard_input: Res<Input<KeyCode>>,
     mut transform_query: Query<
         (
@@ -102,7 +99,7 @@ pub fn move_tank(
             &mut common::Direction,
             &mut TextureAtlasSprite,
         ),
-        With<Tank>,
+        With<Player>,
     >,
 ) {
     for (mut tank_transform, mut direction, mut sprite) in &mut transform_query {
@@ -145,13 +142,8 @@ pub fn move_tank(
             }
         }
 
-        // TODO 利用碰撞   区域边界，确保坦克不会超出边界
-        let left_bound = LEFT_WALL + WALL_THICKNESS / 2.0 + TANK_SIZE.x / 2.0 + TANK_PADDING;
-        let right_bound = RIGHT_WALL - WALL_THICKNESS / 2.0 - TANK_SIZE.x / 2.0 - TANK_PADDING;
-        let bottom_bound = BOTTOM_WALL + WALL_THICKNESS / 2.0 + TANK_SIZE.x / 2.0 + TANK_PADDING;
-        let top_bound = TOP_WALL - WALL_THICKNESS / 2.0 - TANK_SIZE.x / 2.0 - TANK_PADDING;
-        tank_transform.translation.x = tank_x_position.clamp(left_bound, right_bound);
-        tank_transform.translation.y = tank_y_position.clamp(bottom_bound, top_bound);
+        tank_transform.translation.x = tank_x_position;
+        tank_transform.translation.y = tank_y_position;
     }
 }
 
@@ -166,7 +158,7 @@ pub fn animate_tank(
             &Handle<TextureAtlas>,
             &common::Direction,
         ),
-        With<Tank>,
+        With<Player>,
     >,
 ) {
     for (mut timer, mut sprite, texture_atlas_handle, direction) in &mut query {
@@ -199,9 +191,9 @@ pub fn animate_tank(
 }
 
 // 坦克攻击
-pub fn tank_attack(
+pub fn player_attack(
     keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<(&Transform, &common::Direction, &mut TankRefreshBulletTimer), With<Tank>>,
+    mut query: Query<(&Transform, &common::Direction, &mut TankRefreshBulletTimer), With<Player>>,
     time: Res<Time>,
     mut commands: Commands,
     asset_server: Res<AssetServer>,

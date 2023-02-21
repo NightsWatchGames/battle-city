@@ -1,18 +1,18 @@
 mod bullet;
 mod common;
-mod map;
-mod tank;
+mod level;
+mod player;
 mod wall;
 
 use bullet::*;
-use common::{AnimationTimer, TIME_STEP};
-use map::*;
-use tank::*;
+use common::*;
+use level::*;
+use player::*;
 use wall::*;
 
 use bevy::{prelude::*, time::FixedTimestep};
 use bevy_ecs_tilemap::prelude::*;
-use bevy_inspector_egui::prelude::*;
+use bevy_inspector_egui::{prelude::*, quick::WorldInspectorPlugin};
 use bevy_rapier2d::prelude::*;
 
 const BACKGROUND_COLOR: Color = Color::BLACK;
@@ -23,20 +23,20 @@ fn main() {
         .add_plugin(TilemapPlugin)
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
         .add_plugin(RapierDebugRenderPlugin::default())
-        .add_plugin(WorldInspectorPlugin::new())
+        .add_plugin(WorldInspectorPlugin)
         .insert_resource(ClearColor(BACKGROUND_COLOR))
         .add_startup_system(setup_camera)
         .add_startup_system(setup_rapier)
         .add_startup_system(setup_wall)
-        .add_startup_system(setup_tank)
+        .add_startup_system(setup_player)
         .add_startup_system(setup)
         .add_system_set(
             SystemSet::new()
                 .with_run_criteria(FixedTimestep::step(TIME_STEP as f64))
-                .with_system(move_tank)
+                .with_system(player_move)
                 .with_system(move_bullet),
         )
-        .add_system(tank_attack)
+        .add_system(player_attack)
         .add_system(animate_tank)
         .add_system(animate_shield)
         .add_system(remove_shield)
@@ -62,33 +62,33 @@ fn setup(
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
     // 地图项
-    spawn_map_item(
+    spawn_level_item(
         &mut commands,
         &asset_server,
         &mut texture_atlases,
         Vec3::new(0.0, BOTTOM_WALL + 300.0, 0.0),
-        MapItem::Home,
+        LevelItem::Home,
     );
-    spawn_map_item(
+    spawn_level_item(
         &mut commands,
         &asset_server,
         &mut texture_atlases,
         Vec3::new(0.0, BOTTOM_WALL + 350.0, 0.0),
-        MapItem::Tree,
+        LevelItem::Tree,
     );
-    spawn_map_item(
+    spawn_level_item(
         &mut commands,
         &asset_server,
         &mut texture_atlases,
         Vec3::new(0.0, BOTTOM_WALL + 400.0, 0.0),
-        MapItem::Water,
+        LevelItem::Water,
     );
-    spawn_map_item(
+    spawn_level_item(
         &mut commands,
         &asset_server,
         &mut texture_atlases,
         Vec3::new(0.0, BOTTOM_WALL + 450.0, 0.0),
-        MapItem::IronWall,
+        LevelItem::IronWall,
     );
 
     commands
