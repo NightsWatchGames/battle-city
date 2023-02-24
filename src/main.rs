@@ -28,12 +28,14 @@ fn main() {
         .add_startup_system(setup_camera)
         .add_startup_system(setup_rapier)
         .add_startup_system(setup_wall)
-        .add_startup_system(setup_player)
+        .add_startup_system(setup_player1)
+        .add_startup_system(setup_player2)
         .add_startup_system(setup)
         .add_system_set(
             SystemSet::new()
                 .with_run_criteria(FixedTimestep::step(TIME_STEP as f64))
-                .with_system(player_move)
+                .with_system(player1_move)
+                .with_system(player2_move)
                 .with_system(move_bullet),
         )
         .add_system(player_attack)

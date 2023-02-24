@@ -10,9 +10,13 @@ pub const TANK_SPEED: f32 = 200.0;
 // 坦克刷新子弹间隔
 pub const TANK_REFRESH_BULLET_INTERVAL: f32 = 2.0;
 
-// 玩家坦克
+// 玩家1
 #[derive(Component)]
-pub struct Player;
+pub struct Player1;
+
+// 玩家2
+#[derive(Component)]
+pub struct Player2;
 
 // 坦克刷新子弹计时器
 #[derive(Component, Deref, DerefMut)]
@@ -26,7 +30,7 @@ pub struct Shield;
 #[derive(Component, Deref, DerefMut)]
 pub struct ShieldRemoveTimer(pub Timer);
 
-pub fn setup_player(
+pub fn setup_player1(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
@@ -63,7 +67,7 @@ pub fn setup_player(
 
     // 坦克
     let tank = commands
-        .spawn(Player)
+        .spawn(Player1)
         .insert(SpriteSheetBundle {
             texture_atlas: tank_texture_atlas_handle,
             transform: Transform {
@@ -90,8 +94,72 @@ pub fn setup_player(
     commands.entity(tank).add_child(shield);
 }
 
-// 移动坦克
-pub fn player_move(
+pub fn setup_player2(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+) {
+    let shield_texture_handle = asset_server.load("textures/shield.bmp");
+    let shield_texture_atlas = TextureAtlas::from_grid(
+        shield_texture_handle,
+        Vec2::new(30.0, 30.0),
+        1,
+        2,
+        None,
+        None,
+    );
+    let shield_texture_atlas_handle = texture_atlases.add(shield_texture_atlas);
+
+    let tank_texture_handle = asset_server.load("textures/tank2.bmp");
+    let tank_texture_atlas =
+        TextureAtlas::from_grid(tank_texture_handle, Vec2::new(28.0, 28.0), 2, 4, None, None);
+    let tank_texture_atlas_handle = texture_atlases.add(tank_texture_atlas);
+
+    // 保护盾
+    let shield = commands
+        .spawn(Shield)
+        .insert(SpriteSheetBundle {
+            texture_atlas: shield_texture_atlas_handle,
+            ..default()
+        })
+        .insert(AnimationTimer(Timer::from_seconds(
+            0.2,
+            TimerMode::Repeating,
+        )))
+        .insert(ShieldRemoveTimer(Timer::from_seconds(5.0, TimerMode::Once)))
+        .id();
+
+    // 坦克
+    let tank = commands
+        .spawn(Player2)
+        .insert(SpriteSheetBundle {
+            texture_atlas: tank_texture_atlas_handle,
+            transform: Transform {
+                translation: Vec3::new(0.0, BOTTOM_WALL + 100.0, 0.0),
+                ..default()
+            },
+            ..default()
+        })
+        .insert(AnimationTimer(Timer::from_seconds(
+            0.2,
+            TimerMode::Repeating,
+        )))
+        .insert(TankRefreshBulletTimer(Timer::from_seconds(
+            TANK_REFRESH_BULLET_INTERVAL,
+            TimerMode::Once,
+        )))
+        .insert(common::Direction::Up)
+        .insert(RigidBody::Dynamic)
+        .insert(Collider::cuboid(18.0, 18.0))
+        .insert(ActiveEvents::COLLISION_EVENTS)
+        .insert(LockedAxes::ROTATION_LOCKED)
+        .id();
+
+    commands.entity(tank).add_child(shield);
+}
+
+// 玩家1移动坦克
+pub fn player1_move(
     keyboard_input: Res<Input<KeyCode>>,
     mut transform_query: Query<
         (
@@ -99,7 +167,64 @@ pub fn player_move(
             &mut common::Direction,
             &mut TextureAtlasSprite,
         ),
-        With<Player>,
+        With<Player1>,
+    >,
+) {
+    for (mut tank_transform, mut direction, mut sprite) in &mut transform_query {
+        let mut tank_x_position = tank_transform.translation.x;
+        let mut tank_y_position = tank_transform.translation.y;
+
+        let ori_direction = direction.clone();
+        // 一次只能移动一个方向
+        // 根据速度时间计算新坐标
+        if keyboard_input.pressed(KeyCode::A) {
+            tank_x_position -= 1.0 * TANK_SPEED * TIME_STEP;
+            *direction = common::Direction::Left;
+        } else if keyboard_input.pressed(KeyCode::D) {
+            tank_x_position += 1.0 * TANK_SPEED * TIME_STEP;
+            *direction = common::Direction::Right;
+        } else if keyboard_input.pressed(KeyCode::W) {
+            tank_y_position += 1.0 * TANK_SPEED * TIME_STEP;
+            *direction = common::Direction::Up;
+        } else if keyboard_input.pressed(KeyCode::S) {
+            tank_y_position -= 1.0 * TANK_SPEED * TIME_STEP;
+            *direction = common::Direction::Down;
+        } else {
+            return;
+        }
+
+        if direction.clone() != ori_direction {
+            match *direction {
+                common::Direction::Up => {
+                    sprite.index = 0;
+                }
+                common::Direction::Right => {
+                    sprite.index = 2;
+                }
+                common::Direction::Down => {
+                    sprite.index = 4;
+                }
+                common::Direction::Left => {
+                    sprite.index = 6;
+                }
+            }
+        }
+
+        tank_transform.translation.x = tank_x_position;
+        tank_transform.translation.y = tank_y_position;
+    }
+}
+
+// 玩家2移动坦克
+pub fn player2_move(
+    keyboard_input: Res<Input<KeyCode>>,
+    mut transform_query: Query<
+        (
+            &mut Transform,
+            &mut common::Direction,
+            &mut TextureAtlasSprite,
+        ),
+        With<Player2>,
     >,
 ) {
     for (mut tank_transform, mut direction, mut sprite) in &mut transform_query {
@@ -158,7 +283,7 @@ pub fn animate_tank(
             &Handle<TextureAtlas>,
             &common::Direction,
         ),
-        With<Player>,
+        With<Player1>,
     >,
 ) {
     for (mut timer, mut sprite, texture_atlas_handle, direction) in &mut query {
@@ -190,60 +315,49 @@ pub fn animate_tank(
     }
 }
 
-// 坦克攻击
+// 玩家攻击
 pub fn player_attack(
     keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<(&Transform, &common::Direction, &mut TankRefreshBulletTimer), With<Player>>,
+    mut q_player1: Query<
+        (&Transform, &common::Direction, &mut TankRefreshBulletTimer),
+        With<Player1>,
+    >,
+    mut q_player2: Query<
+        (&Transform, &common::Direction, &mut TankRefreshBulletTimer),
+        (With<Player2>, Without<Player1>),
+    >,
     time: Res<Time>,
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
-    for (transform, direction, mut refresh_bullet_timer) in &mut query {
+    for (transform, direction, mut refresh_bullet_timer) in &mut q_player1 {
         refresh_bullet_timer.tick(time.delta());
         if keyboard_input.just_pressed(KeyCode::Space) {
             if refresh_bullet_timer.finished() {
-                let bullet_texture_handle = asset_server.load("textures/bullet.bmp");
-                let bullet_texture_atlas = TextureAtlas::from_grid(
-                    bullet_texture_handle,
-                    Vec2::new(7.0, 8.0),
-                    4,
-                    1,
-                    None,
-                    None,
+                // TODO startup时加载texture
+                spawn_bullet(
+                    &mut commands,
+                    &asset_server,
+                    &mut texture_atlases,
+                    transform.translation,
+                    direction.clone(),
                 );
-                let bullet_texture_atlas_handle = texture_atlases.add(bullet_texture_atlas);
-
-                commands
-                    .spawn(Bullet)
-                    .insert(SpriteSheetBundle {
-                        texture_atlas: bullet_texture_atlas_handle,
-                        sprite: TextureAtlasSprite {
-                            index: match direction {
-                                common::Direction::Up => 0,
-                                common::Direction::Right => 1,
-                                common::Direction::Down => 2,
-                                common::Direction::Left => 3,
-                            },
-                            ..default()
-                        },
-                        transform: Transform {
-                            translation: Vec3::new(
-                                transform.translation.x,
-                                transform.translation.y,
-                                transform.translation.z,
-                            ),
-                            ..default()
-                        },
-                        ..default()
-                    })
-                    .insert((
-                        Collider::cuboid(2.0, 2.0),
-                        Sensor,
-                        RigidBody::Dynamic,
-                        ActiveEvents::COLLISION_EVENTS,
-                    ))
-                    .insert(direction.clone());
+                refresh_bullet_timer.reset();
+            }
+        }
+    }
+    for (transform, direction, mut refresh_bullet_timer) in &mut q_player2 {
+        refresh_bullet_timer.tick(time.delta());
+        if keyboard_input.any_just_pressed([KeyCode::NumpadEnter, KeyCode::Return]) {
+            if refresh_bullet_timer.finished() {
+                spawn_bullet(
+                    &mut commands,
+                    &asset_server,
+                    &mut texture_atlases,
+                    transform.translation,
+                    direction.clone(),
+                );
                 refresh_bullet_timer.reset();
             }
         }

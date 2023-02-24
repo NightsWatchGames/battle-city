@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use crate::common::{self, *};
+use crate::common::{self, Direction, *};
 use crate::level::LevelItem;
 use crate::wall::*;
 
@@ -104,4 +104,44 @@ pub fn check_bullet_collision(
             }
         }
     }
+}
+
+pub fn spawn_bullet(
+    commands: &mut Commands,
+    asset_server: &Res<AssetServer>,
+    texture_atlases: &mut ResMut<Assets<TextureAtlas>>,
+    translation: Vec3,
+    direction: Direction,
+) {
+    let bullet_texture_handle = asset_server.load("textures/bullet.bmp");
+    let bullet_texture_atlas =
+        TextureAtlas::from_grid(bullet_texture_handle, Vec2::new(7.0, 8.0), 4, 1, None, None);
+    let bullet_texture_atlas_handle = texture_atlases.add(bullet_texture_atlas);
+
+    commands
+        .spawn(Bullet)
+        .insert(SpriteSheetBundle {
+            texture_atlas: bullet_texture_atlas_handle,
+            sprite: TextureAtlasSprite {
+                index: match direction {
+                    common::Direction::Up => 0,
+                    common::Direction::Right => 1,
+                    common::Direction::Down => 2,
+                    common::Direction::Left => 3,
+                },
+                ..default()
+            },
+            transform: Transform {
+                translation: Vec3::new(translation.x, translation.y, translation.z),
+                ..default()
+            },
+            ..default()
+        })
+        .insert((
+            Collider::cuboid(2.0, 2.0),
+            Sensor,
+            RigidBody::Dynamic,
+            ActiveEvents::COLLISION_EVENTS,
+        ))
+        .insert(direction);
 }
