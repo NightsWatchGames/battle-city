@@ -210,6 +210,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9e1b586273c5702936fe7b7d6896644d8be71e6314cfe09d3167c95f712589e8"
 
 [[package]]
+name = "battle-city"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "bevy-inspector-egui",
+ "bevy_ecs_tilemap",
+ "bevy_rapier2d",
+]
+
+[[package]]
 name = "bevy"
 version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3162,16 +3172,6 @@ dependencies = [
  "hash32-derive",
  "num-traits",
  "typenum",
-]
-
-[[package]]
-name = "tank-war"
-version = "0.1.0"
-dependencies = [
- "bevy",
- "bevy-inspector-egui",
- "bevy_ecs_tilemap",
- "bevy_rapier2d",
 ]
 
 [[package]]

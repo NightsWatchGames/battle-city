@@ -1,18 +1,18 @@
 mod bullet;
 mod common;
+mod enemy;
 mod level;
 mod player;
-mod wall;
-mod enemy;
 mod ui;
+mod wall;
 
 use bullet::*;
 use common::*;
+use enemy::*;
 use level::*;
 use player::*;
-use wall::*;
-use enemy::*;
 use ui::*;
+use wall::*;
 
 use bevy::{prelude::*, time::FixedTimestep};
 use bevy_ecs_tilemap::prelude::*;
@@ -28,14 +28,27 @@ fn main() {
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
         .add_plugin(RapierDebugRenderPlugin::default())
         .add_plugin(WorldInspectorPlugin)
+        .add_state(AppState::StartMenu)
         .insert_resource(ClearColor(BACKGROUND_COLOR))
         .add_startup_system(setup_camera)
         .add_startup_system(setup_rapier)
         .add_startup_system(setup_wall)
-        .add_startup_system(setup_player1)
-        .add_startup_system(setup_player2)
-        .add_startup_system(setup_enemies)
-        .add_startup_system(setup)
+        .add_system_set(SystemSet::on_enter(AppState::StartMenu).with_system(setup_start_menu))
+        .add_system_set(
+            SystemSet::on_update(AppState::StartMenu)
+                .with_system(start_game)
+        )
+        .add_system_set(
+            SystemSet::on_exit(AppState::StartMenu)
+                .with_system(despawn_screen::<OnStartMenuScreen>)
+        )
+        .add_system_set(
+            SystemSet::on_enter(AppState::Playing)
+                .with_system(setup_player1)
+                .with_system(setup_player2)
+                .with_system(setup_enemies)
+                .with_system(setup)
+        )
         .add_system_set(
             SystemSet::new()
                 .with_run_criteria(FixedTimestep::step(TIME_STEP as f64))
@@ -96,6 +109,13 @@ fn setup(
         &mut texture_atlases,
         Vec3::new(0.0, BOTTOM_WALL + 450.0, 0.0),
         LevelItem::IronWall,
+    );
+    spawn_level_item(
+        &mut commands,
+        &asset_server,
+        &mut texture_atlases,
+        Vec3::new(0.0, BOTTOM_WALL + 500.0, 0.0),
+        LevelItem::StoneWall,
     );
 
     commands

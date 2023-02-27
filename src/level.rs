@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 // 关卡项
-#[derive(Component, Clone, PartialEq)]
+#[derive(Component, Clone, PartialEq, Debug)]
 pub enum LevelItem {
     // 石墙
     StoneWall,
@@ -59,7 +59,10 @@ pub fn spawn_level_item(
                 TimerMode::Repeating,
             )));
     }
-    if level_item == LevelItem::IronWall || level_item == LevelItem::Home {
+    if level_item == LevelItem::IronWall
+        || level_item == LevelItem::Home
+        || level_item == LevelItem::StoneWall
+    {
         commands
             .entity(level_item_entity)
             .insert(Collider::cuboid(18.0, 18.0))

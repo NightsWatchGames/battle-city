@@ -56,6 +56,7 @@ pub fn setup_player1(
         .spawn(Shield)
         .insert(SpriteSheetBundle {
             texture_atlas: shield_texture_atlas_handle,
+            transform: Transform::from_translation(Vec3::new(0.0, 0.0, -1.0)), // 通过z轴控制sprite order
             ..default()
         })
         .insert(AnimationTimer(Timer::from_seconds(
@@ -71,7 +72,7 @@ pub fn setup_player1(
         .insert(SpriteSheetBundle {
             texture_atlas: tank_texture_atlas_handle,
             transform: Transform {
-                translation: Vec3::new(0.0, BOTTOM_WALL + 100.0, 0.0),
+                translation: Vec3::new(-50.0, BOTTOM_WALL + 100.0, 2.0),
                 ..default()
             },
             ..default()
@@ -120,6 +121,7 @@ pub fn setup_player2(
         .spawn(Shield)
         .insert(SpriteSheetBundle {
             texture_atlas: shield_texture_atlas_handle,
+            transform: Transform::from_translation(Vec3::new(0.0, 0.0, -1.0)), // 通过z轴控制sprite order
             ..default()
         })
         .insert(AnimationTimer(Timer::from_seconds(
@@ -135,7 +137,7 @@ pub fn setup_player2(
         .insert(SpriteSheetBundle {
             texture_atlas: tank_texture_atlas_handle,
             transform: Transform {
-                translation: Vec3::new(0.0, BOTTOM_WALL + 100.0, 0.0),
+                translation: Vec3::new(50.0, BOTTOM_WALL + 100.0, 2.0),
                 ..default()
             },
             ..default()

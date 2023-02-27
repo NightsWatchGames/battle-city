@@ -55,45 +55,46 @@ pub fn move_bullet(
     }
 }
 
-// TODO 子弹撞墙 释放内存
 pub fn check_bullet_collision(
     mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
-    mut query: Query<Entity, With<Bullet>>,
-    level_item_query: Query<&LevelItem>,
+    mut q_bullet: Query<Entity, With<Bullet>>,
+    q_level_item: Query<&LevelItem>,
 ) {
-    for entity in &mut query {
+    for bullet in &mut q_bullet {
         for event in collision_events.iter() {
             match event {
                 CollisionEvent::Started(entity1, entity2, _flags) => {
                     println!(
                         "bullet: {:?}, collision entity1: {:?}, entity2: {:?}",
-                        entity, entity1, entity2
+                        bullet, entity1, entity2
                     );
-                    if entity == *entity1 || entity == *entity2 {
+                    if bullet == *entity1 || bullet == *entity2 {
                         info!("bullet hit something");
                         // 另一个物体
-                        let other_entity = if entity == *entity1 {
+                        let other_entity = if bullet == *entity1 {
                             *entity2
                         } else {
                             *entity1
                         };
-                        if level_item_query.contains(other_entity) {
-                            let level_item = level_item_query
+                        if q_level_item.contains(other_entity) {
+                            let level_item = q_level_item
                                 .get_component::<LevelItem>(other_entity)
                                 .unwrap();
+                            dbg!(level_item);
                             match level_item {
                                 LevelItem::Home => {
                                     // Game Over
                                     println!("Game over");
                                 }
                                 LevelItem::StoneWall => {
-                                    // 石墙消失
+                                    // 子弹和石墙消失
+                                    commands.entity(bullet).despawn();
                                     commands.entity(other_entity).despawn();
                                 }
                                 LevelItem::IronWall => {
                                     // 子弹消失
-                                    commands.entity(entity).despawn();
+                                    commands.entity(bullet).despawn();
                                 }
                                 _ => {}
                             }
