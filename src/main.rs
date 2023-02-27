@@ -3,12 +3,16 @@ mod common;
 mod level;
 mod player;
 mod wall;
+mod enemy;
+mod ui;
 
 use bullet::*;
 use common::*;
 use level::*;
 use player::*;
 use wall::*;
+use enemy::*;
+use ui::*;
 
 use bevy::{prelude::*, time::FixedTimestep};
 use bevy_ecs_tilemap::prelude::*;
@@ -30,6 +34,7 @@ fn main() {
         .add_startup_system(setup_wall)
         .add_startup_system(setup_player1)
         .add_startup_system(setup_player2)
+        .add_startup_system(setup_enemies)
         .add_startup_system(setup)
         .add_system_set(
             SystemSet::new()
@@ -38,8 +43,8 @@ fn main() {
                 .with_system(player2_move)
                 .with_system(move_bullet),
         )
-        .add_system(player_attack)
-        .add_system(animate_tank)
+        .add_system(players_attack)
+        .add_system(animate_players)
         .add_system(animate_shield)
         .add_system(remove_shield)
         .add_system(animate_water)

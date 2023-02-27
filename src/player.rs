@@ -273,7 +273,7 @@ pub fn player2_move(
 }
 
 // 坦克移动动画播放
-pub fn animate_tank(
+pub fn animate_players(
     time: Res<Time>,
     texture_atlases: Res<Assets<TextureAtlas>>,
     mut query: Query<
@@ -283,7 +283,7 @@ pub fn animate_tank(
             &Handle<TextureAtlas>,
             &common::Direction,
         ),
-        With<Player1>,
+        Or<(With<Player1>, With<Player2>)>,
     >,
 ) {
     for (mut timer, mut sprite, texture_atlas_handle, direction) in &mut query {
@@ -316,7 +316,7 @@ pub fn animate_tank(
 }
 
 // 玩家攻击
-pub fn player_attack(
+pub fn players_attack(
     keyboard_input: Res<Input<KeyCode>>,
     mut q_player1: Query<
         (&Transform, &common::Direction, &mut TankRefreshBulletTimer),
