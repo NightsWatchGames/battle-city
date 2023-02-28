@@ -99,7 +99,11 @@ pub fn setup_player2(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    game_mode: Res<GameMode>,
 ) {
+    if *game_mode == GameMode::SinglePlayer {
+        return;
+    }
     let shield_texture_handle = asset_server.load("textures/shield.bmp");
     let shield_texture_atlas = TextureAtlas::from_grid(
         shield_texture_handle,

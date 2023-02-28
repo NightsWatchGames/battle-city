@@ -30,6 +30,7 @@ fn main() {
         .add_plugin(WorldInspectorPlugin)
         .add_state(AppState::StartMenu)
         .insert_resource(ClearColor(BACKGROUND_COLOR))
+        .insert_resource(GameMode::SinglePlayer)
         .add_startup_system(setup_camera)
         .add_startup_system(setup_rapier)
         .add_startup_system(setup_wall)
@@ -37,17 +38,18 @@ fn main() {
         .add_system_set(
             SystemSet::on_update(AppState::StartMenu)
                 .with_system(start_game)
+                .with_system(switch_game_mode),
         )
         .add_system_set(
             SystemSet::on_exit(AppState::StartMenu)
-                .with_system(despawn_screen::<OnStartMenuScreen>)
+                .with_system(despawn_screen::<OnStartMenuScreen>),
         )
         .add_system_set(
             SystemSet::on_enter(AppState::Playing)
                 .with_system(setup_player1)
                 .with_system(setup_player2)
                 .with_system(setup_enemies)
-                .with_system(setup)
+                .with_system(setup),
         )
         .add_system_set(
             SystemSet::new()

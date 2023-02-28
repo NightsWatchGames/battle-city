@@ -1,9 +1,12 @@
 use bevy::prelude::*;
 
-use crate::common::AppState;
+use crate::common::{AppState, GameMode};
 
 #[derive(Component)]
 pub struct OnStartMenuScreen;
+#[derive(Component)]
+pub struct OnStartMenuScreenGameModeFlag;
+
 #[derive(Component)]
 pub struct OnGameOverMenuScreen;
 
@@ -13,34 +16,43 @@ pub fn setup_start_menu(
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
     commands
-        .spawn((NodeBundle {
-            style: Style {
-                size: Size::new(Val::Percent(100.), Val::Percent(100.)),
-                align_items: AlignItems::Center,
-                justify_content: JustifyContent::Center,
+        .spawn((
+            NodeBundle {
+                style: Style {
+                    size: Size::new(Val::Percent(100.), Val::Percent(100.)),
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::Center,
+                    ..default()
+                },
                 ..default()
             },
-            ..default()
-        },
-        OnStartMenuScreen,
+            OnStartMenuScreen,
         ))
         .with_children(|parent| {
             parent.spawn(ImageBundle {
                 image: asset_server.load("textures/title.bmp").into(),
                 ..default()
             });
+            // TODO 将texture_atlas 直接用于ui，issue https://github.com/bevyengine/bevy/issues/1169
+            parent.spawn((
+                ImageBundle {
+                    image: asset_server.load("textures/tank.png").into(),
+                    style: Style {
+                        size: Size::new(Val::Px(20.), Val::Px(20.)),
+                        margin: UiRect::all(Val::Px(10.0)),
+                        position_type: PositionType::Absolute,
+                        position: UiRect {
+                            top: Val::Px(412.),
+                            left: Val::Px(520.),
+                            ..default()
+                        },
+                        ..default()
+                    },
+                    ..default()
+                },
+                OnStartMenuScreenGameModeFlag,
+            ));
         });
-
-    let tank_texture_handle = asset_server.load("textures/tank1.bmp");
-    let tank_texture_atlas =
-        TextureAtlas::from_grid(tank_texture_handle, Vec2::new(28.0, 28.0), 2, 4, None, None);
-    let tank_texture_atlas_handle = texture_atlases.add(tank_texture_atlas);
-
-    // TODO 将texture_atlas 其中一个sprite转换成Handle<Image>
-    // commands.spawn(ImageBundle {
-    // image: tank_texture_atlas_handle.into(),
-    // ..default()
-    // });
 }
 
 pub fn setup_game_over_menu(mut commands: Commands) {}
@@ -49,6 +61,25 @@ pub fn start_game(keyboard_input: Res<Input<KeyCode>>, mut app_state: ResMut<Sta
     if keyboard_input.any_just_pressed([KeyCode::Return, KeyCode::Space]) {
         info!("Switch app state to playing");
         app_state.set(AppState::Playing).unwrap();
+    }
+}
+
+pub fn switch_game_mode(
+    keyboard_input: Res<Input<KeyCode>>,
+    mut game_mode: ResMut<GameMode>,
+    mut q_multiplayer_mode: Query<&mut Style, With<OnStartMenuScreenGameModeFlag>>,
+) {
+    if keyboard_input.any_just_pressed([KeyCode::Up, KeyCode::Down]) {
+        for mut style in &mut q_multiplayer_mode {
+            // TODO 待优化
+            if style.position.top == Val::Px(412.) {
+                style.position.top = Val::Px(440.);
+                *game_mode = GameMode::MultiPlayers;
+            } else {
+                style.position.top = Val::Px(412.);
+                *game_mode = GameMode::SinglePlayer;
+            }
+        }
     }
 }
 

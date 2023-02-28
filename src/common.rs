@@ -10,6 +10,12 @@ pub enum AppState {
     GameOver,
 }
 
+#[derive(Resource, Debug, PartialEq, Eq)]
+pub enum GameMode {
+    SinglePlayer,
+    MultiPlayers,
+}
+
 // 方向
 #[derive(Component, Clone, Copy, PartialEq, Eq)]
 pub enum Direction {
