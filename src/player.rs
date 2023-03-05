@@ -346,6 +346,7 @@ pub fn players_attack(
                     &mut commands,
                     &asset_server,
                     &mut texture_atlases,
+                    Bullet::Player,
                     transform.translation,
                     direction.clone(),
                 );
@@ -361,6 +362,7 @@ pub fn players_attack(
                     &mut commands,
                     &asset_server,
                     &mut texture_atlases,
+                    Bullet::Player,
                     transform.translation,
                     direction.clone(),
                 );

@@ -8,6 +8,9 @@ pub const RIGHT_WALL: f32 = 450.;
 pub const BOTTOM_WALL: f32 = -300.;
 pub const TOP_WALL: f32 = 300.;
 
+#[derive(Debug, Component)]
+pub struct Wall;
+
 pub fn setup_wall(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -20,6 +23,7 @@ pub fn setup_wall(
 
     // left wall
     commands.spawn((
+        Wall,
         MaterialMesh2dBundle {
             mesh: meshes
                 .add(
@@ -37,6 +41,7 @@ pub fn setup_wall(
 
     // right wall
     commands.spawn((
+        Wall,
         MaterialMesh2dBundle {
             mesh: meshes
                 .add(
@@ -54,6 +59,7 @@ pub fn setup_wall(
 
     // top wall
     commands.spawn((
+        Wall,
         MaterialMesh2dBundle {
             mesh: meshes
                 .add(
@@ -71,6 +77,7 @@ pub fn setup_wall(
 
     // bottom wall
     commands.spawn((
+        Wall,
         MaterialMesh2dBundle {
             mesh: meshes
                 .add(
