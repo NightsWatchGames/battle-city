@@ -15,27 +15,29 @@ use ui::*;
 use wall::*;
 
 use bevy::{prelude::*, time::FixedTimestep};
-use bevy_ecs_tilemap::prelude::*;
 use bevy_inspector_egui::{prelude::*, quick::WorldInspectorPlugin};
 use bevy_rapier2d::prelude::*;
+use bevy_ecs_ldtk::prelude::*;
 
 const BACKGROUND_COLOR: Color = Color::BLACK;
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins)
-        .add_plugin(TilemapPlugin)
+        .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
         .add_plugin(RapierDebugRenderPlugin::default())
+        .add_plugin(LdtkPlugin)
         .add_plugin(WorldInspectorPlugin)
         .add_event::<ExplosionEvent>()
         .add_state(AppState::StartMenu)
         .insert_resource(ClearColor(BACKGROUND_COLOR))
         .insert_resource(GameMode::SinglePlayer)
+        .insert_resource(LevelSelection::Index(0))
         .add_startup_system(setup_camera)
         .add_startup_system(setup_rapier)
         .add_startup_system(setup_wall)
         .add_startup_system(setup_explosion_assets)
+        .add_startup_system(setup_ldtk_world)
         .add_system_set(SystemSet::on_enter(AppState::StartMenu).with_system(setup_start_menu))
         .add_system_set(
             SystemSet::on_update(AppState::StartMenu)
@@ -51,7 +53,7 @@ fn main() {
                 .with_system(setup_player1)
                 .with_system(setup_player2)
                 .with_system(setup_enemies)
-                .with_system(setup),
+                // .with_system(setup),
         )
         .add_system_set(
             SystemSet::on_update(AppState::Playing)
@@ -82,6 +84,14 @@ fn setup_camera(mut commands: Commands) {
 
 fn setup_rapier(mut rapier_config: ResMut<RapierConfiguration>) {
     rapier_config.gravity = Vec2::ZERO;
+}
+
+fn setup_ldtk_world(mut commands: Commands, asset_server: Res<AssetServer>) {
+    commands.spawn(LdtkWorldBundle {
+        ldtk_handle: asset_server.load("level.ldtk"),
+        transform: Transform::from_xyz(-13.5 * 32., -9. * 32., 0.0),
+        ..Default::default()
+    });
 }
 
 // setup系统 添加entities到世界

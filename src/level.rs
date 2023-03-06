@@ -1,4 +1,4 @@
-use crate::common::AnimationTimer;
+use crate::common::{AnimationIndices, AnimationTimer};
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
@@ -52,12 +52,10 @@ pub fn spawn_level_item(
         .id();
 
     if level_item == LevelItem::Water {
-        commands
-            .entity(level_item_entity)
-            .insert(AnimationTimer(Timer::from_seconds(
-                0.5,
-                TimerMode::Repeating,
-            )));
+        commands.entity(level_item_entity).insert((
+            AnimationTimer(Timer::from_seconds(0.5, TimerMode::Repeating)),
+            AnimationIndices { first: 3, last: 4 },
+        ));
     }
     if level_item == LevelItem::IronWall
         || level_item == LevelItem::Home
@@ -73,18 +71,21 @@ pub fn spawn_level_item(
 // 水动画播放
 pub fn animate_water(
     time: Res<Time>,
-    mut query: Query<(&mut AnimationTimer, &mut TextureAtlasSprite, &LevelItem)>,
+    mut query: Query<(
+        &mut AnimationTimer,
+        &AnimationIndices,
+        &mut TextureAtlasSprite,
+    )>,
 ) {
-    for (mut timer, mut sprite, level_item) in &mut query {
+    for (mut timer, indices, mut sprite) in &mut query {
         timer.tick(time.delta());
         if timer.just_finished() {
-            match level_item {
-                LevelItem::Water => {
-                    // 切换到下一个sprite
-                    sprite.index = if sprite.index == 3 { 4 } else { 3 };
-                }
-                _ => {}
-            }
+            // 切换到下一个sprite
+            sprite.index = if sprite.index == indices.last {
+                indices.first
+            } else {
+                sprite.index + 1
+            };
         }
     }
 }

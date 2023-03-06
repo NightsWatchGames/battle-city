@@ -9,9 +9,6 @@
 - [ ] 支持手柄、键盘
 - [x] 本地多人模式
 
-阅读
-- [Bevy Basics - Youtube](https://www.youtube.com/playlist?list=PL6uRoaCCw7GN_lJxpKS3j-KXuThRiSXc6)
-
 ## 参考资料
 - [bevy-cheatbook](https://github.com/bevy-cheatbook/bevy-cheatbook)（[中文翻译](https://yiviv.com/bevy-cheatbook/)）
 - https://itch.io/jam/bevy-jam-2
