@@ -35,6 +35,7 @@ fn main() {
         .add_startup_system(setup_camera)
         .add_startup_system(setup_rapier)
         .add_startup_system(setup_wall)
+        .add_startup_system(setup_explosion_assets)
         .add_system_set(SystemSet::on_enter(AppState::StartMenu).with_system(setup_start_menu))
         .add_system_set(
             SystemSet::on_update(AppState::StartMenu)
@@ -53,21 +54,24 @@ fn main() {
                 .with_system(setup),
         )
         .add_system_set(
+            SystemSet::on_update(AppState::Playing)
+                .with_system(players_attack)
+                .with_system(animate_players)
+                .with_system(animate_shield)
+                .with_system(remove_shield)
+                .with_system(animate_water)
+                .with_system(spawn_explosion)
+                .with_system(animate_explosion)
+                .with_system(check_bullet_collision),
+        )
+        .add_system_set(
             SystemSet::new()
                 .with_run_criteria(FixedTimestep::step(TIME_STEP as f64))
                 .with_system(player1_move)
                 .with_system(player2_move)
                 .with_system(move_bullet),
         )
-        .add_system(players_attack)
-        .add_system(animate_players)
-        .add_system(animate_shield)
-        .add_system(remove_shield)
-        .add_system(animate_water)
-        .add_system(explode)
-        .add_system(animate_explosion)
         .add_system_to_stage(CoreStage::PostUpdate, display_events)
-        .add_system_to_stage(CoreStage::PostUpdate, check_bullet_collision)
         .add_system(bevy::window::close_on_esc)
         .run();
 }

@@ -53,17 +53,17 @@ pub fn setup_player1(
 
     // 保护盾
     let shield = commands
-        .spawn(Shield)
-        .insert(SpriteSheetBundle {
-            texture_atlas: shield_texture_atlas_handle,
-            transform: Transform::from_translation(Vec3::new(0.0, 0.0, -1.0)), // 通过z轴控制sprite order
-            ..default()
-        })
-        .insert(AnimationTimer(Timer::from_seconds(
-            0.2,
-            TimerMode::Repeating,
-        )))
-        .insert(ShieldRemoveTimer(Timer::from_seconds(5.0, TimerMode::Once)))
+        .spawn((
+            Shield,
+            SpriteSheetBundle {
+                texture_atlas: shield_texture_atlas_handle,
+                transform: Transform::from_translation(Vec3::new(0.0, 0.0, -1.0)), // 通过z轴控制sprite order
+                ..default()
+            },
+            AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
+            AnimationIndices { first: 0, last: 1 },
+            ShieldRemoveTimer(Timer::from_seconds(5.0, TimerMode::Once)),
+        ))
         .id();
 
     // 坦克
@@ -122,17 +122,17 @@ pub fn setup_player2(
 
     // 保护盾
     let shield = commands
-        .spawn(Shield)
-        .insert(SpriteSheetBundle {
-            texture_atlas: shield_texture_atlas_handle,
-            transform: Transform::from_translation(Vec3::new(0.0, 0.0, -1.0)), // 通过z轴控制sprite order
-            ..default()
-        })
-        .insert(AnimationTimer(Timer::from_seconds(
-            0.2,
-            TimerMode::Repeating,
-        )))
-        .insert(ShieldRemoveTimer(Timer::from_seconds(5.0, TimerMode::Once)))
+        .spawn((
+            Shield,
+            SpriteSheetBundle {
+                texture_atlas: shield_texture_atlas_handle,
+                transform: Transform::from_translation(Vec3::new(0.0, 0.0, -1.0)), // 通过z轴控制sprite order
+                ..default()
+            },
+            AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
+            AnimationIndices { first: 0, last: 1 },
+            ShieldRemoveTimer(Timer::from_seconds(5.0, TimerMode::Once)),
+        ))
         .id();
 
     // 坦克
@@ -375,22 +375,24 @@ pub fn players_attack(
 // 保护盾动画播放
 pub fn animate_shield(
     time: Res<Time>,
-    texture_atlases: Res<Assets<TextureAtlas>>,
     mut query: Query<
         (
             &mut AnimationTimer,
+            &AnimationIndices,
             &mut TextureAtlasSprite,
-            &Handle<TextureAtlas>,
         ),
         With<Shield>,
     >,
 ) {
-    for (mut timer, mut sprite, texture_atlas_handle) in &mut query {
+    for (mut timer, indices, mut sprite) in &mut query {
         timer.tick(time.delta());
         if timer.just_finished() {
-            let texture_atlas = texture_atlases.get(texture_atlas_handle).unwrap();
             // 切换到下一个sprite
-            sprite.index = (sprite.index + 1) % texture_atlas.textures.len();
+            sprite.index = if sprite.index == indices.last {
+                indices.first
+            } else {
+                sprite.index + 1
+            };
         }
     }
 }

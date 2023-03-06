@@ -20,3 +20,7 @@
 
 ## 问题
 **1.2d游戏角色改变方向时，是切换sprite还是进行sprite旋转？**
+
+**2.Sprite Sheet 和 Sprite Atlas 理解和区别？**
+- https://forum.unity.com/threads/sprite-atlas-vs-manual-sprite-sheet.1229424/
+- https://gamedev.stackexchange.com/questions/69895/what-is-the-difference-between-a-sprite-sheet-and-a-texture-atlas

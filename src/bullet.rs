@@ -15,11 +15,43 @@ pub enum Bullet {
 }
 
 #[derive(Debug, Component)]
-pub struct Explosion;
+pub struct ExplosionEffect;
 
 #[derive(Debug)]
 pub struct ExplosionEvent {
     pos: Vec3,
+    explosion_type: ExplosionType,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub enum ExplosionType {
+    BigExplosion,
+    BulletExplosion,
+}
+
+#[derive(Debug, Resource)]
+pub struct ExplosionAssets {
+    pub big_explosion: Vec<Handle<Image>>,
+    pub bullet_explosion: Vec<Handle<Image>>,
+}
+
+pub fn setup_explosion_assets(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let mut big_explosion: Vec<Handle<Image>> = Vec::new();
+    big_explosion.push(asset_server.load("textures/big_explosion_1.png"));
+    big_explosion.push(asset_server.load("textures/big_explosion_2.png"));
+    big_explosion.push(asset_server.load("textures/big_explosion_3.png"));
+    big_explosion.push(asset_server.load("textures/big_explosion_4.png"));
+    big_explosion.push(asset_server.load("textures/big_explosion_5.png"));
+
+    let mut bullet_explosion: Vec<Handle<Image>> = Vec::new();
+    bullet_explosion.push(asset_server.load("textures/bullet_explosion_1.png"));
+    bullet_explosion.push(asset_server.load("textures/bullet_explosion_2.png"));
+    bullet_explosion.push(asset_server.load("textures/bullet_explosion_3.png"));
+
+    commands.insert_resource(ExplosionAssets {
+        big_explosion,
+        bullet_explosion,
+    });
 }
 
 // 炮弹移动
@@ -78,6 +110,7 @@ pub fn check_bullet_collision(
                                         transform.translation.y,
                                         transform.translation.z,
                                     ),
+                                    explosion_type: ExplosionType::BigExplosion,
                                 });
                             }
                             LevelItem::StoneWall => {
@@ -89,6 +122,7 @@ pub fn check_bullet_collision(
                                         transform.translation.y,
                                         transform.translation.z,
                                     ),
+                                    explosion_type: ExplosionType::BulletExplosion,
                                 });
                             }
                             LevelItem::IronWall => {
@@ -99,6 +133,7 @@ pub fn check_bullet_collision(
                                         transform.translation.y,
                                         transform.translation.z,
                                     ),
+                                    explosion_type: ExplosionType::BulletExplosion,
                                 });
                             }
                             _ => {}
@@ -113,6 +148,7 @@ pub fn check_bullet_collision(
                                 transform.translation.y,
                                 transform.translation.z,
                             ),
+                            explosion_type: ExplosionType::BulletExplosion,
                         });
                     }
                     if q_enemy.contains(other_entity) {
@@ -125,6 +161,7 @@ pub fn check_bullet_collision(
                                 transform.translation.y,
                                 transform.translation.z,
                             ),
+                            explosion_type: ExplosionType::BigExplosion,
                         });
                     }
                 }
@@ -175,30 +212,86 @@ pub fn spawn_bullet(
         .insert(direction);
 }
 
-pub fn explode(
+pub fn spawn_explosion(
     mut commands: Commands,
     mut explosion_er: EventReader<ExplosionEvent>,
+    explosion_assets: Res<ExplosionAssets>,
     asset_server: Res<AssetServer>,
+    mut textures: ResMut<Assets<Image>>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
+    let mut big_explosion_texture_atlas_builder = TextureAtlasBuilder::default();
+    for handle in &explosion_assets.big_explosion {
+        let Some(texture) = textures.get(&handle) else {
+            warn!("{:?} did not resolve to an `Image` asset.", asset_server.get_handle_path(handle));
+            continue;
+        };
+        big_explosion_texture_atlas_builder.add_texture(handle.clone(), texture);
+    }
+    let big_explosion_texture_atlas = big_explosion_texture_atlas_builder
+        .finish(&mut textures)
+        .unwrap();
+    let big_explosion_texture_atlas_handle = texture_atlases.add(big_explosion_texture_atlas);
+
+    let mut bullet_explosion_texture_atlas_builder = TextureAtlasBuilder::default();
+    for handle in &explosion_assets.bullet_explosion {
+        let Some(texture) = textures.get(&handle) else {
+            warn!("{:?} did not resolve to an `Image` asset.", asset_server.get_handle_path(handle));
+            continue;
+        };
+        bullet_explosion_texture_atlas_builder.add_texture(handle.clone(), texture);
+    }
+    let bullet_explosion_texture_atlas = bullet_explosion_texture_atlas_builder
+        .finish(&mut textures)
+        .unwrap();
+    let bullet_explosion_texture_atlas_handle = texture_atlases.add(bullet_explosion_texture_atlas);
+
     for explosion in explosion_er.iter() {
         commands.spawn((
-            Explosion,
-            SpriteBundle {
-                texture: asset_server.load("textures/big_explosion_1.png"),
+            ExplosionEffect,
+            SpriteSheetBundle {
+                sprite: TextureAtlasSprite::new(0),
+                texture_atlas: if explosion.explosion_type == ExplosionType::BigExplosion {
+                    big_explosion_texture_atlas_handle.clone()
+                } else {
+                    bullet_explosion_texture_atlas_handle.clone()
+                },
                 transform: Transform::from_translation(explosion.pos),
                 ..default()
             },
-            AnimationTimer(Timer::from_seconds(0.1, TimerMode::Repeating)),
+            AnimationTimer(Timer::from_seconds(0.05, TimerMode::Repeating)),
+            AnimationIndices {
+                first: 0,
+                last: if explosion.explosion_type == ExplosionType::BigExplosion {
+                    4
+                } else {
+                    2
+                },
+            },
         ));
     }
 }
 
-pub fn animate_explosion(mut q_explosion: Query<(&mut AnimationTimer, &mut Handle<Image>), With<Explosion>>, time: Res<Time>, asset_server: Res<AssetServer>,) {
-    for (mut timer, mut texture) in &mut q_explosion {
+pub fn animate_explosion(
+    mut commands: Commands,
+    mut q_explosion: Query<
+        (
+            Entity,
+            &mut AnimationTimer,
+            &AnimationIndices,
+            &mut TextureAtlasSprite,
+        ),
+        With<ExplosionEffect>,
+    >,
+    time: Res<Time>,
+) {
+    for (entity, mut timer, indices, mut sprite) in &mut q_explosion {
         timer.tick(time.delta());
-        // TODO 多个图片组成texturealtas
         if timer.just_finished() {
-            *texture = asset_server.load("textures/big_explosion_2.png");
+            sprite.index += 1;
+            if sprite.index > indices.last {
+                commands.entity(entity).despawn();
+            }
         }
     }
 }
