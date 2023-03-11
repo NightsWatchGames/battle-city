@@ -15,9 +15,9 @@ use ui::*;
 use wall::*;
 
 use bevy::{prelude::*, time::FixedTimestep};
+use bevy_ecs_ldtk::prelude::*;
 use bevy_inspector_egui::{prelude::*, quick::WorldInspectorPlugin};
 use bevy_rapier2d::prelude::*;
-use bevy_ecs_ldtk::prelude::*;
 
 const BACKGROUND_COLOR: Color = Color::BLACK;
 
@@ -33,11 +33,15 @@ fn main() {
         .insert_resource(ClearColor(BACKGROUND_COLOR))
         .insert_resource(GameMode::SinglePlayer)
         .insert_resource(LevelSelection::Index(0))
+        .register_ldtk_entity::<level::StoneWallBundle>("StoneWall")
+        .register_ldtk_entity::<level::IronWallBundle>("IronWall")
+        .register_ldtk_entity::<level::TreeBundle>("Tree")
+        .register_ldtk_entity::<level::WaterBundle>("Water")
+        .register_ldtk_entity::<level::HomeBundle>("Home")
         .add_startup_system(setup_camera)
         .add_startup_system(setup_rapier)
         .add_startup_system(setup_wall)
         .add_startup_system(setup_explosion_assets)
-        .add_startup_system(setup_ldtk_world)
         .add_system_set(SystemSet::on_enter(AppState::StartMenu).with_system(setup_start_menu))
         .add_system_set(
             SystemSet::on_update(AppState::StartMenu)
@@ -50,10 +54,10 @@ fn main() {
         )
         .add_system_set(
             SystemSet::on_enter(AppState::Playing)
+                .with_system(setup_levels)
                 .with_system(setup_player1)
                 .with_system(setup_player2)
-                .with_system(setup_enemies)
-                // .with_system(setup),
+                .with_system(setup_enemies), // .with_system(setup),
         )
         .add_system_set(
             SystemSet::on_update(AppState::Playing)
@@ -84,14 +88,6 @@ fn setup_camera(mut commands: Commands) {
 
 fn setup_rapier(mut rapier_config: ResMut<RapierConfiguration>) {
     rapier_config.gravity = Vec2::ZERO;
-}
-
-fn setup_ldtk_world(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.spawn(LdtkWorldBundle {
-        ldtk_handle: asset_server.load("level.ldtk"),
-        transform: Transform::from_xyz(-13.5 * 32., -9. * 32., 0.0),
-        ..Default::default()
-    });
 }
 
 // setup系统 添加entities到世界

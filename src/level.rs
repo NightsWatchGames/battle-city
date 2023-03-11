@@ -1,10 +1,13 @@
 use crate::common::{AnimationIndices, AnimationTimer};
 use bevy::prelude::*;
+use bevy_ecs_ldtk::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-// 关卡项
-#[derive(Component, Clone, PartialEq, Debug)]
+// 关卡地图元素
+#[derive(Component, Clone, PartialEq, Debug, Default)]
 pub enum LevelItem {
+    #[default]
+    None,
     // 石墙
     StoneWall,
     // 贴墙
@@ -15,6 +18,98 @@ pub enum LevelItem {
     Water,
     // 家
     Home,
+}
+
+#[derive(Clone, Debug, Default, Bundle)]
+pub struct ColliderBundle {
+    pub collider: Collider,
+    pub rigid_body: RigidBody,
+}
+
+#[derive(Bundle, LdtkEntity)]
+pub struct StoneWallBundle {
+    #[from_entity_instance]
+    level_item: LevelItem,
+    #[from_entity_instance]
+    #[bundle]
+    pub collider_bundle: ColliderBundle,
+    // #[sprite_sheet_bundle("path/to/asset.png", tile_width, tile_height, columns, rows, padding, offset, index)]
+    #[sprite_sheet_bundle("textures/map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 0)]
+    #[bundle]
+    sprite_bundle: SpriteSheetBundle,
+}
+#[derive(Bundle, LdtkEntity)]
+pub struct IronWallBundle {
+    #[from_entity_instance]
+    level_item: LevelItem,
+    #[from_entity_instance]
+    #[bundle]
+    pub collider_bundle: ColliderBundle,
+    #[sprite_sheet_bundle("textures/map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 1)]
+    #[bundle]
+    sprite_bundle: SpriteSheetBundle,
+}
+#[derive(Bundle, LdtkEntity)]
+pub struct TreeBundle {
+    #[from_entity_instance]
+    level_item: LevelItem,
+    #[sprite_sheet_bundle("textures/map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 2)]
+    #[bundle]
+    sprite_bundle: SpriteSheetBundle,
+}
+#[derive(Bundle, LdtkEntity)]
+pub struct WaterBundle {
+    #[from_entity_instance]
+    level_item: LevelItem,
+    #[from_entity_instance]
+    #[bundle]
+    pub collider_bundle: ColliderBundle,
+    #[sprite_sheet_bundle("textures/map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 3)]
+    #[bundle]
+    sprite_bundle: SpriteSheetBundle,
+}
+#[derive(Bundle, LdtkEntity)]
+pub struct HomeBundle {
+    #[from_entity_instance]
+    level_item: LevelItem,
+    #[from_entity_instance]
+    #[bundle]
+    pub collider_bundle: ColliderBundle,
+    #[sprite_sheet_bundle("textures/map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 5)]
+    #[bundle]
+    sprite_bundle: SpriteSheetBundle,
+}
+
+impl From<EntityInstance> for ColliderBundle {
+    fn from(entity_instance: EntityInstance) -> ColliderBundle {
+        match entity_instance.identifier.as_ref() {
+            "StoneWall" | "IronWall" | "Water" | "Home" => ColliderBundle {
+                collider: Collider::cuboid(18., 18.),
+                rigid_body: RigidBody::Fixed,
+            },
+            _ => ColliderBundle::default(),
+        }
+    }
+}
+impl From<EntityInstance> for LevelItem {
+    fn from(entity_instance: EntityInstance) -> LevelItem {
+        match entity_instance.identifier.as_ref() {
+            "StoneWall" => LevelItem::StoneWall,
+            "IronWall" => LevelItem::IronWall,
+            "Tree" => LevelItem::Tree,
+            "Water" => LevelItem::Water,
+            "Home" => LevelItem::Home,
+            _ => LevelItem::None,
+        }
+    }
+}
+
+pub fn setup_levels(mut commands: Commands, asset_server: Res<AssetServer>) {
+    commands.spawn(LdtkWorldBundle {
+        ldtk_handle: asset_server.load("levels.ldtk"),
+        transform: Transform::from_xyz(-13.5 * 32., -9. * 32., 0.0),
+        ..Default::default()
+    });
 }
 
 pub fn spawn_level_item(
@@ -39,6 +134,7 @@ pub fn spawn_level_item(
                     LevelItem::Tree => 2,
                     LevelItem::Water => 3,
                     LevelItem::Home => 5,
+                    LevelItem::None => 0,
                 },
                 ..default()
             },

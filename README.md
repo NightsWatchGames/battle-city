@@ -1,6 +1,7 @@
 # battle-city 坦克大战游戏
 - [ ] LDTK编辑关卡
-- [ ] 关卡载入
+- [x] 关卡载入
+- [ ] 关卡切换
 - [x] 利用物理引擎进行碰撞检测
 - [x] 精灵动画
 - [ ] 游戏UI
@@ -16,8 +17,11 @@
 - [Battle City - Wikipedia](https://en.wikipedia.org/wiki/Battle_City)
 
 ## 问题
-**1.2d游戏角色改变方向时，是切换sprite还是进行sprite旋转？**
+**1.2d游戏角色改变方向时，通常是切换sprite还是进行sprite旋转？**
 
-**2.Sprite Sheet 和 Sprite Atlas 理解和区别？**
+**2.Sprite Sheet 和 Texture Atlas 理解和区别？**
+Texture Atlas 是指一张大图片（图集）包含多个texture，Sprite Sheet 通常是指一张大图片包含帧动画的每一帧（texture），实质上跟 Texture Atlas 一样。在 Bevy 0.10 中，帧动画（SpriteSheetBundle）也是直接使用 struct TextureAtlas 存储图集，并没有使用单独的 struct SpriteSheet 存储。
 - https://forum.unity.com/threads/sprite-atlas-vs-manual-sprite-sheet.1229424/
 - https://gamedev.stackexchange.com/questions/69895/what-is-the-difference-between-a-sprite-sheet-and-a-texture-atlas
+- https://docs.rs/bevy/latest/bevy/sprite/struct.TextureAtlas.html
+- https://docs.rs/bevy/latest/bevy/sprite/struct.SpriteSheetBundle.html
