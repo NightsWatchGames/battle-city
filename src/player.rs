@@ -3,7 +3,7 @@ use bevy_rapier2d::prelude::*;
 
 use crate::bullet::*;
 use crate::common::{self, *};
-use crate::wall::*;
+use crate::area::*;
 
 pub const TANK_SPEED: f32 = 200.0;
 

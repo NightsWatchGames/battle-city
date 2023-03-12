@@ -4,7 +4,7 @@ use bevy_rapier2d::prelude::*;
 use crate::common::{self, Direction, *};
 use crate::enemy::Enemy;
 use crate::level::LevelItem;
-use crate::wall::*;
+use crate::area::*;
 
 pub const BULLET_SPEED: f32 = 300.0;
 
@@ -71,25 +71,25 @@ pub fn check_bullet_collision(
     mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
     mut q_bullet: Query<(Entity, &Bullet, &Transform)>,
-    q_level_item: Query<&LevelItem>,
-    q_wall: Query<&Wall>,
-    q_enemy: Query<&Enemy>,
+    q_level_item: Query<(&LevelItem, &Transform)>,
+    q_area_wall: Query<&AreaWall>,
+    q_enemy: Query<(&Enemy, &Transform)>,
     mut explosion_ew: EventWriter<ExplosionEvent>,
 ) {
-    for (entity, bullet, transform) in &mut q_bullet {
+    for (bullet_entity, bullet, bullet_transform) in &mut q_bullet {
         for event in collision_events.iter() {
             match event {
                 CollisionEvent::Started(entity1, entity2, _flags) => {
                     println!(
                         "bullet: {:?}, collision entity1: {:?}, entity2: {:?}",
-                        entity, entity1, entity2
+                        bullet_entity, entity1, entity2
                     );
-                    if *entity1 != entity && *entity2 != entity {
+                    if *entity1 != bullet_entity && *entity2 != bullet_entity {
                         continue;
                     }
                     info!("bullet hit something");
                     // 另一个物体
-                    let other_entity = if entity == *entity1 {
+                    let other_entity = if bullet_entity == *entity1 {
                         *entity2
                     } else {
                         *entity1
@@ -99,6 +99,9 @@ pub fn check_bullet_collision(
                         let level_item = q_level_item
                             .get_component::<LevelItem>(other_entity)
                             .unwrap();
+                        let level_item_transform = q_level_item
+                            .get_component::<Transform>(other_entity)
+                            .unwrap();
                         dbg!(level_item);
                         match level_item {
                             LevelItem::Home => {
@@ -106,32 +109,32 @@ pub fn check_bullet_collision(
                                 println!("Game over");
                                 explosion_ew.send(ExplosionEvent {
                                     pos: Vec3::new(
-                                        transform.translation.x,
-                                        transform.translation.y,
-                                        transform.translation.z,
+                                        level_item_transform.translation.x,
+                                        level_item_transform.translation.y,
+                                        level_item_transform.translation.z,
                                     ),
                                     explosion_type: ExplosionType::BigExplosion,
                                 });
                             }
                             LevelItem::StoneWall => {
-                                commands.entity(entity).despawn();
+                                commands.entity(bullet_entity).despawn();
                                 commands.entity(other_entity).despawn();
                                 explosion_ew.send(ExplosionEvent {
                                     pos: Vec3::new(
-                                        transform.translation.x,
-                                        transform.translation.y,
-                                        transform.translation.z,
+                                        bullet_transform.translation.x,
+                                        bullet_transform.translation.y,
+                                        bullet_transform.translation.z,
                                     ),
                                     explosion_type: ExplosionType::BulletExplosion,
                                 });
                             }
                             LevelItem::IronWall => {
-                                commands.entity(entity).despawn();
+                                commands.entity(bullet_entity).despawn();
                                 explosion_ew.send(ExplosionEvent {
                                     pos: Vec3::new(
-                                        transform.translation.x,
-                                        transform.translation.y,
-                                        transform.translation.z,
+                                        bullet_transform.translation.x,
+                                        bullet_transform.translation.y,
+                                        bullet_transform.translation.z,
                                     ),
                                     explosion_type: ExplosionType::BulletExplosion,
                                 });
@@ -139,27 +142,29 @@ pub fn check_bullet_collision(
                             _ => {}
                         }
                     }
-                    if q_wall.contains(other_entity) {
-                        info!("Bullet hit wall");
-                        commands.entity(entity).despawn();
+                    if q_area_wall.contains(other_entity) {
+                        info!("Bullet hit area wall");
+                        commands.entity(bullet_entity).despawn();
                         explosion_ew.send(ExplosionEvent {
                             pos: Vec3::new(
-                                transform.translation.x,
-                                transform.translation.y,
-                                transform.translation.z,
+                                bullet_transform.translation.x,
+                                bullet_transform.translation.y,
+                                bullet_transform.translation.z,
                             ),
                             explosion_type: ExplosionType::BulletExplosion,
                         });
                     }
                     if q_enemy.contains(other_entity) {
                         info!("Bullet hit enemy");
-                        commands.entity(entity).despawn();
+                        let enemy_transform =
+                            q_enemy.get_component::<Transform>(other_entity).unwrap();
+                        commands.entity(bullet_entity).despawn();
                         commands.entity(other_entity).despawn();
                         explosion_ew.send(ExplosionEvent {
                             pos: Vec3::new(
-                                transform.translation.x,
-                                transform.translation.y,
-                                transform.translation.z,
+                                enemy_transform.translation.x,
+                                enemy_transform.translation.y,
+                                enemy_transform.translation.z,
                             ),
                             explosion_type: ExplosionType::BigExplosion,
                         });

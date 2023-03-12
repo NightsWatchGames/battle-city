@@ -9,7 +9,7 @@ pub const BOTTOM_WALL: f32 = -300.;
 pub const TOP_WALL: f32 = 300.;
 
 #[derive(Debug, Component)]
-pub struct Wall;
+pub struct AreaWall;
 
 pub fn setup_wall(
     mut commands: Commands,
@@ -23,7 +23,7 @@ pub fn setup_wall(
 
     // left wall
     commands.spawn((
-        Wall,
+        AreaWall,
         MaterialMesh2dBundle {
             mesh: meshes
                 .add(
@@ -41,7 +41,7 @@ pub fn setup_wall(
 
     // right wall
     commands.spawn((
-        Wall,
+        AreaWall,
         MaterialMesh2dBundle {
             mesh: meshes
                 .add(
@@ -59,7 +59,7 @@ pub fn setup_wall(
 
     // top wall
     commands.spawn((
-        Wall,
+        AreaWall,
         MaterialMesh2dBundle {
             mesh: meshes
                 .add(
@@ -77,7 +77,7 @@ pub fn setup_wall(
 
     // bottom wall
     commands.spawn((
-        Wall,
+        AreaWall,
         MaterialMesh2dBundle {
             mesh: meshes
                 .add(
