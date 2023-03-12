@@ -26,6 +26,12 @@ pub struct ColliderBundle {
     pub rigid_body: RigidBody,
 }
 
+#[derive(Clone, Debug, Default, Bundle)]
+pub struct AnimationBundle {
+    pub timer: AnimationTimer,
+    pub indices: AnimationIndices,
+}
+
 #[derive(Bundle, LdtkEntity)]
 pub struct StoneWallBundle {
     #[from_entity_instance]
@@ -67,6 +73,9 @@ pub struct WaterBundle {
     #[sprite_sheet_bundle("textures/map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 3)]
     #[bundle]
     sprite_bundle: SpriteSheetBundle,
+    #[from_entity_instance]
+    #[bundle]
+    pub annimation_bundle: AnimationBundle,
 }
 #[derive(Bundle, LdtkEntity)]
 pub struct HomeBundle {
@@ -88,6 +97,17 @@ impl From<EntityInstance> for ColliderBundle {
                 rigid_body: RigidBody::Fixed,
             },
             _ => ColliderBundle::default(),
+        }
+    }
+}
+impl From<EntityInstance> for AnimationBundle {
+    fn from(entity_instance: EntityInstance) -> AnimationBundle {
+        match entity_instance.identifier.as_ref() {
+            "Water" => AnimationBundle {
+                timer: AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
+                indices: AnimationIndices { first: 3, last: 4 },
+            },
+            _ => AnimationBundle::default(),
         }
     }
 }
@@ -174,8 +194,8 @@ pub fn animate_water(
     )>,
 ) {
     for (mut timer, indices, mut sprite) in &mut query {
-        timer.tick(time.delta());
-        if timer.just_finished() {
+        timer.0.tick(time.delta());
+        if timer.0.just_finished() {
             // 切换到下一个sprite
             sprite.index = if sprite.index == indices.last {
                 indices.first

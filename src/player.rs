@@ -293,8 +293,8 @@ pub fn animate_players(
     >,
 ) {
     for (mut timer, mut sprite, texture_atlas_handle, direction) in &mut query {
-        timer.tick(time.delta());
-        if timer.just_finished() {
+        timer.0.tick(time.delta());
+        if timer.0.just_finished() {
             // 切换到下一个sprite
             let texture_atlas = texture_atlases.get(texture_atlas_handle).unwrap();
             // 每个方向上的sprite数量
@@ -385,8 +385,8 @@ pub fn animate_shield(
     >,
 ) {
     for (mut timer, indices, mut sprite) in &mut query {
-        timer.tick(time.delta());
-        if timer.just_finished() {
+        timer.0.tick(time.delta());
+        if timer.0.just_finished() {
             // 切换到下一个sprite
             sprite.index = if sprite.index == indices.last {
                 indices.first

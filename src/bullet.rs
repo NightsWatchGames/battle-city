@@ -286,8 +286,8 @@ pub fn animate_explosion(
     time: Res<Time>,
 ) {
     for (entity, mut timer, indices, mut sprite) in &mut q_explosion {
-        timer.tick(time.delta());
-        if timer.just_finished() {
+        timer.0.tick(time.delta());
+        if timer.0.just_finished() {
             sprite.index += 1;
             if sprite.index > indices.last {
                 commands.entity(entity).despawn();

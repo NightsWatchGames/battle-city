@@ -25,10 +25,10 @@ pub enum Direction {
     Down,
 }
 
-#[derive(Component, Deref, DerefMut)]
+#[derive(Component, Clone, Default, Debug)]
 pub struct AnimationTimer(pub Timer);
 
-#[derive(Component)]
+#[derive(Component, Clone, Default, Debug)]
 pub struct AnimationIndices {
     pub first: usize,
     pub last: usize,
