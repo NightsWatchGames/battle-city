@@ -1,10 +1,10 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
+use crate::area::*;
 use crate::common::{self, Direction, *};
 use crate::enemy::Enemy;
 use crate::level::LevelItem;
-use crate::area::*;
 
 pub const BULLET_SPEED: f32 = 300.0;
 
@@ -71,7 +71,7 @@ pub fn check_bullet_collision(
     mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
     mut q_bullet: Query<(Entity, &Bullet, &Transform)>,
-    q_level_item: Query<(&LevelItem, &Transform)>,
+    q_level_item: Query<(&LevelItem, &GlobalTransform)>,
     q_area_wall: Query<&AreaWall>,
     q_enemy: Query<(&Enemy, &Transform)>,
     mut explosion_ew: EventWriter<ExplosionEvent>,
@@ -100,18 +100,22 @@ pub fn check_bullet_collision(
                             .get_component::<LevelItem>(other_entity)
                             .unwrap();
                         let level_item_transform = q_level_item
-                            .get_component::<Transform>(other_entity)
+                            .get_component::<GlobalTransform>(other_entity)
                             .unwrap();
                         dbg!(level_item);
+                        dbg!(bullet_transform);
+                        dbg!(level_item_transform);
                         match level_item {
                             LevelItem::Home => {
                                 // Game Over
                                 println!("Game over");
+                                commands.entity(bullet_entity).despawn();
+                                commands.entity(other_entity).despawn();
                                 explosion_ew.send(ExplosionEvent {
                                     pos: Vec3::new(
-                                        level_item_transform.translation.x,
-                                        level_item_transform.translation.y,
-                                        level_item_transform.translation.z,
+                                        level_item_transform.translation().x,
+                                        level_item_transform.translation().y,
+                                        level_item_transform.translation().z,
                                     ),
                                     explosion_type: ExplosionType::BigExplosion,
                                 });

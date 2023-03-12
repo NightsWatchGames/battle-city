@@ -1,11 +1,12 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
+use crate::area::*;
 use crate::bullet::*;
 use crate::common::{self, *};
-use crate::area::*;
 
 pub const TANK_SPEED: f32 = 200.0;
+pub const TANK_SIZE: f32 = 28.0;
 
 // 坦克刷新子弹间隔
 pub const TANK_REFRESH_BULLET_INTERVAL: f32 = 2.0;
@@ -47,8 +48,14 @@ pub fn setup_player1(
     let shield_texture_atlas_handle = texture_atlases.add(shield_texture_atlas);
 
     let tank_texture_handle = asset_server.load("textures/tank1.bmp");
-    let tank_texture_atlas =
-        TextureAtlas::from_grid(tank_texture_handle, Vec2::new(28.0, 28.0), 2, 4, None, None);
+    let tank_texture_atlas = TextureAtlas::from_grid(
+        tank_texture_handle,
+        Vec2::new(TANK_SIZE, TANK_SIZE),
+        2,
+        4,
+        None,
+        None,
+    );
     let tank_texture_atlas_handle = texture_atlases.add(tank_texture_atlas);
 
     // 保护盾
@@ -72,7 +79,7 @@ pub fn setup_player1(
         .insert(SpriteSheetBundle {
             texture_atlas: tank_texture_atlas_handle,
             transform: Transform {
-                translation: Vec3::new(-50.0, BOTTOM_WALL + 100.0, 2.0),
+                translation: Vec3::new(-50.0, 100.0, 2.0),
                 ..default()
             },
             ..default()
@@ -87,7 +94,7 @@ pub fn setup_player1(
         )))
         .insert(common::Direction::Up)
         .insert(RigidBody::Dynamic)
-        .insert(Collider::cuboid(18.0, 18.0))
+        .insert(Collider::cuboid(TANK_SIZE / 2.0, TANK_SIZE / 2.0))
         .insert(ActiveEvents::COLLISION_EVENTS)
         .insert(LockedAxes::ROTATION_LOCKED)
         .id();
@@ -116,8 +123,14 @@ pub fn setup_player2(
     let shield_texture_atlas_handle = texture_atlases.add(shield_texture_atlas);
 
     let tank_texture_handle = asset_server.load("textures/tank2.bmp");
-    let tank_texture_atlas =
-        TextureAtlas::from_grid(tank_texture_handle, Vec2::new(28.0, 28.0), 2, 4, None, None);
+    let tank_texture_atlas = TextureAtlas::from_grid(
+        tank_texture_handle,
+        Vec2::new(TANK_SIZE, TANK_SIZE),
+        2,
+        4,
+        None,
+        None,
+    );
     let tank_texture_atlas_handle = texture_atlases.add(tank_texture_atlas);
 
     // 保护盾
@@ -141,7 +154,7 @@ pub fn setup_player2(
         .insert(SpriteSheetBundle {
             texture_atlas: tank_texture_atlas_handle,
             transform: Transform {
-                translation: Vec3::new(50.0, BOTTOM_WALL + 100.0, 2.0),
+                translation: Vec3::new(50.0, 100.0, 2.0),
                 ..default()
             },
             ..default()
@@ -156,7 +169,7 @@ pub fn setup_player2(
         )))
         .insert(common::Direction::Up)
         .insert(RigidBody::Dynamic)
-        .insert(Collider::cuboid(18.0, 18.0))
+        .insert(Collider::cuboid(TANK_SIZE / 2.0, TANK_SIZE / 2.0))
         .insert(ActiveEvents::COLLISION_EVENTS)
         .insert(LockedAxes::ROTATION_LOCKED)
         .id();

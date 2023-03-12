@@ -1,4 +1,4 @@
-use crate::common::{AnimationIndices, AnimationTimer};
+use crate::common::{AnimationIndices, AnimationTimer, LEVEL_COLUMNS, LEVEL_ROWS, TILE_SIZE};
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -127,7 +127,11 @@ impl From<EntityInstance> for LevelItem {
 pub fn setup_levels(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn(LdtkWorldBundle {
         ldtk_handle: asset_server.load("levels.ldtk"),
-        transform: Transform::from_xyz(-13.5 * 32., -9. * 32., 0.0),
+        transform: Transform::from_xyz(
+            -LEVEL_COLUMNS as f32 / 2.0 * TILE_SIZE,
+            -LEVEL_ROWS as f32 / 2. * TILE_SIZE,
+            0.0,
+        ),
         ..Default::default()
     });
 }

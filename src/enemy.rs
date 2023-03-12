@@ -2,7 +2,6 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::{
-    area::BOTTOM_WALL,
     common::{self, AnimationTimer},
     player::{TankRefreshBulletTimer, TANK_REFRESH_BULLET_INTERVAL},
 };
@@ -25,7 +24,7 @@ pub fn setup_enemies(
         SpriteSheetBundle {
             texture_atlas: tank_texture_atlas_handle,
             transform: Transform {
-                translation: Vec3::new(0.0, BOTTOM_WALL + 150.0, 1.0),
+                translation: Vec3::new(0.0, 150.0, 1.0),
                 ..default()
             },
             ..default()

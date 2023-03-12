@@ -1,18 +1,18 @@
+mod area;
 mod bullet;
 mod common;
 mod enemy;
 mod level;
 mod player;
 mod ui;
-mod area;
 
+use area::*;
 use bullet::*;
 use common::*;
 use enemy::*;
 use level::*;
 use player::*;
 use ui::*;
-use area::*;
 
 use bevy::{prelude::*, time::FixedTimestep};
 use bevy_ecs_ldtk::prelude::*;
@@ -91,55 +91,55 @@ fn setup_rapier(mut rapier_config: ResMut<RapierConfiguration>) {
 }
 
 // setup系统 添加entities到世界
-fn setup(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
-) {
-    // 地图项
-    spawn_level_item(
-        &mut commands,
-        &asset_server,
-        &mut texture_atlases,
-        Vec3::new(0.0, BOTTOM_WALL + 300.0, 0.0),
-        LevelItem::Home,
-    );
-    spawn_level_item(
-        &mut commands,
-        &asset_server,
-        &mut texture_atlases,
-        Vec3::new(0.0, BOTTOM_WALL + 350.0, 0.0),
-        LevelItem::Tree,
-    );
-    spawn_level_item(
-        &mut commands,
-        &asset_server,
-        &mut texture_atlases,
-        Vec3::new(0.0, BOTTOM_WALL + 400.0, 0.0),
-        LevelItem::Water,
-    );
-    spawn_level_item(
-        &mut commands,
-        &asset_server,
-        &mut texture_atlases,
-        Vec3::new(0.0, BOTTOM_WALL + 450.0, 0.0),
-        LevelItem::IronWall,
-    );
-    spawn_level_item(
-        &mut commands,
-        &asset_server,
-        &mut texture_atlases,
-        Vec3::new(0.0, BOTTOM_WALL + 500.0, 0.0),
-        LevelItem::StoneWall,
-    );
+// fn setup(
+//     mut commands: Commands,
+//     asset_server: Res<AssetServer>,
+//     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+// ) {
+//     // 地图项
+//     spawn_level_item(
+//         &mut commands,
+//         &asset_server,
+//         &mut texture_atlases,
+//         Vec3::new(0.0, BOTTOM_WALL + 300.0, 0.0),
+//         LevelItem::Home,
+//     );
+//     spawn_level_item(
+//         &mut commands,
+//         &asset_server,
+//         &mut texture_atlases,
+//         Vec3::new(0.0, BOTTOM_WALL + 350.0, 0.0),
+//         LevelItem::Tree,
+//     );
+//     spawn_level_item(
+//         &mut commands,
+//         &asset_server,
+//         &mut texture_atlases,
+//         Vec3::new(0.0, BOTTOM_WALL + 400.0, 0.0),
+//         LevelItem::Water,
+//     );
+//     spawn_level_item(
+//         &mut commands,
+//         &asset_server,
+//         &mut texture_atlases,
+//         Vec3::new(0.0, BOTTOM_WALL + 450.0, 0.0),
+//         LevelItem::IronWall,
+//     );
+//     spawn_level_item(
+//         &mut commands,
+//         &asset_server,
+//         &mut texture_atlases,
+//         Vec3::new(0.0, BOTTOM_WALL + 500.0, 0.0),
+//         LevelItem::StoneWall,
+//     );
 
-    commands
-        .spawn(TransformBundle::from(Transform::from_xyz(
-            200.0, 100.0, 0.0,
-        )))
-        .insert(RigidBody::Fixed)
-        .insert(Collider::cuboid(80.0, 30.0));
-}
+//     commands
+//         .spawn(TransformBundle::from(Transform::from_xyz(
+//             200.0, 100.0, 0.0,
+//         )))
+//         .insert(RigidBody::Fixed)
+//         .insert(Collider::cuboid(80.0, 30.0));
+// }
 
 fn display_events(
     mut collision_events: EventReader<CollisionEvent>,

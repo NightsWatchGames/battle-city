@@ -2,6 +2,9 @@ use bevy::prelude::*;
 
 // 物理帧间隔
 pub const TIME_STEP: f32 = 1.0 / 60.0;
+pub const LEVEL_ROWS: i32 = 18;
+pub const LEVEL_COLUMNS: i32 = 27;
+pub const TILE_SIZE: f32 = 32.0;
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum AppState {
