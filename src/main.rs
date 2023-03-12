@@ -33,6 +33,7 @@ fn main() {
         .insert_resource(ClearColor(BACKGROUND_COLOR))
         .insert_resource(GameMode::SinglePlayer)
         .insert_resource(LevelSelection::Index(0))
+        .insert_resource(LevelSpawnedEnemies(0))
         .register_ldtk_entity::<level::StoneWallBundle>("StoneWall")
         .register_ldtk_entity::<level::IronWallBundle>("IronWall")
         .register_ldtk_entity::<level::TreeBundle>("Tree")
@@ -57,7 +58,6 @@ fn main() {
                 .with_system(setup_levels)
                 .with_system(setup_player1.after(setup_levels))
                 .with_system(setup_player2.after(setup_levels))
-                .with_system(setup_enemies.after(setup_levels)),
         )
         .add_system_set(
             SystemSet::on_update(AppState::Playing)
@@ -68,7 +68,9 @@ fn main() {
                 .with_system(animate_water)
                 .with_system(spawn_explosion)
                 .with_system(animate_explosion)
-                .with_system(check_bullet_collision),
+                .with_system(check_bullet_collision)
+                .with_system(auto_switch_level)
+                .with_system(auto_spawn_enemies)
         )
         .add_system_set(
             SystemSet::new()

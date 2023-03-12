@@ -1,4 +1,4 @@
-use crate::common::{AnimationIndices, AnimationTimer, LEVEL_COLUMNS, LEVEL_ROWS, TILE_SIZE};
+use crate::{common::{AnimationIndices, AnimationTimer, LEVEL_COLUMNS, LEVEL_ROWS, TILE_SIZE, MAX_LEVELS}, enemy::LevelSpawnedEnemies};
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -206,6 +206,24 @@ pub fn animate_water(
             } else {
                 sprite.index + 1
             };
+        }
+    }
+}
+
+pub fn auto_switch_level(
+    mut levels: ResMut<LevelSelection>,
+    mut spawned_enmies: ResMut<LevelSpawnedEnemies>,
+) {
+    if spawned_enmies.0 > 5 {
+        if let LevelSelection::Index(index) = *levels {
+            if index as i32 == MAX_LEVELS - 1 {
+                // 游戏胜利
+                info!("win the game!");
+            } else {
+                // 下一关卡
+                *levels = LevelSelection::Index(index + 1);
+                spawned_enmies.0 = 0;
+            }
         }
     }
 }
