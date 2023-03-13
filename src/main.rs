@@ -57,14 +57,11 @@ fn main() {
             SystemSet::on_exit(AppState::StartMenu)
                 .with_system(despawn_screen::<OnStartMenuScreen>),
         )
-        .add_system_set(
-            SystemSet::on_enter(AppState::Playing)
-                .with_system(setup_levels)
-        )
+        .add_system_set(SystemSet::on_enter(AppState::Playing).with_system(setup_levels))
         .add_system_set(
             SystemSet::on_update(AppState::Playing)
-                .with_system(spawn_player1)
-                .with_system(spawn_player2)
+                .with_system(auto_spawn_player1)
+                .with_system(auto_spawn_player2)
                 .with_system(players_attack)
                 .with_system(animate_players)
                 .with_system(animate_shield)
@@ -75,7 +72,7 @@ fn main() {
                 .with_system(animate_explosion)
                 .with_system(check_bullet_collision)
                 .with_system(auto_switch_level)
-                .with_system(auto_spawn_enemies)
+                .with_system(auto_spawn_enemies),
         )
         .add_system_set(
             SystemSet::new()

@@ -8,6 +8,10 @@ pub const LEVEL_COLUMNS: i32 = 27;
 pub const TILE_SIZE: f32 = 32.0;
 // 关卡数量
 pub const MAX_LEVELS: i32 = 2;
+// 同时共存的敌人最大数量
+pub const MAX_LIVE_ENEMIES: i32 = 6;
+// 每关敌人数量
+pub const ENEMIES_PER_LEVEL: i32 = 12;
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum AppState {

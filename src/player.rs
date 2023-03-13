@@ -46,11 +46,11 @@ pub struct SpawnPlayerEvent {
     player_no: PlayerNo,
 }
 
-pub fn spawn_player1(
+pub fn auto_spawn_player1(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
-    q_player1: Query<&Player1>,
+    q_player1: Query<(), With<Player1>>,
     q_player1_marker: Query<&GlobalTransform, With<Player1Marker>>,
     mut spawn_player_er: EventReader<SpawnPlayerEvent>,
     mut spawning_player: Local<bool>,
@@ -146,12 +146,12 @@ pub fn spawn_player1(
     }
 }
 
-pub fn spawn_player2(
+pub fn auto_spawn_player2(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     game_mode: Res<GameMode>,
-    q_player2: Query<&Player2>,
+    q_player2: Query<(), With<Player2>>,
     q_player2_marker: Query<&GlobalTransform, With<Player2Marker>>,
     mut spawn_player_er: EventReader<SpawnPlayerEvent>,
     mut spawning_player: Local<bool>,

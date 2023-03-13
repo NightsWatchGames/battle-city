@@ -1,4 +1,11 @@
-use crate::{common::{AnimationIndices, AnimationTimer, LEVEL_COLUMNS, LEVEL_ROWS, TILE_SIZE, MAX_LEVELS}, enemy::LevelSpawnedEnemies};
+use crate::{
+    common::{
+        AnimationIndices, AnimationTimer, ENEMIES_PER_LEVEL, LEVEL_COLUMNS, LEVEL_ROWS, MAX_LEVELS,
+        TILE_SIZE,
+    },
+    enemy::{Enemy, LevelSpawnedEnemies},
+    player::{Player1, Player2},
+};
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -240,18 +247,31 @@ pub fn animate_water(
 }
 
 pub fn auto_switch_level(
-    mut levels: ResMut<LevelSelection>,
-    mut spawned_enmies: ResMut<LevelSpawnedEnemies>,
+    mut commands: Commands,
+    q_enemies: Query<(), With<Enemy>>,
+    q_player1: Query<Entity, With<Player1>>,
+    q_player2: Query<Entity, With<Player2>>,
+    mut level_selection: ResMut<LevelSelection>,
+    mut level_spawned_enemies: ResMut<LevelSpawnedEnemies>,
 ) {
-    if spawned_enmies.0 > 5 {
-        if let LevelSelection::Index(index) = *levels {
+    // 已生成的敌人数量达到最大值 并且 敌人全部阵亡，切换到下一关卡
+    if level_spawned_enemies.0 == ENEMIES_PER_LEVEL && q_enemies.iter().len() == 0 {
+        if let LevelSelection::Index(index) = *level_selection {
             if index as i32 == MAX_LEVELS - 1 {
                 // 游戏胜利
                 info!("win the game!");
             } else {
                 // 下一关卡
-                *levels = LevelSelection::Index(index + 1);
-                spawned_enmies.0 = 0;
+                *level_selection = LevelSelection::Index(index + 1);
+                level_spawned_enemies.0 = 0;
+
+                // 重新生成玩家
+                for player in &q_player1 {
+                    commands.entity(player).despawn_recursive();
+                }
+                for player in &q_player2 {
+                    commands.entity(player).despawn_recursive();
+                }
             }
         }
     }
