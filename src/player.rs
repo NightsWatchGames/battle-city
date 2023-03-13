@@ -4,6 +4,8 @@ use bevy_rapier2d::prelude::*;
 use crate::area::*;
 use crate::bullet::*;
 use crate::common::{self, *};
+use crate::level::Player1Marker;
+use crate::level::Player2Marker;
 
 pub const TANK_SPEED: f32 = 200.0;
 pub const TANK_SIZE: f32 = 28.0;
@@ -31,150 +33,166 @@ pub struct Shield;
 #[derive(Component, Deref, DerefMut)]
 pub struct ShieldRemoveTimer(pub Timer);
 
-pub fn setup_player1(
+pub fn spawn_player1(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    q_player1: Query<&Player1>,
+    q_player1_marker: Query<&GlobalTransform, With<Player1Marker>>,
 ) {
-    let shield_texture_handle = asset_server.load("textures/shield.bmp");
-    let shield_texture_atlas = TextureAtlas::from_grid(
-        shield_texture_handle,
-        Vec2::new(30.0, 30.0),
-        1,
-        2,
-        None,
-        None,
-    );
-    let shield_texture_atlas_handle = texture_atlases.add(shield_texture_atlas);
+    if q_player1.iter().len() > 0 {
+        return;
+    }
+    for player1_marker in &q_player1_marker {
+        // 防止player1_marker还未初始化
+        if player1_marker.translation() == Vec3::ZERO {
+            continue;
+        }
+        let shield_texture_handle = asset_server.load("textures/shield.bmp");
+        let shield_texture_atlas = TextureAtlas::from_grid(
+            shield_texture_handle,
+            Vec2::new(30.0, 30.0),
+            1,
+            2,
+            None,
+            None,
+        );
+        let shield_texture_atlas_handle = texture_atlases.add(shield_texture_atlas);
 
-    let tank_texture_handle = asset_server.load("textures/tank1.bmp");
-    let tank_texture_atlas = TextureAtlas::from_grid(
-        tank_texture_handle,
-        Vec2::new(TANK_SIZE, TANK_SIZE),
-        2,
-        4,
-        None,
-        None,
-    );
-    let tank_texture_atlas_handle = texture_atlases.add(tank_texture_atlas);
+        let tank_texture_handle = asset_server.load("textures/tank1.bmp");
+        let tank_texture_atlas = TextureAtlas::from_grid(
+            tank_texture_handle,
+            Vec2::new(TANK_SIZE, TANK_SIZE),
+            2,
+            4,
+            None,
+            None,
+        );
+        let tank_texture_atlas_handle = texture_atlases.add(tank_texture_atlas);
 
-    // 保护盾
-    let shield = commands
-        .spawn((
-            Shield,
-            SpriteSheetBundle {
-                texture_atlas: shield_texture_atlas_handle,
-                transform: Transform::from_translation(Vec3::new(0.0, 0.0, -1.0)), // 通过z轴控制sprite order
+        // 保护盾
+        let shield = commands
+            .spawn((
+                Shield,
+                SpriteSheetBundle {
+                    texture_atlas: shield_texture_atlas_handle,
+                    transform: Transform::from_translation(Vec3::new(0.0, 0.0, -1.0)), // 通过z轴控制sprite order
+                    ..default()
+                },
+                AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
+                AnimationIndices { first: 0, last: 1 },
+                ShieldRemoveTimer(Timer::from_seconds(5.0, TimerMode::Once)),
+            ))
+            .id();
+
+        // 坦克
+        let tank = commands
+            .spawn(Player1)
+            .insert(SpriteSheetBundle {
+                texture_atlas: tank_texture_atlas_handle,
+                transform: Transform::from_translation(player1_marker.translation()),
                 ..default()
-            },
-            AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
-            AnimationIndices { first: 0, last: 1 },
-            ShieldRemoveTimer(Timer::from_seconds(5.0, TimerMode::Once)),
-        ))
-        .id();
+            })
+            .insert(AnimationTimer(Timer::from_seconds(
+                0.2,
+                TimerMode::Repeating,
+            )))
+            .insert(TankRefreshBulletTimer(Timer::from_seconds(
+                TANK_REFRESH_BULLET_INTERVAL,
+                TimerMode::Once,
+            )))
+            .insert(common::Direction::Up)
+            .insert(RigidBody::Dynamic)
+            .insert(Collider::cuboid(TANK_SIZE / 2.0, TANK_SIZE / 2.0))
+            .insert(ActiveEvents::COLLISION_EVENTS)
+            .insert(LockedAxes::ROTATION_LOCKED)
+            .id();
 
-    // 坦克
-    let tank = commands
-        .spawn(Player1)
-        .insert(SpriteSheetBundle {
-            texture_atlas: tank_texture_atlas_handle,
-            transform: Transform {
-                translation: Vec3::new(-50.0, 100.0, 2.0),
-                ..default()
-            },
-            ..default()
-        })
-        .insert(AnimationTimer(Timer::from_seconds(
-            0.2,
-            TimerMode::Repeating,
-        )))
-        .insert(TankRefreshBulletTimer(Timer::from_seconds(
-            TANK_REFRESH_BULLET_INTERVAL,
-            TimerMode::Once,
-        )))
-        .insert(common::Direction::Up)
-        .insert(RigidBody::Dynamic)
-        .insert(Collider::cuboid(TANK_SIZE / 2.0, TANK_SIZE / 2.0))
-        .insert(ActiveEvents::COLLISION_EVENTS)
-        .insert(LockedAxes::ROTATION_LOCKED)
-        .id();
-
-    commands.entity(tank).add_child(shield);
+        commands.entity(tank).add_child(shield);
+    }
 }
 
-pub fn setup_player2(
+pub fn spawn_player2(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     game_mode: Res<GameMode>,
+    q_player2: Query<&Player2>,
+    q_player2_marker: Query<&GlobalTransform, With<Player2Marker>>,
 ) {
     if *game_mode == GameMode::SinglePlayer {
         return;
     }
-    let shield_texture_handle = asset_server.load("textures/shield.bmp");
-    let shield_texture_atlas = TextureAtlas::from_grid(
-        shield_texture_handle,
-        Vec2::new(30.0, 30.0),
-        1,
-        2,
-        None,
-        None,
-    );
-    let shield_texture_atlas_handle = texture_atlases.add(shield_texture_atlas);
+    if q_player2.iter().len() > 0 {
+        return;
+    }
+    for player2_marker in &q_player2_marker {
+        // 防止player2_marker还未初始化
+        if player2_marker.translation() == Vec3::ZERO {
+            continue;
+        }
+        let shield_texture_handle = asset_server.load("textures/shield.bmp");
+        let shield_texture_atlas = TextureAtlas::from_grid(
+            shield_texture_handle,
+            Vec2::new(30.0, 30.0),
+            1,
+            2,
+            None,
+            None,
+        );
+        let shield_texture_atlas_handle = texture_atlases.add(shield_texture_atlas);
 
-    let tank_texture_handle = asset_server.load("textures/tank2.bmp");
-    let tank_texture_atlas = TextureAtlas::from_grid(
-        tank_texture_handle,
-        Vec2::new(TANK_SIZE, TANK_SIZE),
-        2,
-        4,
-        None,
-        None,
-    );
-    let tank_texture_atlas_handle = texture_atlases.add(tank_texture_atlas);
+        let tank_texture_handle = asset_server.load("textures/tank2.bmp");
+        let tank_texture_atlas = TextureAtlas::from_grid(
+            tank_texture_handle,
+            Vec2::new(TANK_SIZE, TANK_SIZE),
+            2,
+            4,
+            None,
+            None,
+        );
+        let tank_texture_atlas_handle = texture_atlases.add(tank_texture_atlas);
 
-    // 保护盾
-    let shield = commands
-        .spawn((
-            Shield,
-            SpriteSheetBundle {
-                texture_atlas: shield_texture_atlas_handle,
-                transform: Transform::from_translation(Vec3::new(0.0, 0.0, -1.0)), // 通过z轴控制sprite order
+        // 保护盾
+        let shield = commands
+            .spawn((
+                Shield,
+                SpriteSheetBundle {
+                    texture_atlas: shield_texture_atlas_handle,
+                    transform: Transform::from_translation(Vec3::new(0.0, 0.0, -1.0)), // 通过z轴控制sprite order
+                    ..default()
+                },
+                AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
+                AnimationIndices { first: 0, last: 1 },
+                ShieldRemoveTimer(Timer::from_seconds(5.0, TimerMode::Once)),
+            ))
+            .id();
+
+        // 坦克
+        let tank = commands
+            .spawn(Player2)
+            .insert(SpriteSheetBundle {
+                texture_atlas: tank_texture_atlas_handle,
+                transform: Transform::from_translation(player2_marker.translation()),
                 ..default()
-            },
-            AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
-            AnimationIndices { first: 0, last: 1 },
-            ShieldRemoveTimer(Timer::from_seconds(5.0, TimerMode::Once)),
-        ))
-        .id();
+            })
+            .insert(AnimationTimer(Timer::from_seconds(
+                0.2,
+                TimerMode::Repeating,
+            )))
+            .insert(TankRefreshBulletTimer(Timer::from_seconds(
+                TANK_REFRESH_BULLET_INTERVAL,
+                TimerMode::Once,
+            )))
+            .insert(common::Direction::Up)
+            .insert(RigidBody::Dynamic)
+            .insert(Collider::cuboid(TANK_SIZE / 2.0, TANK_SIZE / 2.0))
+            .insert(ActiveEvents::COLLISION_EVENTS)
+            .insert(LockedAxes::ROTATION_LOCKED)
+            .id();
 
-    // 坦克
-    let tank = commands
-        .spawn(Player2)
-        .insert(SpriteSheetBundle {
-            texture_atlas: tank_texture_atlas_handle,
-            transform: Transform {
-                translation: Vec3::new(50.0, 100.0, 2.0),
-                ..default()
-            },
-            ..default()
-        })
-        .insert(AnimationTimer(Timer::from_seconds(
-            0.2,
-            TimerMode::Repeating,
-        )))
-        .insert(TankRefreshBulletTimer(Timer::from_seconds(
-            TANK_REFRESH_BULLET_INTERVAL,
-            TimerMode::Once,
-        )))
-        .insert(common::Direction::Up)
-        .insert(RigidBody::Dynamic)
-        .insert(Collider::cuboid(TANK_SIZE / 2.0, TANK_SIZE / 2.0))
-        .insert(ActiveEvents::COLLISION_EVENTS)
-        .insert(LockedAxes::ROTATION_LOCKED)
-        .id();
-
-    commands.entity(tank).add_child(shield);
+        commands.entity(tank).add_child(shield);
+    }
 }
 
 // 玩家1移动坦克

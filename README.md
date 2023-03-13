@@ -2,6 +2,7 @@
 - [ ] LDTK编辑关卡
 - [x] 关卡载入
 - [x] 关卡切换
+- [x] 玩家和敌人定点出生
 - [x] 利用物理引擎进行碰撞检测
 - [x] 精灵动画
 - [ ] 游戏UI
@@ -9,6 +10,10 @@
 - [ ] 敌人AI实现
 - [ ] 支持手柄、键盘
 - [x] 本地多人模式
+
+## 游戏展示
+![start_menu](screenshots/start_menu.png)
+![game_playing](screenshots/game_playing.png)
 
 ## 参考资料
 - [bevy-cheatbook](https://github.com/bevy-cheatbook/bevy-cheatbook)（[中文翻译](https://yiviv.com/bevy-cheatbook/)）

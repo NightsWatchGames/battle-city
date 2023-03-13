@@ -39,6 +39,9 @@ fn main() {
         .register_ldtk_entity::<level::TreeBundle>("Tree")
         .register_ldtk_entity::<level::WaterBundle>("Water")
         .register_ldtk_entity::<level::HomeBundle>("Home")
+        .register_ldtk_entity::<level::Player1MarkerBundle>("Player1")
+        .register_ldtk_entity::<level::Player2MarkerBundle>("Player2")
+        .register_ldtk_entity::<level::EnemiesMarkerBundle>("Enemies")
         .add_startup_system(setup_camera)
         .add_startup_system(setup_rapier)
         .add_startup_system(setup_wall)
@@ -56,8 +59,6 @@ fn main() {
         .add_system_set(
             SystemSet::on_enter(AppState::Playing)
                 .with_system(setup_levels)
-                .with_system(setup_player1.after(setup_levels))
-                .with_system(setup_player2.after(setup_levels))
         )
         .add_system_set(
             SystemSet::on_update(AppState::Playing)
@@ -71,6 +72,8 @@ fn main() {
                 .with_system(check_bullet_collision)
                 .with_system(auto_switch_level)
                 .with_system(auto_spawn_enemies)
+                .with_system(spawn_player1)
+                .with_system(spawn_player2)
         )
         .add_system_set(
             SystemSet::new()

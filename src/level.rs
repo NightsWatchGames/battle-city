@@ -20,6 +20,16 @@ pub enum LevelItem {
     Home,
 }
 
+// 关卡player1位置标记
+#[derive(Component, Default)]
+pub struct Player1Marker;
+// 关卡player2位置标记
+#[derive(Component, Default)]
+pub struct Player2Marker;
+// 关卡敌人位置标记
+#[derive(Component, Default)]
+pub struct EnemiesMarker;
+
 #[derive(Clone, Debug, Default, Bundle)]
 pub struct ColliderBundle {
     pub collider: Collider,
@@ -85,6 +95,25 @@ pub struct HomeBundle {
     #[bundle]
     pub collider_bundle: ColliderBundle,
     #[sprite_sheet_bundle("textures/map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 5)]
+    #[bundle]
+    sprite_bundle: SpriteSheetBundle,
+}
+
+#[derive(Bundle, LdtkEntity)]
+pub struct Player1MarkerBundle {
+    marker: Player1Marker,
+}
+#[derive(Bundle, LdtkEntity)]
+pub struct Player2MarkerBundle {
+    marker: Player2Marker,
+    #[sprite_sheet_bundle]
+    #[bundle]
+    sprite_bundle: SpriteSheetBundle,
+}
+#[derive(Bundle, LdtkEntity)]
+pub struct EnemiesMarkerBundle {
+    marker: EnemiesMarker,
+    #[sprite_sheet_bundle]
     #[bundle]
     sprite_bundle: SpriteSheetBundle,
 }
