@@ -3,9 +3,11 @@ use bevy_rapier2d::prelude::*;
 use rand::Rng;
 
 use crate::{
-    common::{self, AnimationTimer, ENEMIES_PER_LEVEL, MAX_LIVE_ENEMIES, TILE_SIZE, AnimationIndices},
+    common::{
+        self, AnimationIndices, AnimationTimer, TankRefreshBulletTimer, ENEMIES_PER_LEVEL,
+        MAX_LIVE_ENEMIES, TANK_REFRESH_BULLET_INTERVAL, TILE_SIZE,
+    },
     level::EnemiesMarker,
-    player::{TankRefreshBulletTimer, TANK_REFRESH_BULLET_INTERVAL},
 };
 
 // 当前关卡生成的敌人数量
@@ -77,7 +79,10 @@ pub fn spawn_enemy(
     // 随机颜色
     let indexes = vec![0, 2, 4, 6, 32, 34, 36, 38];
     let mut rng = rand::thread_rng();
-    let choosed_index = indexes.get(rng.gen_range(0..indexes.len())).unwrap().clone();
+    let choosed_index = indexes
+        .get(rng.gen_range(0..indexes.len()))
+        .unwrap()
+        .clone();
 
     commands.spawn((
         Enemy,
@@ -95,7 +100,10 @@ pub fn spawn_enemy(
             TimerMode::Once,
         )),
         AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
-        AnimationIndices { first: choosed_index, last: choosed_index + 1 },
+        AnimationIndices {
+            first: choosed_index,
+            last: choosed_index + 1,
+        },
         common::Direction::Up,
         RigidBody::Dynamic,
         Collider::cuboid(18.0, 18.0),

@@ -12,6 +12,8 @@ pub const MAX_LEVELS: i32 = 2;
 pub const MAX_LIVE_ENEMIES: i32 = 6;
 // 每关敌人数量
 pub const ENEMIES_PER_LEVEL: i32 = 12;
+// 坦克刷新子弹间隔（秒）
+pub const TANK_REFRESH_BULLET_INTERVAL: f32 = 0.5;
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum AppState {
@@ -43,3 +45,7 @@ pub struct AnimationIndices {
     pub first: usize,
     pub last: usize,
 }
+
+// 坦克刷新子弹计时器
+#[derive(Component, Deref, DerefMut)]
+pub struct TankRefreshBulletTimer(pub Timer);

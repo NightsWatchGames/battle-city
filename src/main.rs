@@ -73,7 +73,7 @@ fn main() {
                 .with_system(handle_bullet_collision)
                 .with_system(auto_switch_level)
                 .with_system(auto_spawn_enemies)
-                .with_system(animate_enemies)
+                .with_system(animate_enemies),
         )
         .add_system_set(
             SystemSet::new()

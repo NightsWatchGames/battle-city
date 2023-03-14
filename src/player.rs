@@ -10,9 +10,6 @@ use crate::level::Player2Marker;
 pub const TANK_SPEED: f32 = 200.0;
 pub const TANK_SIZE: f32 = 28.0;
 
-// 坦克刷新子弹间隔（秒）
-pub const TANK_REFRESH_BULLET_INTERVAL: f32 = 0.5;
-
 // 玩家1
 #[derive(Component)]
 pub struct Player1;
@@ -20,10 +17,6 @@ pub struct Player1;
 // 玩家2
 #[derive(Component)]
 pub struct Player2;
-
-// 坦克刷新子弹计时器
-#[derive(Component, Deref, DerefMut)]
-pub struct TankRefreshBulletTimer(pub Timer);
 
 // 出生保护盾
 #[derive(Component)]
@@ -117,25 +110,25 @@ pub fn auto_spawn_player1(
 
             // 坦克
             let tank = commands
-                .spawn(Player1)
-                .insert(SpriteSheetBundle {
-                    texture_atlas: tank_texture_atlas_handle,
-                    transform: Transform::from_translation(spawn_player_event.pos),
-                    ..default()
-                })
-                .insert(AnimationTimer(Timer::from_seconds(
-                    0.2,
-                    TimerMode::Repeating,
-                )))
-                .insert(TankRefreshBulletTimer(Timer::from_seconds(
-                    TANK_REFRESH_BULLET_INTERVAL,
-                    TimerMode::Once,
-                )))
-                .insert(common::Direction::Up)
-                .insert(RigidBody::Dynamic)
-                .insert(Collider::cuboid(TANK_SIZE / 2.0, TANK_SIZE / 2.0))
-                .insert(ActiveEvents::COLLISION_EVENTS)
-                .insert(LockedAxes::ROTATION_LOCKED)
+                .spawn((
+                    Player1,
+                    SpriteSheetBundle {
+                        texture_atlas: tank_texture_atlas_handle,
+                        transform: Transform::from_translation(spawn_player_event.pos),
+                        ..default()
+                    },
+                    TankRefreshBulletTimer(Timer::from_seconds(
+                        TANK_REFRESH_BULLET_INTERVAL,
+                        TimerMode::Once,
+                    )),
+                    common::Direction::Up,
+                    AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
+                    AnimationIndices { first: 0, last: 1 },
+                    RigidBody::Dynamic,
+                    Collider::cuboid(TANK_SIZE / 2.0, TANK_SIZE / 2.0),
+                    ActiveEvents::COLLISION_EVENTS,
+                    LockedAxes::ROTATION_LOCKED,
+                ))
                 .id();
 
             commands.entity(tank).add_child(shield);
@@ -221,25 +214,25 @@ pub fn auto_spawn_player2(
 
             // 坦克
             let tank = commands
-                .spawn(Player2)
-                .insert(SpriteSheetBundle {
-                    texture_atlas: tank_texture_atlas_handle,
-                    transform: Transform::from_translation(spawn_player_event.pos),
-                    ..default()
-                })
-                .insert(AnimationTimer(Timer::from_seconds(
-                    0.2,
-                    TimerMode::Repeating,
-                )))
-                .insert(TankRefreshBulletTimer(Timer::from_seconds(
-                    TANK_REFRESH_BULLET_INTERVAL,
-                    TimerMode::Once,
-                )))
-                .insert(common::Direction::Up)
-                .insert(RigidBody::Dynamic)
-                .insert(Collider::cuboid(TANK_SIZE / 2.0, TANK_SIZE / 2.0))
-                .insert(ActiveEvents::COLLISION_EVENTS)
-                .insert(LockedAxes::ROTATION_LOCKED)
+                .spawn((
+                    Player2,
+                    SpriteSheetBundle {
+                        texture_atlas: tank_texture_atlas_handle,
+                        transform: Transform::from_translation(spawn_player_event.pos),
+                        ..default()
+                    },
+                    TankRefreshBulletTimer(Timer::from_seconds(
+                        TANK_REFRESH_BULLET_INTERVAL,
+                        TimerMode::Once,
+                    )),
+                    common::Direction::Up,
+                    AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
+                    AnimationIndices { first: 0, last: 1 },
+                    RigidBody::Dynamic,
+                    Collider::cuboid(TANK_SIZE / 2.0, TANK_SIZE / 2.0),
+                    ActiveEvents::COLLISION_EVENTS,
+                    LockedAxes::ROTATION_LOCKED,
+                ))
                 .id();
 
             commands.entity(tank).add_child(shield);
@@ -285,11 +278,12 @@ pub fn player1_move(
             &mut Transform,
             &mut common::Direction,
             &mut TextureAtlasSprite,
+            &mut AnimationIndices,
         ),
         With<Player1>,
     >,
 ) {
-    for (mut tank_transform, mut direction, mut sprite) in &mut transform_query {
+    for (mut tank_transform, mut direction, mut sprite, mut indices) in &mut transform_query {
         let mut tank_x_position = tank_transform.translation.x;
         let mut tank_y_position = tank_transform.translation.y;
 
@@ -316,15 +310,19 @@ pub fn player1_move(
             match *direction {
                 common::Direction::Up => {
                     sprite.index = 0;
+                    *indices = AnimationIndices { first: 0, last: 1 };
                 }
                 common::Direction::Right => {
                     sprite.index = 2;
+                    *indices = AnimationIndices { first: 2, last: 3 };
                 }
                 common::Direction::Down => {
                     sprite.index = 4;
+                    *indices = AnimationIndices { first: 4, last: 5 };
                 }
                 common::Direction::Left => {
                     sprite.index = 6;
+                    *indices = AnimationIndices { first: 6, last: 7 };
                 }
             }
         }
@@ -342,11 +340,12 @@ pub fn player2_move(
             &mut Transform,
             &mut common::Direction,
             &mut TextureAtlasSprite,
+            &mut AnimationIndices,
         ),
         With<Player2>,
     >,
 ) {
-    for (mut tank_transform, mut direction, mut sprite) in &mut transform_query {
+    for (mut tank_transform, mut direction, mut sprite, mut indices) in &mut transform_query {
         let mut tank_x_position = tank_transform.translation.x;
         let mut tank_y_position = tank_transform.translation.y;
 
@@ -373,15 +372,19 @@ pub fn player2_move(
             match *direction {
                 common::Direction::Up => {
                     sprite.index = 0;
+                    *indices = AnimationIndices { first: 0, last: 1 };
                 }
                 common::Direction::Right => {
                     sprite.index = 2;
+                    *indices = AnimationIndices { first: 2, last: 3 };
                 }
                 common::Direction::Down => {
                     sprite.index = 4;
+                    *indices = AnimationIndices { first: 4, last: 5 };
                 }
                 common::Direction::Left => {
                     sprite.index = 6;
+                    *indices = AnimationIndices { first: 6, last: 7 };
                 }
             }
         }
@@ -394,42 +397,24 @@ pub fn player2_move(
 // 坦克移动动画播放
 pub fn animate_players(
     time: Res<Time>,
-    texture_atlases: Res<Assets<TextureAtlas>>,
     mut query: Query<
         (
             &mut AnimationTimer,
+            &AnimationIndices,
             &mut TextureAtlasSprite,
-            &Handle<TextureAtlas>,
-            &common::Direction,
         ),
         Or<(With<Player1>, With<Player2>)>,
     >,
 ) {
-    for (mut timer, mut sprite, texture_atlas_handle, direction) in &mut query {
+    for (mut timer, indices, mut sprite) in &mut query {
         timer.0.tick(time.delta());
         if timer.0.just_finished() {
             // 切换到下一个sprite
-            let texture_atlas = texture_atlases.get(texture_atlas_handle).unwrap();
-            // 每个方向上的sprite数量
-            let sprites_each_direction = texture_atlas.len() / 4;
-            match direction {
-                common::Direction::Up => {
-                    sprite.index =
-                        (sprite.index + 1) % sprites_each_direction + sprites_each_direction * 0;
-                }
-                common::Direction::Right => {
-                    sprite.index =
-                        (sprite.index + 1) % sprites_each_direction + sprites_each_direction * 1;
-                }
-                common::Direction::Down => {
-                    sprite.index =
-                        (sprite.index + 1) % sprites_each_direction + sprites_each_direction * 2;
-                }
-                common::Direction::Left => {
-                    sprite.index =
-                        (sprite.index + 1) % sprites_each_direction + sprites_each_direction * 3;
-                }
-            }
+            sprite.index = if sprite.index == indices.last {
+                indices.first
+            } else {
+                sprite.index + 1
+            };
         }
     }
 }
