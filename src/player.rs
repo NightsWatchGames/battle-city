@@ -10,8 +10,8 @@ use crate::level::Player2Marker;
 pub const TANK_SPEED: f32 = 200.0;
 pub const TANK_SIZE: f32 = 28.0;
 
-// 坦克刷新子弹间隔
-pub const TANK_REFRESH_BULLET_INTERVAL: f32 = 2.0;
+// 坦克刷新子弹间隔（秒）
+pub const TANK_REFRESH_BULLET_INTERVAL: f32 = 0.5;
 
 // 玩家1
 #[derive(Component)]

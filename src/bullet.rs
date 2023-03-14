@@ -67,7 +67,7 @@ pub fn move_bullet(mut transform_query: Query<(&mut Transform, &common::Directio
     }
 }
 
-pub fn check_bullet_collision(
+pub fn handle_bullet_collision(
     mut commands: Commands,
     mut collision_events: EventReader<CollisionEvent>,
     mut q_bullet: Query<(Entity, &Bullet, &Transform)>,

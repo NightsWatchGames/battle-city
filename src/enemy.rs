@@ -3,7 +3,7 @@ use bevy_rapier2d::prelude::*;
 use rand::Rng;
 
 use crate::{
-    common::{self, AnimationTimer, ENEMIES_PER_LEVEL, MAX_LIVE_ENEMIES, TILE_SIZE},
+    common::{self, AnimationTimer, ENEMIES_PER_LEVEL, MAX_LIVE_ENEMIES, TILE_SIZE, AnimationIndices},
     level::EnemiesMarker,
     player::{TankRefreshBulletTimer, TANK_REFRESH_BULLET_INTERVAL},
 };
@@ -71,12 +71,21 @@ pub fn spawn_enemy(
 ) {
     let tank_texture_handle = asset_server.load("textures/enemies.bmp");
     let tank_texture_atlas =
-        TextureAtlas::from_grid(tank_texture_handle, Vec2::new(28.0, 28.0), 2, 4, None, None);
+        TextureAtlas::from_grid(tank_texture_handle, Vec2::new(28.0, 28.0), 8, 8, None, None);
     let tank_texture_atlas_handle = texture_atlases.add(tank_texture_atlas);
+
+    // 随机颜色
+    let indexes = vec![0, 2, 4, 6, 32, 34, 36, 38];
+    let mut rng = rand::thread_rng();
+    let choosed_index = indexes.get(rng.gen_range(0..indexes.len())).unwrap().clone();
 
     commands.spawn((
         Enemy,
         SpriteSheetBundle {
+            sprite: TextureAtlasSprite {
+                index: choosed_index as usize,
+                ..default()
+            },
             texture_atlas: tank_texture_atlas_handle,
             transform: Transform::from_translation(pos),
             ..default()
@@ -86,10 +95,36 @@ pub fn spawn_enemy(
             TimerMode::Once,
         )),
         AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
+        AnimationIndices { first: choosed_index, last: choosed_index + 1 },
         common::Direction::Up,
         RigidBody::Dynamic,
         Collider::cuboid(18.0, 18.0),
         ActiveEvents::COLLISION_EVENTS,
         LockedAxes::ROTATION_LOCKED,
     ));
+}
+
+// 坦克移动动画播放
+pub fn animate_enemies(
+    time: Res<Time>,
+    mut query: Query<
+        (
+            &mut AnimationTimer,
+            &AnimationIndices,
+            &mut TextureAtlasSprite,
+        ),
+        With<Enemy>,
+    >,
+) {
+    for (mut timer, indices, mut sprite) in &mut query {
+        timer.0.tick(time.delta());
+        if timer.0.just_finished() {
+            // 切换到下一个sprite
+            sprite.index = if sprite.index == indices.last {
+                indices.first
+            } else {
+                sprite.index + 1
+            };
+        }
+    }
 }

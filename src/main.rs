@@ -70,9 +70,10 @@ fn main() {
                 .with_system(animate_water)
                 .with_system(spawn_explosion)
                 .with_system(animate_explosion)
-                .with_system(check_bullet_collision)
+                .with_system(handle_bullet_collision)
                 .with_system(auto_switch_level)
-                .with_system(auto_spawn_enemies),
+                .with_system(auto_spawn_enemies)
+                .with_system(animate_enemies)
         )
         .add_system_set(
             SystemSet::new()
@@ -93,57 +94,6 @@ fn setup_camera(mut commands: Commands) {
 fn setup_rapier(mut rapier_config: ResMut<RapierConfiguration>) {
     rapier_config.gravity = Vec2::ZERO;
 }
-
-// setup系统 添加entities到世界
-// fn setup(
-//     mut commands: Commands,
-//     asset_server: Res<AssetServer>,
-//     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
-// ) {
-//     // 地图项
-//     spawn_level_item(
-//         &mut commands,
-//         &asset_server,
-//         &mut texture_atlases,
-//         Vec3::new(0.0, BOTTOM_WALL + 300.0, 0.0),
-//         LevelItem::Home,
-//     );
-//     spawn_level_item(
-//         &mut commands,
-//         &asset_server,
-//         &mut texture_atlases,
-//         Vec3::new(0.0, BOTTOM_WALL + 350.0, 0.0),
-//         LevelItem::Tree,
-//     );
-//     spawn_level_item(
-//         &mut commands,
-//         &asset_server,
-//         &mut texture_atlases,
-//         Vec3::new(0.0, BOTTOM_WALL + 400.0, 0.0),
-//         LevelItem::Water,
-//     );
-//     spawn_level_item(
-//         &mut commands,
-//         &asset_server,
-//         &mut texture_atlases,
-//         Vec3::new(0.0, BOTTOM_WALL + 450.0, 0.0),
-//         LevelItem::IronWall,
-//     );
-//     spawn_level_item(
-//         &mut commands,
-//         &asset_server,
-//         &mut texture_atlases,
-//         Vec3::new(0.0, BOTTOM_WALL + 500.0, 0.0),
-//         LevelItem::StoneWall,
-//     );
-
-//     commands
-//         .spawn(TransformBundle::from(Transform::from_xyz(
-//             200.0, 100.0, 0.0,
-//         )))
-//         .insert(RigidBody::Fixed)
-//         .insert(Collider::cuboid(80.0, 30.0));
-// }
 
 fn display_events(
     mut collision_events: EventReader<CollisionEvent>,
