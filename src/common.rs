@@ -1,7 +1,5 @@
 use bevy::prelude::*;
 
-// 物理帧间隔
-pub const TIME_STEP: f32 = 1.0 / 60.0;
 // 关卡地图行数和列数
 pub const LEVEL_ROWS: i32 = 18;
 pub const LEVEL_COLUMNS: i32 = 27;
@@ -53,3 +51,6 @@ pub struct AnimationIndices {
 // 坦克刷新子弹计时器
 #[derive(Component, Deref, DerefMut)]
 pub struct TankRefreshBulletTimer(pub Timer);
+
+#[derive(Default)]
+pub struct HomeDyingEvent;

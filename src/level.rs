@@ -1,7 +1,7 @@
 use crate::{
     common::{
         AnimationIndices, AnimationTimer, ENEMIES_PER_LEVEL, LEVEL_COLUMNS, LEVEL_ROWS, MAX_LEVELS,
-        SPRITE_WATER_ORDER, TILE_SIZE,
+        SPRITE_WATER_ORDER, TILE_SIZE, HomeDyingEvent,
     },
     enemy::{Enemy, LevelSpawnedEnemies},
     player::PlayerNo,
@@ -135,7 +135,7 @@ impl From<EntityInstance> for ColliderBundle {
     fn from(entity_instance: EntityInstance) -> ColliderBundle {
         match entity_instance.identifier.as_ref() {
             "StoneWall" | "IronWall" | "Water" | "Home" => ColliderBundle {
-                collider: Collider::cuboid(18., 18.),
+                collider: Collider::cuboid(TILE_SIZE / 2., TILE_SIZE / 2.),
                 rigid_body: RigidBody::Fixed,
             },
             _ => ColliderBundle::default(),
@@ -258,6 +258,19 @@ pub fn auto_switch_level(
                 for player in &q_players {
                     commands.entity(player).despawn_recursive();
                 }
+            }
+        }
+    }
+}
+
+pub fn animate_home(
+    mut home_dying_er: EventReader<HomeDyingEvent>,
+    mut q_level_items: Query<(&LevelItem, &mut TextureAtlasSprite)>
+) {
+    for _ in home_dying_er.iter() {
+        for (level_item, mut sprite) in &mut q_level_items {
+            if *level_item == LevelItem::Home {
+                sprite.index = 6;
             }
         }
     }
