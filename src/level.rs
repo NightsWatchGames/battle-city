@@ -4,7 +4,7 @@ use crate::{
         SPRITE_WATER_ORDER, TILE_SIZE,
     },
     enemy::{Enemy, LevelSpawnedEnemies},
-    player::{Player1, Player2},
+    player::PlayerNo,
 };
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
@@ -239,8 +239,7 @@ pub fn animate_water(
 pub fn auto_switch_level(
     mut commands: Commands,
     q_enemies: Query<(), With<Enemy>>,
-    q_player1: Query<Entity, With<Player1>>,
-    q_player2: Query<Entity, With<Player2>>,
+    q_players: Query<Entity, With<PlayerNo>>,
     mut level_selection: ResMut<LevelSelection>,
     mut level_spawned_enemies: ResMut<LevelSpawnedEnemies>,
 ) {
@@ -256,10 +255,7 @@ pub fn auto_switch_level(
                 level_spawned_enemies.0 = 0;
 
                 // 重新生成玩家
-                for player in &q_player1 {
-                    commands.entity(player).despawn_recursive();
-                }
-                for player in &q_player2 {
+                for player in &q_players {
                     commands.entity(player).despawn_recursive();
                 }
             }

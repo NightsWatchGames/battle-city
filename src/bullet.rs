@@ -55,14 +55,24 @@ pub fn setup_explosion_assets(mut commands: Commands, asset_server: Res<AssetSer
 }
 
 // 炮弹移动
-pub fn move_bullet(mut transform_query: Query<(&mut Transform, &common::Direction), With<Bullet>>) {
-    let bullet_movement = 1.0 * BULLET_SPEED * TIME_STEP;
-    for (mut bullet_transform, direction) in &mut transform_query {
+pub fn move_bullet(
+    mut q_bullet: Query<(&mut Transform, &common::Direction), With<Bullet>>,
+    time: Res<Time>,
+) {
+    for (mut bullet_transform, direction) in &mut q_bullet {
         match direction {
-            common::Direction::Left => bullet_transform.translation.x -= bullet_movement,
-            common::Direction::Right => bullet_transform.translation.x += bullet_movement,
-            common::Direction::Up => bullet_transform.translation.y += bullet_movement,
-            common::Direction::Down => bullet_transform.translation.y -= bullet_movement,
+            common::Direction::Left => {
+                bullet_transform.translation.x -= BULLET_SPEED * time.delta_seconds()
+            }
+            common::Direction::Right => {
+                bullet_transform.translation.x += BULLET_SPEED * time.delta_seconds()
+            }
+            common::Direction::Up => {
+                bullet_transform.translation.y += BULLET_SPEED * time.delta_seconds()
+            }
+            common::Direction::Down => {
+                bullet_transform.translation.y -= BULLET_SPEED * time.delta_seconds()
+            }
         }
     }
 }

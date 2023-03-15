@@ -23,6 +23,7 @@ const BACKGROUND_COLOR: Color = Color::BLACK;
 
 fn main() {
     App::new()
+        .register_type::<PlayerNo>()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
         .add_plugin(RapierDebugRenderPlugin::default())
@@ -60,8 +61,8 @@ fn main() {
         .add_system_set(
             SystemSet::on_update(AppState::Playing)
                 .with_system(spawn_ldtk_entity)
-                .with_system(auto_spawn_player1)
-                .with_system(auto_spawn_player2)
+                .with_system(auto_spawn_players)
+                .with_system(players_move)
                 .with_system(players_attack)
                 .with_system(animate_players)
                 .with_system(animate_shield)
@@ -73,13 +74,7 @@ fn main() {
                 .with_system(handle_bullet_collision)
                 .with_system(auto_switch_level)
                 .with_system(auto_spawn_enemies)
-                .with_system(animate_enemies),
-        )
-        .add_system_set(
-            SystemSet::new()
-                .with_run_criteria(FixedTimestep::step(TIME_STEP as f64))
-                .with_system(player1_move)
-                .with_system(player2_move)
+                .with_system(animate_enemies)
                 .with_system(move_bullet),
         )
         .add_system_to_stage(CoreStage::PostUpdate, display_events)
