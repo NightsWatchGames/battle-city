@@ -37,7 +37,6 @@ fn main() {
         .insert_resource(LevelSpawnedEnemies(0))
         .register_ldtk_entity::<level::StoneWallBundle>("StoneWall")
         .register_ldtk_entity::<level::IronWallBundle>("IronWall")
-        .register_ldtk_entity::<level::TreeBundle>("Tree")
         .register_ldtk_entity::<level::WaterBundle>("Water")
         .register_ldtk_entity::<level::HomeBundle>("Home")
         .register_ldtk_entity::<level::Player1MarkerBundle>("Player1")
@@ -60,6 +59,7 @@ fn main() {
         .add_system_set(SystemSet::on_enter(AppState::Playing).with_system(setup_levels))
         .add_system_set(
             SystemSet::on_update(AppState::Playing)
+                .with_system(spawn_ldtk_entity)
                 .with_system(auto_spawn_player1)
                 .with_system(auto_spawn_player2)
                 .with_system(players_attack)

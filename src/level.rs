@@ -1,7 +1,7 @@
 use crate::{
     common::{
         AnimationIndices, AnimationTimer, ENEMIES_PER_LEVEL, LEVEL_COLUMNS, LEVEL_ROWS, MAX_LEVELS,
-        TILE_SIZE,
+        SPRITE_WATER_ORDER, TILE_SIZE,
     },
     enemy::{Enemy, LevelSpawnedEnemies},
     player::{Player1, Player2},
@@ -9,6 +9,12 @@ use crate::{
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_rapier2d::prelude::*;
+
+pub const LEVEL_TRANSLATION_OFFSET: Vec3 = Vec3::new(
+    -LEVEL_COLUMNS as f32 / 2.0 * TILE_SIZE,
+    -LEVEL_ROWS as f32 / 2. * TILE_SIZE,
+    0.0,
+);
 
 // 关卡地图元素
 #[derive(Component, Clone, PartialEq, Eq, Debug, Default)]
@@ -163,13 +169,46 @@ impl From<EntityInstance> for LevelItem {
 pub fn setup_levels(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn(LdtkWorldBundle {
         ldtk_handle: asset_server.load("levels.ldtk"),
-        transform: Transform::from_xyz(
-            -LEVEL_COLUMNS as f32 / 2.0 * TILE_SIZE,
-            -LEVEL_ROWS as f32 / 2. * TILE_SIZE,
-            0.0,
-        ),
+        transform: Transform::from_translation(Vec3::ZERO + LEVEL_TRANSLATION_OFFSET),
         ..Default::default()
     });
+}
+
+pub fn spawn_ldtk_entity(
+    mut commands: Commands,
+    entity_query: Query<(Entity, &Transform, &EntityInstance), Added<EntityInstance>>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    asset_server: Res<AssetServer>,
+) {
+    for (entity, transform, entity_instance) in entity_query.iter() {
+        if entity_instance.identifier == *"Tree" {
+            let map_texture_handle = asset_server.load("textures/map.bmp");
+            let map_texture_atlas = TextureAtlas::from_grid(
+                map_texture_handle,
+                Vec2::new(32.0, 32.0),
+                7,
+                1,
+                None,
+                None,
+            );
+            let map_texture_atlas_handle = texture_atlases.add(map_texture_atlas);
+
+            let mut translation = transform.translation + LEVEL_TRANSLATION_OFFSET;
+            translation.z = SPRITE_WATER_ORDER;
+            commands.spawn((
+                LevelItem::Water,
+                SpriteSheetBundle {
+                    texture_atlas: map_texture_atlas_handle,
+                    sprite: TextureAtlasSprite {
+                        index: 2,
+                        ..default()
+                    },
+                    transform: Transform::from_translation(translation),
+                    ..default()
+                },
+            ));
+        }
+    }
 }
 
 // 水动画播放

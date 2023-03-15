@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use crate::area::*;
 use crate::bullet::*;
 use crate::common::{self, *};
 use crate::level::Player1Marker;
@@ -35,7 +34,7 @@ pub struct PlayerNo(pub u32);
 
 #[derive(Debug)]
 pub struct SpawnPlayerEvent {
-    pos: Vec3,
+    pos: Vec2,
     player_no: PlayerNo,
 }
 
@@ -74,7 +73,7 @@ pub fn auto_spawn_player1(
             let shield_texture_handle = asset_server.load("textures/shield.bmp");
             let shield_texture_atlas = TextureAtlas::from_grid(
                 shield_texture_handle,
-                Vec2::new(30.0, 30.0),
+                Vec2::new(31.0, 31.0),
                 1,
                 2,
                 None,
@@ -114,7 +113,9 @@ pub fn auto_spawn_player1(
                     Player1,
                     SpriteSheetBundle {
                         texture_atlas: tank_texture_atlas_handle,
-                        transform: Transform::from_translation(spawn_player_event.pos),
+                        transform: Transform::from_translation(
+                            spawn_player_event.pos.extend(SPRITE_PLAYER_ORDER),
+                        ),
                         ..default()
                     },
                     TankRefreshBulletTimer(Timer::from_seconds(
@@ -178,7 +179,7 @@ pub fn auto_spawn_player2(
             let shield_texture_handle = asset_server.load("textures/shield.bmp");
             let shield_texture_atlas = TextureAtlas::from_grid(
                 shield_texture_handle,
-                Vec2::new(30.0, 30.0),
+                Vec2::new(31.0, 31.0),
                 1,
                 2,
                 None,
@@ -218,7 +219,9 @@ pub fn auto_spawn_player2(
                     Player2,
                     SpriteSheetBundle {
                         texture_atlas: tank_texture_atlas_handle,
-                        transform: Transform::from_translation(spawn_player_event.pos),
+                        transform: Transform::from_translation(
+                            spawn_player_event.pos.extend(SPRITE_PLAYER_ORDER),
+                        ),
                         ..default()
                     },
                     TankRefreshBulletTimer(Timer::from_seconds(
@@ -535,7 +538,7 @@ pub fn animate_born(
             if sprite.index > indices.last {
                 commands.entity(entity).despawn();
                 spawn_player_ew.send(SpawnPlayerEvent {
-                    pos: transform.translation,
+                    pos: transform.translation.truncate(),
                     player_no: player_no.clone(),
                 });
             }
