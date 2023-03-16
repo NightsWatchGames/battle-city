@@ -48,7 +48,16 @@ fn main() {
         .add_startup_system(setup_rapier)
         .add_startup_system(setup_wall)
         .add_startup_system(setup_explosion_assets)
-        .add_system_set(SystemSet::on_enter(AppState::StartMenu).with_system(setup_start_menu))
+        .add_system_set(
+            SystemSet::on_enter(AppState::StartMenu)
+                .with_system(setup_start_menu)
+                .with_system(cleanup_level_items)
+                .with_system(cleanup_players)
+                .with_system(cleanup_born)
+                .with_system(cleanup_bullets)
+                .with_system(cleanup_explosions)
+                .with_system(cleanup_enemies),
+        )
         .add_system_set(
             SystemSet::on_update(AppState::StartMenu)
                 .with_system(start_game)
@@ -79,7 +88,20 @@ fn main() {
                 .with_system(animate_enemies)
                 .with_system(move_bullet),
         )
-        .add_system_to_stage(CoreStage::PostUpdate, display_events)
+        .add_system_set(SystemSet::on_enter(AppState::GameOver).with_system(setup_game_over))
+        .add_system_set(
+            SystemSet::on_update(AppState::GameOver)
+                .with_system(animate_game_over)
+                .with_system(animate_players)
+                .with_system(animate_shield)
+                .with_system(animate_water)
+                .with_system(animate_home)
+                .with_system(animate_explosion)
+                .with_system(animate_enemies),
+        )
+        .add_system_set(
+            SystemSet::on_exit(AppState::GameOver).with_system(despawn_screen::<OnGameOverScreen>),
+        )
         .add_system(bevy::window::close_on_esc)
         .run();
 }
@@ -90,17 +112,4 @@ fn setup_camera(mut commands: Commands) {
 
 fn setup_rapier(mut rapier_config: ResMut<RapierConfiguration>) {
     rapier_config.gravity = Vec2::ZERO;
-}
-
-fn display_events(
-    mut collision_events: EventReader<CollisionEvent>,
-    mut contact_force_events: EventReader<ContactForceEvent>,
-) {
-    for _collision_event in collision_events.iter() {
-        // println!("Received collision event: {:?}", collision_event);
-    }
-
-    for _contact_force_event in contact_force_events.iter() {
-        // println!("Received contact force event: {:?}", contact_force_event);
-    }
 }

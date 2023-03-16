@@ -1,7 +1,7 @@
 use crate::{
     common::{
-        AnimationIndices, AnimationTimer, ENEMIES_PER_LEVEL, LEVEL_COLUMNS, LEVEL_ROWS, MAX_LEVELS,
-        SPRITE_WATER_ORDER, TILE_SIZE, HomeDyingEvent,
+        AnimationIndices, AnimationTimer, AppState, HomeDyingEvent, ENEMIES_PER_LEVEL,
+        LEVEL_COLUMNS, LEVEL_ROWS, MAX_LEVELS, SPRITE_WATER_ORDER, TILE_SIZE,
     },
     enemy::{Enemy, LevelSpawnedEnemies},
     player::PlayerNo,
@@ -265,13 +265,21 @@ pub fn auto_switch_level(
 
 pub fn animate_home(
     mut home_dying_er: EventReader<HomeDyingEvent>,
-    mut q_level_items: Query<(&LevelItem, &mut TextureAtlasSprite)>
+    mut q_level_items: Query<(&LevelItem, &mut TextureAtlasSprite)>,
+    mut app_state: ResMut<State<AppState>>,
 ) {
     for _ in home_dying_er.iter() {
         for (level_item, mut sprite) in &mut q_level_items {
             if *level_item == LevelItem::Home {
                 sprite.index = 6;
+                app_state.set(AppState::GameOver);
             }
         }
+    }
+}
+
+pub fn cleanup_level_items(mut commands: Commands, q_level_items: Query<Entity, With<LevelItem>>) {
+    for entity in &q_level_items {
+        commands.entity(entity).despawn_recursive();
     }
 }

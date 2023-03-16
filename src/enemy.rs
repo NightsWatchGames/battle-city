@@ -136,3 +136,9 @@ pub fn animate_enemies(
         }
     }
 }
+
+pub fn cleanup_enemies(mut commands: Commands, q_enemies: Query<Entity, With<Enemy>>) {
+    for entity in &q_enemies {
+        commands.entity(entity).despawn_recursive();
+    }
+}

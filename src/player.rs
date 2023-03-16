@@ -381,3 +381,15 @@ pub fn animate_born(
         }
     }
 }
+
+pub fn cleanup_players(mut commands: Commands, q_players: Query<Entity, With<PlayerNo>>) {
+    for entity in &q_players {
+        commands.entity(entity).despawn_recursive();
+    }
+}
+
+pub fn cleanup_born(mut commands: Commands, q_born: Query<Entity, With<Born>>) {
+    for entity in &q_born {
+        commands.entity(entity).despawn_recursive();
+    }
+}

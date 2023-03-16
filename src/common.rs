@@ -14,6 +14,7 @@ pub const ENEMIES_PER_LEVEL: i32 = 12;
 pub const TANK_REFRESH_BULLET_INTERVAL: f32 = 0.5;
 
 // sprite z轴顺序
+pub const SPRITE_GAME_OVER_ORDER: f32 = 2.0;
 pub const SPRITE_WATER_ORDER: f32 = 3.0;
 pub const SPRITE_PLAYER_ORDER: f32 = 2.0;
 

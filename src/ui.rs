@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::common::{AppState, GameMode};
+use crate::common::{AppState, GameMode, SPRITE_GAME_OVER_ORDER};
 
 #[derive(Component)]
 pub struct OnStartMenuScreen;
@@ -8,7 +8,7 @@ pub struct OnStartMenuScreen;
 pub struct OnStartMenuScreenGameModeFlag;
 
 #[derive(Component)]
-pub struct OnGameOverMenuScreen;
+pub struct OnGameOverScreen;
 
 pub fn setup_start_menu(
     mut commands: Commands,
@@ -55,7 +55,33 @@ pub fn setup_start_menu(
         });
 }
 
-pub fn setup_game_over_menu(mut commands: Commands) {}
+pub fn setup_game_over(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let game_over_texture = asset_server.load("textures/game_over.bmp");
+    commands.spawn((
+        OnGameOverScreen,
+        SpriteBundle {
+            texture: game_over_texture,
+            transform: Transform::from_translation(Vec3::new(0., -400., SPRITE_GAME_OVER_ORDER)),
+            ..default()
+        },
+    ));
+}
+
+pub fn animate_game_over(
+    mut q_game_over: Query<&mut Transform, With<OnGameOverScreen>>,
+    mut app_state: ResMut<State<AppState>>,
+    time: Res<Time>,
+) {
+    for mut transform in &mut q_game_over {
+        // 上移game over图片
+        if transform.translation.y < 0. {
+            transform.translation.y += time.delta_seconds() * 150.
+        } else {
+            // 切换到Start Menu
+            app_state.set(AppState::StartMenu);
+        }
+    }
+}
 
 pub fn start_game(keyboard_input: Res<Input<KeyCode>>, mut app_state: ResMut<State<AppState>>) {
     if keyboard_input.any_just_pressed([KeyCode::Return, KeyCode::Space]) {

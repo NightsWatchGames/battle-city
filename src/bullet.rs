@@ -16,7 +16,7 @@ pub enum Bullet {
 }
 
 #[derive(Debug, Component)]
-pub struct ExplosionEffect;
+pub struct Explosion;
 
 #[derive(Debug)]
 pub struct ExplosionEvent {
@@ -125,8 +125,8 @@ pub fn handle_bullet_collision(
                         .get_component::<GlobalTransform>(other_entity)
                         .unwrap();
                     dbg!(level_item);
-                    dbg!(bullet_transform);
-                    dbg!(level_item_transform);
+                    // dbg!(bullet_transform);
+                    // dbg!(level_item_transform);
                     match level_item {
                         LevelItem::Home => {
                             // Game Over
@@ -182,7 +182,8 @@ pub fn handle_bullet_collision(
                 }
                 if *bullet == Bullet::Player && q_enemies.contains(other_entity) {
                     info!("Player bullet hit enemy");
-                    let enemy_transform = q_enemies.get_component::<Transform>(other_entity).unwrap();
+                    let enemy_transform =
+                        q_enemies.get_component::<Transform>(other_entity).unwrap();
                     commands.entity(bullet_entity).despawn();
                     commands.entity(other_entity).despawn();
                     explosion_ew.send(ExplosionEvent {
@@ -196,7 +197,8 @@ pub fn handle_bullet_collision(
                 }
                 if *bullet == Bullet::Enemy && q_players.contains(other_entity) {
                     info!("Enemy bullet hit player");
-                    let player_transform = q_players.get_component::<Transform>(other_entity).unwrap();
+                    let player_transform =
+                        q_players.get_component::<Transform>(other_entity).unwrap();
                     commands.entity(bullet_entity).despawn();
                     commands.entity(other_entity).despawn();
                     explosion_ew.send(ExplosionEvent {
@@ -290,7 +292,7 @@ pub fn spawn_explosion(
 
     for explosion in explosion_er.iter() {
         commands.spawn((
-            ExplosionEffect,
+            Explosion,
             SpriteSheetBundle {
                 sprite: TextureAtlasSprite::new(0),
                 texture_atlas: if explosion.explosion_type == ExplosionType::BigExplosion {
@@ -323,7 +325,7 @@ pub fn animate_explosion(
             &AnimationIndices,
             &mut TextureAtlasSprite,
         ),
-        With<ExplosionEffect>,
+        With<Explosion>,
     >,
     time: Res<Time>,
 ) {
@@ -335,5 +337,17 @@ pub fn animate_explosion(
                 commands.entity(entity).despawn();
             }
         }
+    }
+}
+
+pub fn cleanup_bullets(mut commands: Commands, q_bullets: Query<Entity, With<Bullet>>) {
+    for entity in &q_bullets {
+        commands.entity(entity).despawn_recursive();
+    }
+}
+
+pub fn cleanup_explosions(mut commands: Commands, q_explosions: Query<Entity, With<Explosion>>) {
+    for entity in &q_explosions {
+        commands.entity(entity).despawn_recursive();
     }
 }
