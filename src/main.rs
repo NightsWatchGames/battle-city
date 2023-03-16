@@ -28,7 +28,7 @@ fn main() {
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
         .add_plugin(RapierDebugRenderPlugin::default())
         .add_plugin(LdtkPlugin)
-        .add_plugin(WorldInspectorPlugin)
+        // .add_plugin(WorldInspectorPlugin)
         .add_event::<ExplosionEvent>()
         .add_event::<SpawnPlayerEvent>()
         .add_event::<HomeDyingEvent>()

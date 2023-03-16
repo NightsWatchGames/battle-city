@@ -13,6 +13,7 @@
 ## 游戏展示
 ![start_menu](screenshots/start_menu.png)
 ![game_playing](screenshots/game_playing.png)
+![game_over](screenshots/game_over.png)
 
 ## 参考资料
 - [bevy-cheatbook](https://github.com/bevy-cheatbook/bevy-cheatbook)（[中文翻译](https://yiviv.com/bevy-cheatbook/)）
