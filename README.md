@@ -12,6 +12,8 @@
 - [x] 本地多人模式
 - [x] WASM支持
 
+在线游玩：[点这里](https://nightswatchgames.github.io/games/battle-city/)（电脑版Chrome/Firefox/Edge打开）
+
 ## 运行
 1. 本地运行
 ```

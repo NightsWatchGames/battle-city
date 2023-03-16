@@ -7,7 +7,7 @@ use crate::{
         self, AnimationIndices, AnimationTimer, TankRefreshBulletTimer, ENEMIES_PER_LEVEL,
         MAX_LIVE_ENEMIES, TANK_REFRESH_BULLET_INTERVAL, TILE_SIZE,
     },
-    level::EnemiesMarker,
+    level::EnemiesMarker, player::PlayerNo,
 };
 
 // 当前关卡生成的敌人数量
@@ -18,12 +18,13 @@ pub struct LevelSpawnedEnemies(pub i32);
 pub struct Enemy;
 
 pub fn auto_spawn_enemies(
-    q_enemies: Query<&Transform, With<Enemy>>,
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     mut level_spawned_enemies: ResMut<LevelSpawnedEnemies>,
+    q_enemies: Query<&Transform, With<Enemy>>,
     q_enemies_marker: Query<&GlobalTransform, With<EnemiesMarker>>,
+    q_players: Query<&Transform, With<PlayerNo>>,
 ) {
     if q_enemies.into_iter().len() >= MAX_LIVE_ENEMIES as usize {
         // 战场上存活敌人已达到最大值
@@ -45,13 +46,19 @@ pub fn auto_spawn_enemies(
     if marker_positions.len() > 0 {
         // 随机地点
         let mut rng = rand::thread_rng();
-        // 不能距离战场坦克过近
         let choosed_pos = marker_positions
             .get(rng.gen_range(0..marker_positions.len()))
             .unwrap()
             .translation();
+
+        // 不能距离战场坦克过近
         for enemy_pos in &q_enemies {
             if choosed_pos.distance(enemy_pos.translation) < 2. * TILE_SIZE {
+                return;
+            }
+        }
+        for player_pos in &q_players {
+            if choosed_pos.distance(player_pos.translation) < 2. * TILE_SIZE {
                 return;
             }
         }
