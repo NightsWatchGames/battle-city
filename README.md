@@ -1,5 +1,5 @@
 # battle-city 坦克大战游戏
-- [ ] LDTK软件编辑关卡
+- [x] LDTK软件编辑关卡
 - [x] 关卡载入
 - [x] 关卡切换
 - [x] 玩家定点和敌人随机点出生
@@ -10,6 +10,24 @@
 - [x] 暂停游戏
 - [ ] 敌人AI实现
 - [x] 本地多人模式
+- [x] WASM支持
+
+## 运行
+1. 本地运行
+```
+cargo run
+```
+2. WASM运行
+```
+rustup target install wasm32-unknown-unknown
+cargo install wasm-server-runner
+cargo run --target wasm32-unknown-unknown
+```
+```
+cargo install wasm-bindgen-cli
+cargo build --release --target wasm32-unknown-unknown
+wasm-bindgen --out-dir ./out/ --target web ./target/wasm32-unknown-unknown/release/battle-city.wasm
+```
 
 ## 游戏展示
 ![start_menu](screenshots/start_menu.png)

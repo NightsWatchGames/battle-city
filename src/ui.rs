@@ -104,17 +104,16 @@ pub fn start_game(keyboard_input: Res<Input<KeyCode>>, mut app_state: ResMut<Sta
 pub fn switch_multiplayer_mode(
     keyboard_input: Res<Input<KeyCode>>,
     mut multiplayer_mode: ResMut<MultiplayerMode>,
-    mut q_multiplayer_mode: Query<&mut Style, With<OnStartMenuScreenMultiplayerModeFlag>>,
+    mut q_multiplayer_mode_flag: Query<&mut Style, With<OnStartMenuScreenMultiplayerModeFlag>>,
     audio: Res<Audio>,
     game_sounds: Res<GameSounds>,
 ) {
     if keyboard_input.any_just_pressed([KeyCode::Up, KeyCode::Down]) {
-        for mut style in &mut q_multiplayer_mode {
-            // TODO 待优化
-            if style.position.top == Val::Px(412.) {
+        for mut style in &mut q_multiplayer_mode_flag {
+            if *multiplayer_mode == MultiplayerMode::SinglePlayer {
                 style.position.top = Val::Px(440.);
                 *multiplayer_mode = MultiplayerMode::TwoPlayers;
-            } else {
+            } else if *multiplayer_mode == MultiplayerMode::TwoPlayers {
                 style.position.top = Val::Px(412.);
                 *multiplayer_mode = MultiplayerMode::SinglePlayer;
             }

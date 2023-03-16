@@ -135,7 +135,7 @@ impl From<EntityInstance> for ColliderBundle {
     fn from(entity_instance: EntityInstance) -> ColliderBundle {
         match entity_instance.identifier.as_ref() {
             "StoneWall" | "IronWall" | "Water" | "Home" => ColliderBundle {
-                collider: Collider::cuboid(TILE_SIZE / 2., TILE_SIZE / 2.),
+                collider: Collider::cuboid(TILE_SIZE / 2. - 1., TILE_SIZE / 2. - 1.),
                 rigid_body: RigidBody::Fixed,
             },
             _ => ColliderBundle::default(),
