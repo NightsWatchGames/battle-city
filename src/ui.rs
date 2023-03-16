@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::common::{AppState, MultiplayerMode, SPRITE_GAME_OVER_ORDER};
+use crate::common::{AppState, GameSounds, MultiplayerMode, SPRITE_GAME_OVER_ORDER};
 
 #[derive(Component)]
 pub struct OnStartMenuScreen;
@@ -14,6 +14,8 @@ pub fn setup_start_menu(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    audio: Res<Audio>,
+    game_sounds: Res<GameSounds>,
 ) {
     commands
         .spawn((
@@ -53,6 +55,7 @@ pub fn setup_start_menu(
                 OnStartMenuScreenMultiplayerModeFlag,
             ));
         });
+    audio.play(game_sounds.start.clone());
 }
 
 pub fn setup_game_over(mut commands: Commands, asset_server: Res<AssetServer>) {

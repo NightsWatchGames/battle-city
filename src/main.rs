@@ -48,6 +48,7 @@ fn main() {
         .add_startup_system(setup_rapier)
         .add_startup_system(setup_wall)
         .add_startup_system(setup_explosion_assets)
+        .add_startup_system(setup_game_sounds)
         .add_system_set(
             SystemSet::on_enter(AppState::StartMenu)
                 .with_system(setup_start_menu)

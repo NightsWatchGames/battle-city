@@ -263,6 +263,8 @@ pub fn spawn_explosion(
     asset_server: Res<AssetServer>,
     mut textures: ResMut<Assets<Image>>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    audio: Res<Audio>,
+    game_sounds: Res<GameSounds>,
 ) {
     let mut big_explosion_texture_atlas_builder = TextureAtlasBuilder::default();
     for handle in &explosion_assets.big_explosion {
@@ -313,6 +315,7 @@ pub fn spawn_explosion(
                 },
             },
         ));
+        audio.play(game_sounds.explosion.clone());
     }
 }
 

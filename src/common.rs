@@ -55,3 +55,18 @@ pub struct TankRefreshBulletTimer(pub Timer);
 
 #[derive(Default)]
 pub struct HomeDyingEvent;
+
+#[derive(Debug, Resource)]
+pub struct GameSounds {
+    pub start: Handle<AudioSource>,
+    pub explosion: Handle<AudioSource>,
+    pub fire: Handle<AudioSource>,
+}
+
+pub fn setup_game_sounds(mut commands: Commands, assert_server: Res<AssetServer>) {
+    commands.insert_resource(GameSounds {
+        start: assert_server.load("sounds/start.wav"),
+        explosion: assert_server.load("sounds/explosion.wav"),
+        fire: assert_server.load("sounds/fire.wav"),
+    });
+}

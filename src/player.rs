@@ -287,6 +287,8 @@ pub fn players_attack(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    audio: Res<Audio>,
+    game_sounds: Res<GameSounds>,
 ) {
     for (player_no, transform, direction, mut refresh_bullet_timer) in &mut q_players {
         refresh_bullet_timer.tick(time.delta());
@@ -303,6 +305,7 @@ pub fn players_attack(
                     transform.translation,
                     direction.clone(),
                 );
+                audio.play(game_sounds.fire.clone());
                 refresh_bullet_timer.reset();
             }
         }
