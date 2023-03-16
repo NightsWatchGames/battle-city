@@ -14,9 +14,9 @@ use level::*;
 use player::*;
 use ui::*;
 
-use bevy::{prelude::*, time::FixedTimestep};
+use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
-use bevy_inspector_egui::{prelude::*, quick::WorldInspectorPlugin};
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_rapier2d::prelude::*;
 
 const BACKGROUND_COLOR: Color = Color::BLACK;
@@ -34,7 +34,7 @@ fn main() {
         .add_event::<HomeDyingEvent>()
         .add_state(AppState::StartMenu)
         .insert_resource(ClearColor(BACKGROUND_COLOR))
-        .insert_resource(GameMode::SinglePlayer)
+        .insert_resource(MultiplayerMode::SinglePlayer)
         .insert_resource(LevelSelection::Index(0))
         .insert_resource(LevelSpawnedEnemies(0))
         .register_ldtk_entity::<level::StoneWallBundle>("StoneWall")
@@ -61,7 +61,7 @@ fn main() {
         .add_system_set(
             SystemSet::on_update(AppState::StartMenu)
                 .with_system(start_game)
-                .with_system(switch_game_mode),
+                .with_system(switch_multiplayer_mode),
         )
         .add_system_set(
             SystemSet::on_exit(AppState::StartMenu)

@@ -41,7 +41,7 @@ pub fn auto_spawn_players(
     mut spawn_player_er: EventReader<SpawnPlayerEvent>,
     mut spawning_player1: Local<bool>,
     mut spawning_player2: Local<bool>,
-    game_mode: Res<GameMode>,
+    multiplayer_mode: Res<MultiplayerMode>,
 ) {
     let mut player1_exists = false;
     let mut player2_exists = false;
@@ -68,7 +68,7 @@ pub fn auto_spawn_players(
             }
         }
     }
-    if !player2_exists && *game_mode == GameMode::MultiPlayers {
+    if !player2_exists && *multiplayer_mode == MultiplayerMode::TwoPlayers {
         for player2_marker in &q_player2_marker {
             if !*spawning_player2 {
                 // 出生动画

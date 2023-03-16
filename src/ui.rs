@@ -1,11 +1,11 @@
 use bevy::prelude::*;
 
-use crate::common::{AppState, GameMode, SPRITE_GAME_OVER_ORDER};
+use crate::common::{AppState, MultiplayerMode, SPRITE_GAME_OVER_ORDER};
 
 #[derive(Component)]
 pub struct OnStartMenuScreen;
 #[derive(Component)]
-pub struct OnStartMenuScreenGameModeFlag;
+pub struct OnStartMenuScreenMultiplayerModeFlag;
 
 #[derive(Component)]
 pub struct OnGameOverScreen;
@@ -50,7 +50,7 @@ pub fn setup_start_menu(
                     },
                     ..default()
                 },
-                OnStartMenuScreenGameModeFlag,
+                OnStartMenuScreenMultiplayerModeFlag,
             ));
         });
 }
@@ -78,7 +78,7 @@ pub fn animate_game_over(
             transform.translation.y += time.delta_seconds() * 150.
         } else {
             // 切换到Start Menu
-            app_state.set(AppState::StartMenu);
+            // app_state.set(AppState::StartMenu);
         }
     }
 }
@@ -90,20 +90,20 @@ pub fn start_game(keyboard_input: Res<Input<KeyCode>>, mut app_state: ResMut<Sta
     }
 }
 
-pub fn switch_game_mode(
+pub fn switch_multiplayer_mode(
     keyboard_input: Res<Input<KeyCode>>,
-    mut game_mode: ResMut<GameMode>,
-    mut q_multiplayer_mode: Query<&mut Style, With<OnStartMenuScreenGameModeFlag>>,
+    mut multiplayer_mode: ResMut<MultiplayerMode>,
+    mut q_multiplayer_mode: Query<&mut Style, With<OnStartMenuScreenMultiplayerModeFlag>>,
 ) {
     if keyboard_input.any_just_pressed([KeyCode::Up, KeyCode::Down]) {
         for mut style in &mut q_multiplayer_mode {
             // TODO 待优化
             if style.position.top == Val::Px(412.) {
                 style.position.top = Val::Px(440.);
-                *game_mode = GameMode::MultiPlayers;
+                *multiplayer_mode = MultiplayerMode::TwoPlayers;
             } else {
                 style.position.top = Val::Px(412.);
-                *game_mode = GameMode::SinglePlayer;
+                *multiplayer_mode = MultiplayerMode::SinglePlayer;
             }
         }
     }

@@ -1,7 +1,7 @@
 use crate::{
     common::{
         AnimationIndices, AnimationTimer, AppState, HomeDyingEvent, ENEMIES_PER_LEVEL,
-        LEVEL_COLUMNS, LEVEL_ROWS, MAX_LEVELS, SPRITE_WATER_ORDER, TILE_SIZE,
+        LEVEL_COLUMNS, LEVEL_ROWS, MAX_LEVELS, SPRITE_TREE_ORDER, TILE_SIZE,
     },
     enemy::{Enemy, LevelSpawnedEnemies},
     player::PlayerNo,
@@ -194,7 +194,7 @@ pub fn spawn_ldtk_entity(
             let map_texture_atlas_handle = texture_atlases.add(map_texture_atlas);
 
             let mut translation = transform.translation + LEVEL_TRANSLATION_OFFSET;
-            translation.z = SPRITE_WATER_ORDER;
+            translation.z = SPRITE_TREE_ORDER;
             commands.spawn((
                 LevelItem::Water,
                 SpriteSheetBundle {
