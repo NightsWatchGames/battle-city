@@ -87,8 +87,10 @@ fn main() {
                 .with_system(auto_switch_level)
                 .with_system(auto_spawn_enemies)
                 .with_system(animate_enemies)
-                .with_system(move_bullet),
+                .with_system(move_bullet)
+                .with_system(pause_game),
         )
+        .add_system_set(SystemSet::on_update(AppState::Paused).with_system(unpause_game))
         .add_system_set(SystemSet::on_enter(AppState::GameOver).with_system(setup_game_over))
         .add_system_set(
             SystemSet::on_update(AppState::GameOver)
@@ -103,7 +105,6 @@ fn main() {
         .add_system_set(
             SystemSet::on_exit(AppState::GameOver).with_system(despawn_screen::<OnGameOverScreen>),
         )
-        .add_system(bevy::window::close_on_esc)
         .run();
 }
 

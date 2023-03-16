@@ -315,7 +315,11 @@ pub fn spawn_explosion(
                 },
             },
         ));
-        audio.play(game_sounds.explosion.clone());
+        if explosion.explosion_type == ExplosionType::BigExplosion {
+            audio.play(game_sounds.big_explosion.clone());
+        } else if explosion.explosion_type == ExplosionType::BulletExplosion {
+            audio.play(game_sounds.bullet_explosion.clone());
+        }
     }
 }
 

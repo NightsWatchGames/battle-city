@@ -305,7 +305,7 @@ pub fn players_attack(
                     transform.translation,
                     direction.clone(),
                 );
-                audio.play(game_sounds.fire.clone());
+                audio.play(game_sounds.player_fire.clone());
                 refresh_bullet_timer.reset();
             }
         }

@@ -22,6 +22,7 @@ pub const SPRITE_PLAYER_ORDER: f32 = 2.0;
 pub enum AppState {
     StartMenu,
     Playing,
+    Paused,
     GameOver,
 }
 
@@ -58,15 +59,23 @@ pub struct HomeDyingEvent;
 
 #[derive(Debug, Resource)]
 pub struct GameSounds {
-    pub start: Handle<AudioSource>,
-    pub explosion: Handle<AudioSource>,
-    pub fire: Handle<AudioSource>,
+    pub start_menu: Handle<AudioSource>,
+    pub mode_switch: Handle<AudioSource>,
+    pub bullet_explosion: Handle<AudioSource>,
+    pub big_explosion: Handle<AudioSource>,
+    pub player_fire: Handle<AudioSource>,
+    pub game_over: Handle<AudioSource>,
+    pub game_pause: Handle<AudioSource>,
 }
 
 pub fn setup_game_sounds(mut commands: Commands, assert_server: Res<AssetServer>) {
     commands.insert_resource(GameSounds {
-        start: assert_server.load("sounds/start.wav"),
-        explosion: assert_server.load("sounds/explosion.wav"),
-        fire: assert_server.load("sounds/fire.wav"),
+        start_menu: assert_server.load("sounds/start_menu.ogg"),
+        mode_switch: assert_server.load("sounds/mode_switch.ogg"),
+        bullet_explosion: assert_server.load("sounds/bullet_explosion.ogg"),
+        big_explosion: assert_server.load("sounds/big_explosion.ogg"),
+        player_fire: assert_server.load("sounds/player_fire.ogg"),
+        game_over: assert_server.load("sounds/game_over.ogg"),
+        game_pause: assert_server.load("sounds/game_pause.ogg"),
     });
 }

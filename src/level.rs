@@ -166,7 +166,15 @@ impl From<EntityInstance> for LevelItem {
     }
 }
 
-pub fn setup_levels(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub fn setup_levels(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    q_ldtk_world: Query<(), With<Handle<LdtkAsset>>>,
+) {
+    if q_ldtk_world.iter().len() > 0 {
+        // 从Paused状态进入时无需再load ldtk
+        return;
+    }
     commands.spawn(LdtkWorldBundle {
         ldtk_handle: asset_server.load("levels.ldtk"),
         transform: Transform::from_translation(Vec3::ZERO + LEVEL_TRANSLATION_OFFSET),

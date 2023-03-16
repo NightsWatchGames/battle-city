@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use bevy::prelude::*;
 
 use crate::common::{AppState, GameSounds, MultiplayerMode, SPRITE_GAME_OVER_ORDER};
@@ -55,10 +57,15 @@ pub fn setup_start_menu(
                 OnStartMenuScreenMultiplayerModeFlag,
             ));
         });
-    audio.play(game_sounds.start.clone());
+    audio.play(game_sounds.start_menu.clone());
 }
 
-pub fn setup_game_over(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub fn setup_game_over(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    audio: Res<Audio>,
+    game_sounds: Res<GameSounds>,
+) {
     let game_over_texture = asset_server.load("textures/game_over.bmp");
     commands.spawn((
         OnGameOverScreen,
@@ -68,6 +75,7 @@ pub fn setup_game_over(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..default()
         },
     ));
+    audio.play(game_sounds.game_over.clone());
 }
 
 pub fn animate_game_over(
@@ -81,7 +89,7 @@ pub fn animate_game_over(
             transform.translation.y += time.delta_seconds() * 150.
         } else {
             // 切换到Start Menu
-            // app_state.set(AppState::StartMenu);
+            app_state.set(AppState::StartMenu);
         }
     }
 }
@@ -97,6 +105,8 @@ pub fn switch_multiplayer_mode(
     keyboard_input: Res<Input<KeyCode>>,
     mut multiplayer_mode: ResMut<MultiplayerMode>,
     mut q_multiplayer_mode: Query<&mut Style, With<OnStartMenuScreenMultiplayerModeFlag>>,
+    audio: Res<Audio>,
+    game_sounds: Res<GameSounds>,
 ) {
     if keyboard_input.any_just_pressed([KeyCode::Up, KeyCode::Down]) {
         for mut style in &mut q_multiplayer_mode {
@@ -108,6 +118,43 @@ pub fn switch_multiplayer_mode(
                 style.position.top = Val::Px(412.);
                 *multiplayer_mode = MultiplayerMode::SinglePlayer;
             }
+            audio.play(game_sounds.mode_switch.clone());
+        }
+    }
+}
+
+pub fn pause_game(
+    mut app_state: ResMut<State<AppState>>,
+    keyboard_input: Res<Input<KeyCode>>,
+    audio: Res<Audio>,
+    game_sounds: Res<GameSounds>,
+    mut cold_start: Local<Duration>,
+    time: Res<Time>,
+) {
+    // 增加冷启动防止 pause_game 和 unpause_game 都会收到input，导致Paued<->Playing不断循环
+    *cold_start += time.delta();
+    if cold_start.as_millis() > 100 {
+        if keyboard_input.just_released(KeyCode::Escape) {
+            info!("Pause game");
+            audio.play(game_sounds.game_pause.clone());
+            app_state.set(AppState::Paused);
+            *cold_start = Duration::ZERO;
+        }
+    }
+}
+
+pub fn unpause_game(
+    mut app_state: ResMut<State<AppState>>,
+    keyboard_input: Res<Input<KeyCode>>,
+    mut cold_start: Local<Duration>,
+    time: Res<Time>,
+) {
+    *cold_start += time.delta();
+    if cold_start.as_millis() > 100 {
+        if keyboard_input.just_released(KeyCode::Escape) {
+            info!("Unpause game");
+            app_state.set(AppState::Playing);
+            *cold_start = Duration::ZERO;
         }
     }
 }
