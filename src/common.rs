@@ -12,6 +12,10 @@ pub const MAX_LIVE_ENEMIES: i32 = 6;
 pub const ENEMIES_PER_LEVEL: i32 = 12;
 // 坦克刷新子弹间隔（秒）
 pub const TANK_REFRESH_BULLET_INTERVAL: f32 = 0.5;
+// 坦克速度、大小和缩放比例
+pub const TANK_SPEED: f32 = 150.0;
+pub const TANK_SIZE: f32 = 28.0;
+pub const TANK_SCALE: f32 = 0.8;
 
 // sprite z轴顺序
 pub const SPRITE_GAME_OVER_ORDER: f32 = 4.0;

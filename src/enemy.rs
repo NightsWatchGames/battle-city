@@ -5,7 +5,7 @@ use rand::Rng;
 use crate::{
     common::{
         self, AnimationIndices, AnimationTimer, TankRefreshBulletTimer, ENEMIES_PER_LEVEL,
-        MAX_LIVE_ENEMIES, TANK_REFRESH_BULLET_INTERVAL, TILE_SIZE,
+        MAX_LIVE_ENEMIES, TANK_REFRESH_BULLET_INTERVAL, TILE_SIZE, TANK_SCALE, TANK_SIZE,
     },
     level::EnemiesMarker, player::PlayerNo,
 };
@@ -80,7 +80,7 @@ pub fn spawn_enemy(
 ) {
     let tank_texture_handle = asset_server.load("textures/enemies.bmp");
     let tank_texture_atlas =
-        TextureAtlas::from_grid(tank_texture_handle, Vec2::new(28.0, 28.0), 8, 8, None, None);
+        TextureAtlas::from_grid(tank_texture_handle, Vec2::new(TANK_SIZE, TANK_SIZE), 8, 8, None, None);
     let tank_texture_atlas_handle = texture_atlases.add(tank_texture_atlas);
 
     // 随机颜色
@@ -99,7 +99,11 @@ pub fn spawn_enemy(
                 ..default()
             },
             texture_atlas: tank_texture_atlas_handle,
-            transform: Transform::from_translation(pos),
+            transform: Transform {
+                translation: pos,
+                scale: Vec3::splat(TANK_SCALE),
+                ..default()
+            },
             ..default()
         },
         TankRefreshBulletTimer(Timer::from_seconds(
@@ -113,7 +117,7 @@ pub fn spawn_enemy(
         },
         common::Direction::Up,
         RigidBody::Dynamic,
-        Collider::cuboid(18.0, 18.0),
+        Collider::cuboid(TANK_SIZE * TANK_SCALE / 2.0, TANK_SIZE * TANK_SCALE / 2.0),
         ActiveEvents::COLLISION_EVENTS,
         LockedAxes::ROTATION_LOCKED,
     ));

@@ -6,9 +6,6 @@ use crate::common::{self, *};
 use crate::level::Player2Marker;
 use crate::level::{Player1Marker, LEVEL_TRANSLATION_OFFSET};
 
-pub const TANK_SPEED: f32 = 200.0;
-pub const TANK_SIZE: f32 = 28.0;
-
 // 出生保护盾
 #[derive(Component)]
 pub struct Shield;
@@ -133,9 +130,11 @@ pub fn auto_spawn_players(
                 spawn_player_event.player_no,
                 SpriteSheetBundle {
                     texture_atlas: tank_texture_atlas_handle,
-                    transform: Transform::from_translation(
-                        spawn_player_event.pos.extend(SPRITE_PLAYER_ORDER),
-                    ),
+                    transform: Transform {
+                        translation: spawn_player_event.pos.extend(SPRITE_PLAYER_ORDER),
+                        scale: Vec3::splat(TANK_SCALE),
+                        ..default()
+                    },
                     ..default()
                 },
                 TankRefreshBulletTimer(Timer::from_seconds(
@@ -146,7 +145,7 @@ pub fn auto_spawn_players(
                 AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
                 AnimationIndices { first: 0, last: 1 },
                 RigidBody::Dynamic,
-                Collider::cuboid(TANK_SIZE / 2.0, TANK_SIZE / 2.0),
+                Collider::cuboid(TANK_SIZE * TANK_SCALE / 2.0, TANK_SIZE * TANK_SCALE / 2.0),
                 ActiveEvents::COLLISION_EVENTS,
                 LockedAxes::ROTATION_LOCKED,
             ))
