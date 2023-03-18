@@ -145,6 +145,7 @@ pub fn auto_spawn_players(
                 AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
                 AnimationIndices { first: 0, last: 1 },
                 RigidBody::Dynamic,
+                Velocity::zero(),
                 Collider::cuboid(TANK_SIZE * TANK_SCALE / 2.0, TANK_SIZE * TANK_SCALE / 2.0),
                 ActiveEvents::COLLISION_EVENTS,
                 LockedAxes::ROTATION_LOCKED,
@@ -191,37 +192,53 @@ pub fn spawn_born(
 
 // 玩家移动坦克
 pub fn players_move(
-    time: Res<Time>,
     keyboard_input: Res<Input<KeyCode>>,
     mut query: Query<(
         &PlayerNo,
-        &mut Transform,
+        &mut Velocity,
         &mut common::Direction,
         &mut TextureAtlasSprite,
         &mut AnimationIndices,
     )>,
 ) {
-    for (player_no, mut transform, mut direction, mut sprite, mut indices) in &mut query {
+    for (player_no, mut velocity, mut direction, mut sprite, mut indices) in &mut query {
+        if player_no.0 == 1
+            && keyboard_input.any_just_released([KeyCode::W, KeyCode::S, KeyCode::A, KeyCode::D])
+        {
+            velocity.linvel = Vec2::ZERO;
+            continue;
+        }
+        if player_no.0 == 2
+            && keyboard_input.any_just_released([
+                KeyCode::Up,
+                KeyCode::Down,
+                KeyCode::Left,
+                KeyCode::Right,
+            ])
+        {
+            velocity.linvel = Vec2::ZERO;
+            continue;
+        }
         // 一次只能移动一个方向
         if (player_no.0 == 1 && keyboard_input.pressed(KeyCode::W))
             || (player_no.0 == 2 && keyboard_input.pressed(KeyCode::Up))
         {
-            transform.translation.y += time.delta_seconds() * TANK_SPEED;
+            velocity.linvel = Vec2::new(0.0, TANK_SPEED);
             *direction = common::Direction::Up;
         } else if (player_no.0 == 1 && keyboard_input.pressed(KeyCode::S))
             || (player_no.0 == 2 && keyboard_input.pressed(KeyCode::Down))
         {
-            transform.translation.y -= time.delta_seconds() * TANK_SPEED;
+            velocity.linvel = Vec2::new(0.0, -TANK_SPEED);
             *direction = common::Direction::Down;
         } else if (player_no.0 == 1 && keyboard_input.pressed(KeyCode::A))
             || (player_no.0 == 2 && keyboard_input.pressed(KeyCode::Left))
         {
-            transform.translation.x -= time.delta_seconds() * TANK_SPEED;
+            velocity.linvel = Vec2::new(-TANK_SPEED, 0.0);
             *direction = common::Direction::Left;
         } else if (player_no.0 == 1 && keyboard_input.pressed(KeyCode::D))
             || (player_no.0 == 2 && keyboard_input.pressed(KeyCode::Right))
         {
-            transform.translation.x += time.delta_seconds() * TANK_SPEED;
+            velocity.linvel = Vec2::new(TANK_SPEED, 0.0);
             *direction = common::Direction::Right;
         } else {
             continue;

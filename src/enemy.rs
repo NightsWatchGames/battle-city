@@ -5,9 +5,10 @@ use rand::Rng;
 use crate::{
     common::{
         self, AnimationIndices, AnimationTimer, TankRefreshBulletTimer, ENEMIES_PER_LEVEL,
-        MAX_LIVE_ENEMIES, TANK_REFRESH_BULLET_INTERVAL, TILE_SIZE, TANK_SCALE, TANK_SIZE,
+        MAX_LIVE_ENEMIES, TANK_REFRESH_BULLET_INTERVAL, TANK_SCALE, TANK_SIZE, TILE_SIZE,
     },
-    level::EnemiesMarker, player::PlayerNo,
+    level::EnemiesMarker,
+    player::PlayerNo,
 };
 
 // 当前关卡生成的敌人数量
@@ -79,8 +80,14 @@ pub fn spawn_enemy(
     texture_atlases: &mut ResMut<Assets<TextureAtlas>>,
 ) {
     let tank_texture_handle = asset_server.load("textures/enemies.bmp");
-    let tank_texture_atlas =
-        TextureAtlas::from_grid(tank_texture_handle, Vec2::new(TANK_SIZE, TANK_SIZE), 8, 8, None, None);
+    let tank_texture_atlas = TextureAtlas::from_grid(
+        tank_texture_handle,
+        Vec2::new(TANK_SIZE, TANK_SIZE),
+        8,
+        8,
+        None,
+        None,
+    );
     let tank_texture_atlas_handle = texture_atlases.add(tank_texture_atlas);
 
     // 随机颜色
