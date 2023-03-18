@@ -204,7 +204,7 @@ pub fn spawn_ldtk_entity(
             let mut translation = transform.translation + LEVEL_TRANSLATION_OFFSET;
             translation.z = SPRITE_TREE_ORDER;
             commands.spawn((
-                LevelItem::Water,
+                LevelItem::Tree,
                 SpriteSheetBundle {
                     texture_atlas: map_texture_atlas_handle,
                     sprite: TextureAtlasSprite {
@@ -248,23 +248,30 @@ pub fn auto_switch_level(
     mut commands: Commands,
     q_enemies: Query<(), With<Enemy>>,
     q_players: Query<Entity, With<PlayerNo>>,
+    q_level_items: Query<Entity, With<LevelItem>>,
     mut level_selection: ResMut<LevelSelection>,
     mut level_spawned_enemies: ResMut<LevelSpawnedEnemies>,
+    mut app_state: ResMut<State<AppState>>,
 ) {
     // 已生成的敌人数量达到最大值 并且 敌人全部阵亡，切换到下一关卡
     if level_spawned_enemies.0 == ENEMIES_PER_LEVEL && q_enemies.iter().len() == 0 {
         if let LevelSelection::Index(index) = *level_selection {
             if index as i32 == MAX_LEVELS - 1 {
-                // 游戏胜利
+                // TODO 游戏胜利
                 info!("win the game!");
+                app_state.set(AppState::StartMenu);
             } else {
                 // 下一关卡
+                info!("Switch to next level, index={}", index + 1);
                 *level_selection = LevelSelection::Index(index + 1);
                 level_spawned_enemies.0 = 0;
 
                 // 重新生成玩家
                 for player in &q_players {
                     commands.entity(player).despawn_recursive();
+                }
+                for level_item in &q_level_items {
+                    commands.entity(level_item).despawn_recursive();
                 }
             }
         }
@@ -290,4 +297,17 @@ pub fn cleanup_level_items(mut commands: Commands, q_level_items: Query<Entity, 
     for entity in &q_level_items {
         commands.entity(entity).despawn_recursive();
     }
+}
+
+pub fn cleanup_ldtk_world(
+    mut commands: Commands,
+    q_ldtk_world: Query<Entity, With<Handle<LdtkAsset>>>,
+) {
+    for entity in &q_ldtk_world {
+        commands.entity(entity).despawn_recursive();
+    }
+}
+
+pub fn reset_level_selection(mut level_selection: ResMut<LevelSelection>) {
+    *level_selection = LevelSelection::Index(0);
 }

@@ -4,8 +4,9 @@ use rand::Rng;
 
 use crate::{
     common::{
-        self, AnimationIndices, AnimationTimer, TankRefreshBulletTimer, ENEMIES_PER_LEVEL,
-        MAX_LIVE_ENEMIES, TANK_REFRESH_BULLET_INTERVAL, TANK_SCALE, TANK_SIZE, TILE_SIZE,
+        self, AnimationIndices, AnimationTimer, GameTextureAtlasHandles, TankRefreshBulletTimer,
+        ENEMIES_PER_LEVEL, MAX_LIVE_ENEMIES, TANK_REFRESH_BULLET_INTERVAL, TANK_SCALE, TANK_SIZE,
+        TILE_SIZE,
     },
     level::EnemiesMarker,
     player::PlayerNo,
@@ -20,12 +21,11 @@ pub struct Enemy;
 
 pub fn auto_spawn_enemies(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     mut level_spawned_enemies: ResMut<LevelSpawnedEnemies>,
     q_enemies: Query<&Transform, With<Enemy>>,
     q_enemies_marker: Query<&GlobalTransform, With<EnemiesMarker>>,
     q_players: Query<&Transform, With<PlayerNo>>,
+    game_texture_atlas: Res<GameTextureAtlasHandles>,
 ) {
     if q_enemies.into_iter().len() >= MAX_LIVE_ENEMIES as usize {
         // 战场上存活敌人已达到最大值
@@ -63,12 +63,7 @@ pub fn auto_spawn_enemies(
                 return;
             }
         }
-        spawn_enemy(
-            choosed_pos,
-            &mut commands,
-            &asset_server,
-            &mut texture_atlases,
-        );
+        spawn_enemy(choosed_pos, &mut commands, &game_texture_atlas);
         level_spawned_enemies.0 += 1;
     }
 }
@@ -76,20 +71,8 @@ pub fn auto_spawn_enemies(
 pub fn spawn_enemy(
     pos: Vec3,
     commands: &mut Commands,
-    asset_server: &Res<AssetServer>,
-    texture_atlases: &mut ResMut<Assets<TextureAtlas>>,
+    game_texture_atlas: &Res<GameTextureAtlasHandles>,
 ) {
-    let tank_texture_handle = asset_server.load("textures/enemies.bmp");
-    let tank_texture_atlas = TextureAtlas::from_grid(
-        tank_texture_handle,
-        Vec2::new(TANK_SIZE, TANK_SIZE),
-        8,
-        8,
-        None,
-        None,
-    );
-    let tank_texture_atlas_handle = texture_atlases.add(tank_texture_atlas);
-
     // 随机颜色
     let indexes = vec![0, 2, 4, 6, 32, 34, 36, 38];
     let mut rng = rand::thread_rng();
@@ -105,7 +88,7 @@ pub fn spawn_enemy(
                 index: choosed_index as usize,
                 ..default()
             },
-            texture_atlas: tank_texture_atlas_handle,
+            texture_atlas: game_texture_atlas.enemies.clone(),
             transform: Transform {
                 translation: pos,
                 scale: Vec3::splat(TANK_SCALE),
@@ -159,4 +142,8 @@ pub fn cleanup_enemies(mut commands: Commands, q_enemies: Query<Entity, With<Ene
     for entity in &q_enemies {
         commands.entity(entity).despawn_recursive();
     }
+}
+
+pub fn reset_level_spawned_enemies(mut level_spawned_enemies: ResMut<LevelSpawnedEnemies>) {
+    level_spawned_enemies.0 = 0;
 }

@@ -11,12 +11,14 @@ use crate::level::{Player1Marker, LEVEL_TRANSLATION_OFFSET};
 pub struct Shield;
 
 // 出生保护盾计时
-#[derive(Component, Deref, DerefMut)]
+#[derive(Component)]
 pub struct ShieldRemoveTimer(pub Timer);
 
 // 出生特效
 #[derive(Component)]
 pub struct Born;
+#[derive(Component)]
+pub struct BornRemoveTimer(pub Timer);
 
 #[derive(Debug, Clone, Copy, Component, Reflect, Default)]
 #[reflect(Component)]
@@ -28,10 +30,14 @@ pub struct SpawnPlayerEvent {
     player_no: PlayerNo,
 }
 
+#[derive(Debug, Resource)]
+pub struct PlayerLives {
+    pub player1: i8,
+    pub player2: i8,
+}
+
 pub fn auto_spawn_players(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     q_players: Query<&PlayerNo>,
     q_player1_marker: Query<&Transform, With<Player1Marker>>,
     q_player2_marker: Query<&Transform, With<Player2Marker>>,
@@ -39,6 +45,8 @@ pub fn auto_spawn_players(
     mut spawning_player1: Local<bool>,
     mut spawning_player2: Local<bool>,
     multiplayer_mode: Res<MultiplayerMode>,
+    mut player_lives: ResMut<PlayerLives>,
+    game_texture_atlas: Res<GameTextureAtlasHandles>,
 ) {
     let mut player1_exists = false;
     let mut player2_exists = false;
@@ -58,8 +66,7 @@ pub fn auto_spawn_players(
                     player1_marker.translation + LEVEL_TRANSLATION_OFFSET,
                     PlayerNo(1),
                     &mut commands,
-                    &asset_server,
-                    &mut texture_atlases,
+                    &game_texture_atlas,
                 );
                 *spawning_player1 = true;
             }
@@ -73,8 +80,7 @@ pub fn auto_spawn_players(
                     player2_marker.translation + LEVEL_TRANSLATION_OFFSET,
                     PlayerNo(2),
                     &mut commands,
-                    &asset_server,
-                    &mut texture_atlases,
+                    &game_texture_atlas,
                 );
                 *spawning_player2 = true;
             }
@@ -83,38 +89,12 @@ pub fn auto_spawn_players(
     // 出生动画完毕后，进行player创建
     for spawn_player_event in spawn_player_er.iter() {
         dbg!(spawn_player_event);
-        let shield_texture_handle = asset_server.load("textures/shield.bmp");
-        let shield_texture_atlas = TextureAtlas::from_grid(
-            shield_texture_handle,
-            Vec2::new(31.0, 31.0),
-            1,
-            2,
-            None,
-            None,
-        );
-        let shield_texture_atlas_handle = texture_atlases.add(shield_texture_atlas);
-
-        let tank_texture_handle = asset_server.load(if spawn_player_event.player_no.0 == 1 {
-            "textures/tank1.bmp"
-        } else {
-            "textures/tank2.bmp"
-        });
-        let tank_texture_atlas = TextureAtlas::from_grid(
-            tank_texture_handle,
-            Vec2::new(TANK_SIZE, TANK_SIZE),
-            2,
-            4,
-            None,
-            None,
-        );
-        let tank_texture_atlas_handle = texture_atlases.add(tank_texture_atlas);
-
         // 保护盾
         let shield = commands
             .spawn((
                 Shield,
                 SpriteSheetBundle {
-                    texture_atlas: shield_texture_atlas_handle,
+                    texture_atlas: game_texture_atlas.shield.clone(),
                     transform: Transform::from_translation(Vec3::new(0.0, 0.0, -1.0)), // 通过z轴控制sprite order
                     ..default()
                 },
@@ -129,7 +109,11 @@ pub fn auto_spawn_players(
             .spawn((
                 spawn_player_event.player_no,
                 SpriteSheetBundle {
-                    texture_atlas: tank_texture_atlas_handle,
+                    texture_atlas: if spawn_player_event.player_no.0 == 1 {
+                        game_texture_atlas.player1.clone()
+                    } else {
+                        game_texture_atlas.player2.clone()
+                    },
                     transform: Transform {
                         translation: spawn_player_event.pos.extend(SPRITE_PLAYER_ORDER),
                         scale: Vec3::splat(TANK_SCALE),
@@ -154,6 +138,13 @@ pub fn auto_spawn_players(
 
         commands.entity(tank).add_child(shield);
 
+        // 生命条数减少
+        if spawn_player_event.player_no.0 == 1 {
+            player_lives.player1 -= 1;
+        } else if spawn_player_event.player_no.0 == 2 {
+            player_lives.player2 -= 1;
+        }
+
         // 重置状态
         if spawn_player_event.player_no.0 == 1 {
             *spawning_player1 = false;
@@ -167,26 +158,21 @@ pub fn spawn_born(
     pos: Vec3,
     player_no: PlayerNo,
     commands: &mut Commands,
-    asset_server: &Res<AssetServer>,
-    texture_atlases: &mut ResMut<Assets<TextureAtlas>>,
+    game_texture_atlas: &Res<GameTextureAtlasHandles>,
 ) {
-    let born_texture_handle = asset_server.load("textures/born.bmp");
-    let born_texture_atlas =
-        TextureAtlas::from_grid(born_texture_handle, Vec2::new(32.0, 32.0), 4, 1, None, None);
-    let born_texture_atlas_handle = texture_atlases.add(born_texture_atlas);
-
     // 出生特效
     println!("spawn born once");
     commands.spawn((
         Born,
         player_no,
         SpriteSheetBundle {
-            texture_atlas: born_texture_atlas_handle,
+            texture_atlas: game_texture_atlas.born.clone(),
             transform: Transform::from_translation(pos),
             ..default()
         },
         AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
         AnimationIndices { first: 0, last: 3 },
+        BornRemoveTimer(Timer::from_seconds(2.0, TimerMode::Once)),
     ));
 }
 
@@ -301,10 +287,9 @@ pub fn players_attack(
     )>,
     time: Res<Time>,
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     audio: Res<Audio>,
     game_sounds: Res<GameSounds>,
+    game_texture_atlas: Res<GameTextureAtlasHandles>,
 ) {
     for (player_no, transform, direction, mut refresh_bullet_timer) in &mut q_players {
         refresh_bullet_timer.tick(time.delta());
@@ -312,11 +297,9 @@ pub fn players_attack(
             || (player_no.0 == 2 && keyboard_input.just_pressed(KeyCode::Return))
         {
             if refresh_bullet_timer.finished() {
-                // TODO startup时加载texture
                 spawn_bullet(
                     &mut commands,
-                    &asset_server,
-                    &mut texture_atlases,
+                    &game_texture_atlas,
                     Bullet::Player,
                     transform.translation,
                     direction.clone(),
@@ -325,6 +308,19 @@ pub fn players_attack(
                 refresh_bullet_timer.reset();
             }
         }
+    }
+}
+
+pub fn check_player_lives(
+    player_lives: Res<PlayerLives>,
+    multiplayer_mode: Res<MultiplayerMode>,
+    mut app_state: ResMut<State<AppState>>,
+) {
+    if player_lives.player1 <= 0 && player_lives.player2 <= 0 {
+        app_state.set(AppState::GameOver);
+    }
+    if player_lives.player1 <= 0 && *multiplayer_mode == MultiplayerMode::SinglePlayer {
+        app_state.set(AppState::GameOver);
     }
 }
 
@@ -360,9 +356,9 @@ pub fn remove_shield(
     mut query: Query<(Entity, &mut ShieldRemoveTimer), With<Shield>>,
 ) {
     for (entity, mut timer) in query.iter_mut() {
-        timer.tick(time.delta());
+        timer.0.tick(time.delta());
 
-        if timer.finished() {
+        if timer.0.finished() {
             commands.entity(entity).despawn();
         }
     }
@@ -380,23 +376,31 @@ pub fn animate_born(
             &mut AnimationTimer,
             &AnimationIndices,
             &mut TextureAtlasSprite,
+            &mut BornRemoveTimer,
         ),
         With<Born>,
     >,
     mut spawn_player_ew: EventWriter<SpawnPlayerEvent>,
 ) {
-    for (entity, player_no, transform, mut timer, indices, mut sprite) in &mut query {
+    for (entity, player_no, transform, mut timer, indices, mut sprite, mut born_remove_timer) in
+        &mut query
+    {
         timer.0.tick(time.delta());
+        born_remove_timer.0.tick(time.delta());
         if timer.0.just_finished() {
             // 切换到下一个sprite
-            sprite.index += 1;
-            if sprite.index > indices.last {
-                commands.entity(entity).despawn();
-                spawn_player_ew.send(SpawnPlayerEvent {
-                    pos: transform.translation.truncate(),
-                    player_no: player_no.clone(),
-                });
-            }
+            sprite.index = if sprite.index == indices.last {
+                indices.first
+            } else {
+                sprite.index + 1
+            };
+        }
+        if born_remove_timer.0.finished() {
+            commands.entity(entity).despawn();
+            spawn_player_ew.send(SpawnPlayerEvent {
+                pos: transform.translation.truncate(),
+                player_no: player_no.clone(),
+            });
         }
     }
 }
@@ -411,4 +415,9 @@ pub fn cleanup_born(mut commands: Commands, q_born: Query<Entity, With<Born>>) {
     for entity in &q_born {
         commands.entity(entity).despawn_recursive();
     }
+}
+
+pub fn reset_player_lives(mut player_lives: ResMut<PlayerLives>) {
+    player_lives.player1 = 3;
+    player_lives.player2 = 3;
 }

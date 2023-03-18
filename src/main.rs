@@ -26,7 +26,7 @@ fn main() {
         .register_type::<PlayerNo>()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
-        .add_plugin(RapierDebugRenderPlugin::default())
+        // .add_plugin(RapierDebugRenderPlugin::default())
         .add_plugin(LdtkPlugin)
         // .add_plugin(WorldInspectorPlugin)
         .add_event::<ExplosionEvent>()
@@ -37,6 +37,10 @@ fn main() {
         .insert_resource(MultiplayerMode::SinglePlayer)
         .insert_resource(LevelSelection::Index(0))
         .insert_resource(LevelSpawnedEnemies(0))
+        .insert_resource(PlayerLives {
+            player1: 3,
+            player2: 3,
+        })
         .register_ldtk_entity::<level::StoneWallBundle>("StoneWall")
         .register_ldtk_entity::<level::IronWallBundle>("IronWall")
         .register_ldtk_entity::<level::WaterBundle>("Water")
@@ -49,15 +53,21 @@ fn main() {
         .add_startup_system(setup_wall)
         .add_startup_system(setup_explosion_assets)
         .add_startup_system(setup_game_sounds)
+        .add_startup_system(setup_game_texture_atlas)
         .add_system_set(
             SystemSet::on_enter(AppState::StartMenu)
                 .with_system(setup_start_menu)
                 .with_system(cleanup_level_items)
+                .with_system(cleanup_ldtk_world)
                 .with_system(cleanup_players)
                 .with_system(cleanup_born)
                 .with_system(cleanup_bullets)
                 .with_system(cleanup_explosions)
-                .with_system(cleanup_enemies),
+                .with_system(cleanup_enemies)
+                .with_system(reset_player_lives)
+                .with_system(reset_level_selection)
+                .with_system(reset_level_spawned_enemies)
+                .with_system(reset_multiplayer_mode),
         )
         .add_system_set(
             SystemSet::on_update(AppState::StartMenu)
@@ -75,6 +85,7 @@ fn main() {
                 .with_system(auto_spawn_players)
                 .with_system(players_move)
                 .with_system(players_attack)
+                .with_system(check_player_lives)
                 .with_system(animate_players)
                 .with_system(animate_shield)
                 .with_system(animate_born)

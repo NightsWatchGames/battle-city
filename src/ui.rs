@@ -82,14 +82,19 @@ pub fn animate_game_over(
     mut q_game_over: Query<&mut Transform, With<OnGameOverScreen>>,
     mut app_state: ResMut<State<AppState>>,
     time: Res<Time>,
+    mut stop_secs: Local<f32>,
 ) {
     for mut transform in &mut q_game_over {
         // 上移game over图片
         if transform.translation.y < 0. {
-            transform.translation.y += time.delta_seconds() * 150.
+            transform.translation.y += time.delta_seconds() * 150.;
+            *stop_secs = 0.0;
         } else {
-            // 切换到Start Menu
-            app_state.set(AppState::StartMenu);
+            // 停顿1秒后，切换到Start Menu
+            *stop_secs += time.delta_seconds();
+            if *stop_secs > 1.0 {
+                app_state.set(AppState::StartMenu);
+            }
         }
     }
 }
@@ -162,4 +167,8 @@ pub fn despawn_screen<T: Component>(to_despawn: Query<Entity, With<T>>, mut comm
     for entity in &to_despawn {
         commands.entity(entity).despawn_recursive();
     }
+}
+
+pub fn reset_multiplayer_mode(mut multiplayer_mode: ResMut<MultiplayerMode>) {
+    *multiplayer_mode = MultiplayerMode::SinglePlayer;
 }
