@@ -198,12 +198,11 @@ pub fn enemies_move(
                 }
             }
         }
-        dbg!(can_left);
-        dbg!(can_right);
-        dbg!(can_up);
-        dbg!(can_down);
+        // dbg!(can_left);
+        // dbg!(can_right);
+        // dbg!(can_up);
+        // dbg!(can_down);
         if !can_left && !can_right && !can_up && !can_down {
-            // 往反方向走
             continue;
         }
 
