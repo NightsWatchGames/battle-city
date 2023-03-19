@@ -5,7 +5,7 @@ use crate::area::*;
 use crate::common::{self, Direction, *};
 use crate::enemy::Enemy;
 use crate::level::LevelItem;
-use crate::player::PlayerNo;
+use crate::player::{PlayerLives, PlayerNo};
 
 pub const BULLET_SPEED: f32 = 300.0;
 
@@ -88,6 +88,9 @@ pub fn handle_bullet_collision(
     mut collision_er: EventReader<CollisionEvent>,
     mut explosion_ew: EventWriter<ExplosionEvent>,
     mut home_dying_ew: EventWriter<HomeDyingEvent>,
+    player_lives: Res<PlayerLives>,
+    multiplayer_mode: Res<MultiplayerMode>,
+    mut app_state: ResMut<State<AppState>>,
 ) {
     for event in collision_er.iter() {
         match event {
@@ -209,6 +212,14 @@ pub fn handle_bullet_collision(
                         ),
                         explosion_type: ExplosionType::BigExplosion,
                     });
+                    if player_lives.player1 <= 0 && player_lives.player2 <= 0 {
+                        app_state.set(AppState::GameOver);
+                    }
+                    if player_lives.player1 <= 0
+                        && *multiplayer_mode == MultiplayerMode::SinglePlayer
+                    {
+                        app_state.set(AppState::GameOver);
+                    }
                 }
             }
         }

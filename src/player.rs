@@ -60,7 +60,7 @@ pub fn auto_spawn_players(
     }
     if !player1_exists {
         for player1_marker in &q_player1_marker {
-            if !*spawning_player1 {
+            if !*spawning_player1 && player_lives.player1 > 0 {
                 // 出生动画
                 spawn_born(
                     player1_marker.translation + LEVEL_TRANSLATION_OFFSET,
@@ -74,7 +74,7 @@ pub fn auto_spawn_players(
     }
     if !player2_exists && *multiplayer_mode == MultiplayerMode::TwoPlayers {
         for player2_marker in &q_player2_marker {
-            if !*spawning_player2 {
+            if !*spawning_player2 && player_lives.player2 > 0 {
                 // 出生动画
                 spawn_born(
                     player2_marker.translation + LEVEL_TRANSLATION_OFFSET,
@@ -122,7 +122,7 @@ pub fn auto_spawn_players(
                     ..default()
                 },
                 TankRefreshBulletTimer(Timer::from_seconds(
-                    TANK_REFRESH_BULLET_INTERVAL,
+                    PLAYER_REFRESH_BULLET_INTERVAL,
                     TimerMode::Once,
                 )),
                 common::Direction::Up,
@@ -209,22 +209,22 @@ pub fn players_move(
         if (player_no.0 == 1 && keyboard_input.pressed(KeyCode::W))
             || (player_no.0 == 2 && keyboard_input.pressed(KeyCode::Up))
         {
-            velocity.linvel = Vec2::new(0.0, TANK_SPEED);
+            velocity.linvel = Vec2::new(0.0, PLAYER_SPEED);
             *direction = common::Direction::Up;
         } else if (player_no.0 == 1 && keyboard_input.pressed(KeyCode::S))
             || (player_no.0 == 2 && keyboard_input.pressed(KeyCode::Down))
         {
-            velocity.linvel = Vec2::new(0.0, -TANK_SPEED);
+            velocity.linvel = Vec2::new(0.0, -PLAYER_SPEED);
             *direction = common::Direction::Down;
         } else if (player_no.0 == 1 && keyboard_input.pressed(KeyCode::A))
             || (player_no.0 == 2 && keyboard_input.pressed(KeyCode::Left))
         {
-            velocity.linvel = Vec2::new(-TANK_SPEED, 0.0);
+            velocity.linvel = Vec2::new(-PLAYER_SPEED, 0.0);
             *direction = common::Direction::Left;
         } else if (player_no.0 == 1 && keyboard_input.pressed(KeyCode::D))
             || (player_no.0 == 2 && keyboard_input.pressed(KeyCode::Right))
         {
-            velocity.linvel = Vec2::new(TANK_SPEED, 0.0);
+            velocity.linvel = Vec2::new(PLAYER_SPEED, 0.0);
             *direction = common::Direction::Right;
         } else {
             continue;
@@ -308,19 +308,6 @@ pub fn players_attack(
                 refresh_bullet_timer.reset();
             }
         }
-    }
-}
-
-pub fn check_player_lives(
-    player_lives: Res<PlayerLives>,
-    multiplayer_mode: Res<MultiplayerMode>,
-    mut app_state: ResMut<State<AppState>>,
-) {
-    if player_lives.player1 <= 0 && player_lives.player2 <= 0 {
-        app_state.set(AppState::GameOver);
-    }
-    if player_lives.player1 <= 0 && *multiplayer_mode == MultiplayerMode::SinglePlayer {
-        app_state.set(AppState::GameOver);
     }
 }
 

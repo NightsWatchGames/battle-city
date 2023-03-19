@@ -85,7 +85,6 @@ fn main() {
                 .with_system(auto_spawn_players)
                 .with_system(players_move)
                 .with_system(players_attack)
-                .with_system(check_player_lives)
                 .with_system(animate_players)
                 .with_system(animate_shield)
                 .with_system(animate_born)
@@ -98,6 +97,9 @@ fn main() {
                 .with_system(auto_switch_level)
                 .with_system(auto_spawn_enemies)
                 .with_system(animate_enemies)
+                .with_system(enemies_attack)
+                .with_system(enemies_move)
+                .with_system(handle_enemy_collision)
                 .with_system(move_bullet)
                 .with_system(pause_game),
         )
