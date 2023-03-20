@@ -12,7 +12,7 @@
 - [x] local multiplayer
 - [x] WASM support
 
-Play Online: [Click here]](https://nightswatchgames.github.io/games/battle-city/)（Open with PC Chrome/Firefox/Edge）
+Play Online: [Click here]](https://nightswatchgames.github.io/games/battle-city/) (Open with PC Chrome/Firefox/Edge)
 
 ## Get started
 1. Native
