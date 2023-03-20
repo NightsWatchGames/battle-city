@@ -1,3 +1,5 @@
+[English](README_EN.md)
+
 # battle-city 坦克大战游戏
 - [x] LDTK软件编辑关卡
 - [x] 关卡载入
@@ -38,7 +40,6 @@ wasm-bindgen --out-dir ./out/ --target web ./target/wasm32-unknown-unknown/relea
 
 ## 参考资料
 - [bevy-cheatbook](https://github.com/bevy-cheatbook/bevy-cheatbook)（[中文翻译](https://yiviv.com/bevy-cheatbook/)）
-- https://itch.io/jam/bevy-jam-2
 - [Unity制作坦克大战](https://www.bilibili.com/video/BV1PW41197Su)
 - [Battle City - Wikipedia](https://en.wikipedia.org/wiki/Battle_City)
 
