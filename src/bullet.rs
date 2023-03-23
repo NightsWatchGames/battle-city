@@ -200,6 +200,7 @@ pub fn handle_bullet_collision(
                 }
                 if *bullet == Bullet::Enemy && q_players.contains(other_entity) {
                     info!("Enemy bullet hit player");
+                    // TODO 保护盾无敌状态
                     let player_transform =
                         q_players.get_component::<Transform>(other_entity).unwrap();
                     commands.entity(bullet_entity).despawn();

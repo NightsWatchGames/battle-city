@@ -34,6 +34,8 @@ wasm-bindgen --out-dir ./out/ --target web ./target/wasm32-unknown-unknown/relea
 ```
 
 ## 游戏展示
+视频演示：[B站](https://www.bilibili.com/video/BV1fx4y1w7RC/)
+
 ![start_menu](screenshots/start_menu.png)
 ![game_playing](screenshots/game_playing.png)
 ![game_over](screenshots/game_over.png)
