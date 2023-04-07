@@ -5,7 +5,7 @@ use crate::area::*;
 use crate::common::{self, Direction, *};
 use crate::enemy::Enemy;
 use crate::level::LevelItem;
-use crate::player::{PlayerLives, PlayerNo};
+use crate::player::{PlayerLives, PlayerNo, Shield};
 
 pub const BULLET_SPEED: f32 = 300.0;
 
@@ -83,7 +83,8 @@ pub fn handle_bullet_collision(
     q_bullets: Query<(Entity, &Bullet, &Transform)>,
     q_level_items: Query<(&LevelItem, &GlobalTransform, &mut TextureAtlasSprite)>,
     q_area_wall: Query<(), With<AreaWall>>,
-    q_players: Query<&Transform, With<PlayerNo>>,
+    q_players: Query<(&Transform, &Children), With<PlayerNo>>,
+    q_shields: Query<Entity, With<Shield>>,
     q_enemies: Query<&Transform, With<Enemy>>,
     mut collision_er: EventReader<CollisionEvent>,
     mut explosion_ew: EventWriter<ExplosionEvent>,
@@ -171,6 +172,7 @@ pub fn handle_bullet_collision(
                         _ => {}
                     }
                 }
+
                 if q_area_wall.contains(other_entity) {
                     info!("Bullet hit area wall");
                     commands.entity(bullet_entity).despawn();
@@ -183,6 +185,7 @@ pub fn handle_bullet_collision(
                         explosion_type: ExplosionType::BulletExplosion,
                     });
                 }
+
                 if *bullet == Bullet::Player && q_enemies.contains(other_entity) {
                     info!("Player bullet hit enemy");
                     let enemy_transform =
@@ -198,28 +201,51 @@ pub fn handle_bullet_collision(
                         explosion_type: ExplosionType::BigExplosion,
                     });
                 }
+
                 if *bullet == Bullet::Enemy && q_players.contains(other_entity) {
                     info!("Enemy bullet hit player");
-                    // TODO 保护盾无敌状态
+                    let player_children =
+                        q_players.get_component::<Children>(other_entity).unwrap();
+                    let mut player_has_shield = false;
+                    for child in player_children.iter() {
+                        if q_shields.contains(*child) {
+                            player_has_shield = true;
+                            break;
+                        }
+                    }
+
                     let player_transform =
                         q_players.get_component::<Transform>(other_entity).unwrap();
                     commands.entity(bullet_entity).despawn();
-                    commands.entity(other_entity).despawn();
-                    explosion_ew.send(ExplosionEvent {
-                        pos: Vec3::new(
-                            player_transform.translation.x,
-                            player_transform.translation.y,
-                            player_transform.translation.z,
-                        ),
-                        explosion_type: ExplosionType::BigExplosion,
-                    });
-                    if player_lives.player1 <= 0 && player_lives.player2 <= 0 {
-                        app_state.set(AppState::GameOver);
-                    }
-                    if player_lives.player1 <= 0
-                        && *multiplayer_mode == MultiplayerMode::SinglePlayer
-                    {
-                        app_state.set(AppState::GameOver);
+
+                    if player_has_shield {
+                        info!("Player has shield");
+                        explosion_ew.send(ExplosionEvent {
+                            pos: Vec3::new(
+                                player_transform.translation.x,
+                                player_transform.translation.y,
+                                player_transform.translation.z,
+                            ),
+                            explosion_type: ExplosionType::BulletExplosion,
+                        });
+                    } else {
+                        commands.entity(other_entity).despawn_recursive();
+                        explosion_ew.send(ExplosionEvent {
+                            pos: Vec3::new(
+                                player_transform.translation.x,
+                                player_transform.translation.y,
+                                player_transform.translation.z,
+                            ),
+                            explosion_type: ExplosionType::BigExplosion,
+                        });
+                        if player_lives.player1 <= 0 && player_lives.player2 <= 0 {
+                            app_state.set(AppState::GameOver);
+                        }
+                        if player_lives.player1 <= 0
+                            && *multiplayer_mode == MultiplayerMode::SinglePlayer
+                        {
+                            app_state.set(AppState::GameOver);
+                        }
                     }
                 }
             }

@@ -22,7 +22,6 @@ use bevy_rapier2d::prelude::*;
 const BACKGROUND_COLOR: Color = Color::BLACK;
 
 // TODO 坦克碰撞导致被迫移动
-// TODO 碰撞体跟sprite面积不完全一样，会导致坦克嵌入墙内一部分
 fn main() {
     App::new()
         .register_type::<PlayerNo>()

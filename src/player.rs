@@ -130,7 +130,8 @@ pub fn auto_spawn_players(
                 AnimationIndices { first: 0, last: 1 },
                 RigidBody::Dynamic,
                 Velocity::zero(),
-                Collider::cuboid(TANK_SIZE * TANK_SCALE / 2.0, TANK_SIZE * TANK_SCALE / 2.0),
+                // 圆形碰撞体防止因ROTATION_LOCKED被地形卡住
+                Collider::ball(TANK_SIZE * TANK_SCALE / 2.0 + 2.0),
                 ActiveEvents::COLLISION_EVENTS,
                 LockedAxes::ROTATION_LOCKED,
             ))
