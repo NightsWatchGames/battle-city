@@ -80,7 +80,7 @@ pub fn setup_game_over(
 
 pub fn animate_game_over(
     mut q_game_over: Query<&mut Transform, With<OnGameOverScreen>>,
-    mut app_state: ResMut<State<AppState>>,
+    mut app_state: ResMut<NextState<AppState>>,
     time: Res<Time>,
     mut stop_secs: Local<f32>,
 ) {
@@ -99,10 +99,10 @@ pub fn animate_game_over(
     }
 }
 
-pub fn start_game(keyboard_input: Res<Input<KeyCode>>, mut app_state: ResMut<State<AppState>>) {
+pub fn start_game(keyboard_input: Res<Input<KeyCode>>, mut app_state: ResMut<NextState<AppState>>) {
     if keyboard_input.any_just_pressed([KeyCode::Return, KeyCode::Space]) {
         info!("Switch app state to playing");
-        app_state.set(AppState::Playing).unwrap();
+        app_state.set(AppState::Playing);
     }
 }
 
@@ -128,7 +128,7 @@ pub fn switch_multiplayer_mode(
 }
 
 pub fn pause_game(
-    mut app_state: ResMut<State<AppState>>,
+    mut app_state: ResMut<NextState<AppState>>,
     keyboard_input: Res<Input<KeyCode>>,
     audio: Res<Audio>,
     game_sounds: Res<GameSounds>,
@@ -148,7 +148,7 @@ pub fn pause_game(
 }
 
 pub fn unpause_game(
-    mut app_state: ResMut<State<AppState>>,
+    mut app_state: ResMut<NextState<AppState>>,
     keyboard_input: Res<Input<KeyCode>>,
     mut cold_start: Local<Duration>,
     time: Res<Time>,
