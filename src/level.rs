@@ -63,7 +63,7 @@ pub struct StoneWallBundle {
     #[bundle]
     pub collider_bundle: ColliderBundle,
     // #[sprite_sheet_bundle("path/to/asset.png", tile_width, tile_height, columns, rows, padding, offset, index)]
-    #[sprite_sheet_bundle("textures/map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 0)]
+    #[sprite_sheet_bundle("textures/Map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 0)]
     #[bundle]
     sprite_bundle: SpriteSheetBundle,
 }
@@ -74,7 +74,7 @@ pub struct IronWallBundle {
     #[from_entity_instance]
     #[bundle]
     pub collider_bundle: ColliderBundle,
-    #[sprite_sheet_bundle("textures/map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 1)]
+    #[sprite_sheet_bundle("textures/Map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 1)]
     #[bundle]
     sprite_bundle: SpriteSheetBundle,
 }
@@ -82,7 +82,7 @@ pub struct IronWallBundle {
 pub struct TreeBundle {
     #[from_entity_instance]
     level_item: LevelItem,
-    #[sprite_sheet_bundle("textures/map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 2)]
+    #[sprite_sheet_bundle("textures/Map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 2)]
     #[bundle]
     sprite_bundle: SpriteSheetBundle,
 }
@@ -93,7 +93,7 @@ pub struct WaterBundle {
     #[from_entity_instance]
     #[bundle]
     pub collider_bundle: ColliderBundle,
-    #[sprite_sheet_bundle("textures/map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 3)]
+    #[sprite_sheet_bundle("textures/Map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 3)]
     #[bundle]
     sprite_bundle: SpriteSheetBundle,
     #[from_entity_instance]
@@ -107,7 +107,7 @@ pub struct HomeBundle {
     #[from_entity_instance]
     #[bundle]
     pub collider_bundle: ColliderBundle,
-    #[sprite_sheet_bundle("textures/map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 5)]
+    #[sprite_sheet_bundle("textures/Map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 5)]
     #[bundle]
     sprite_bundle: SpriteSheetBundle,
 }
@@ -190,7 +190,7 @@ pub fn spawn_ldtk_entity(
 ) {
     for (entity, transform, entity_instance) in entity_query.iter() {
         if entity_instance.identifier == *"Tree" {
-            let map_texture_handle = asset_server.load("textures/map.bmp");
+            let map_texture_handle = asset_server.load("textures/Map.bmp");
             let map_texture_atlas = TextureAtlas::from_grid(
                 map_texture_handle,
                 Vec2::new(32.0, 32.0),

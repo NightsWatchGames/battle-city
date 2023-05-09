@@ -34,7 +34,7 @@ pub fn setup_start_menu(
         ))
         .with_children(|parent| {
             parent.spawn(ImageBundle {
-                image: asset_server.load("textures/title.bmp").into(),
+                image: asset_server.load("textures/Title.bmp").into(),
                 ..default()
             });
             // TODO 将texture_atlas 直接用于ui，issue https://github.com/bevyengine/bevy/issues/1169
