@@ -131,8 +131,8 @@ pub struct EnemiesMarkerBundle {
     sprite_bundle: SpriteSheetBundle,
 }
 
-impl From<EntityInstance> for ColliderBundle {
-    fn from(entity_instance: EntityInstance) -> ColliderBundle {
+impl From<&EntityInstance> for ColliderBundle {
+    fn from(entity_instance: &EntityInstance) -> ColliderBundle {
         match entity_instance.identifier.as_ref() {
             "StoneWall" | "IronWall" | "Water" | "Home" => ColliderBundle {
                 collider: Collider::cuboid(TILE_SIZE / 2., TILE_SIZE / 2.),
@@ -142,8 +142,8 @@ impl From<EntityInstance> for ColliderBundle {
         }
     }
 }
-impl From<EntityInstance> for AnimationBundle {
-    fn from(entity_instance: EntityInstance) -> AnimationBundle {
+impl From<&EntityInstance> for AnimationBundle {
+    fn from(entity_instance: &EntityInstance) -> AnimationBundle {
         match entity_instance.identifier.as_ref() {
             "Water" => AnimationBundle {
                 timer: AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
@@ -153,8 +153,8 @@ impl From<EntityInstance> for AnimationBundle {
         }
     }
 }
-impl From<EntityInstance> for LevelItem {
-    fn from(entity_instance: EntityInstance) -> LevelItem {
+impl From<&EntityInstance> for LevelItem {
+    fn from(entity_instance: &EntityInstance) -> LevelItem {
         match entity_instance.identifier.as_ref() {
             "StoneWall" => LevelItem::StoneWall,
             "IronWall" => LevelItem::IronWall,
@@ -251,7 +251,7 @@ pub fn auto_switch_level(
     q_level_items: Query<Entity, With<LevelItem>>,
     mut level_selection: ResMut<LevelSelection>,
     mut level_spawned_enemies: ResMut<LevelSpawnedEnemies>,
-    mut app_state: ResMut<State<AppState>>,
+    mut app_state: ResMut<NextState<AppState>>,
 ) {
     // 已生成的敌人数量达到最大值 并且 敌人全部阵亡，切换到下一关卡
     if level_spawned_enemies.0 == ENEMIES_PER_LEVEL && q_enemies.iter().len() == 0 {
@@ -281,7 +281,7 @@ pub fn auto_switch_level(
 pub fn animate_home(
     mut home_dying_er: EventReader<HomeDyingEvent>,
     mut q_level_items: Query<(&LevelItem, &mut TextureAtlasSprite)>,
-    mut app_state: ResMut<State<AppState>>,
+    mut app_state: ResMut<NextState<AppState>>,
 ) {
     for _ in home_dying_er.iter() {
         for (level_item, mut sprite) in &mut q_level_items {

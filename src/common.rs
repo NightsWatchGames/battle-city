@@ -24,8 +24,9 @@ pub const SPRITE_GAME_OVER_ORDER: f32 = 4.0;
 pub const SPRITE_TREE_ORDER: f32 = 3.0;
 pub const SPRITE_PLAYER_ORDER: f32 = 2.0;
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash, States, Default)]
 pub enum AppState {
+    #[default]
     StartMenu,
     Playing,
     Paused,

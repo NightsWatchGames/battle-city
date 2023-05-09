@@ -91,7 +91,7 @@ pub fn handle_bullet_collision(
     mut home_dying_ew: EventWriter<HomeDyingEvent>,
     player_lives: Res<PlayerLives>,
     multiplayer_mode: Res<MultiplayerMode>,
-    mut app_state: ResMut<State<AppState>>,
+    mut app_state: ResMut<NextState<AppState>>,
 ) {
     for event in collision_er.iter() {
         match event {
