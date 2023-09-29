@@ -176,7 +176,7 @@ pub fn spawn_ldtk_entity(
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     asset_server: Res<AssetServer>,
 ) {
-    for (entity, transform, entity_instance) in entity_query.iter() {
+    for (_entity, transform, entity_instance) in entity_query.iter() {
         if entity_instance.identifier == *"Tree" {
             let map_texture_handle = asset_server.load("textures/map.bmp");
             let map_texture_atlas = TextureAtlas::from_grid(

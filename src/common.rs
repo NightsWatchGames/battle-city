@@ -125,7 +125,7 @@ pub fn setup_game_texture_atlas(
     let player1_texture_atlas = TextureAtlas::from_grid(
         player1_texture_handle,
         Vec2::new(TANK_SIZE, TANK_SIZE),
-        2,
+        8,
         4,
         None,
         None,
@@ -137,7 +137,7 @@ pub fn setup_game_texture_atlas(
     let player2_texture_atlas = TextureAtlas::from_grid(
         player2_texture_handle,
         Vec2::new(TANK_SIZE, TANK_SIZE),
-        2,
+        8,
         4,
         None,
         None,

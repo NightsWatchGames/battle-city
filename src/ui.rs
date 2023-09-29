@@ -2,7 +2,9 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 
-use crate::common::{AppState, GameSounds, MultiplayerMode, SPRITE_GAME_OVER_ORDER};
+use crate::common::{
+    AppState, GameSounds, GameTextureAtlasHandles, MultiplayerMode, SPRITE_GAME_OVER_ORDER,
+};
 
 #[derive(Component)]
 pub struct OnStartMenuScreen;
@@ -15,8 +17,8 @@ pub struct OnGameOverScreen;
 pub fn setup_start_menu(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     game_sounds: Res<GameSounds>,
+    game_texture_atlas: Res<GameTextureAtlasHandles>,
 ) {
     commands
         .spawn((
@@ -37,10 +39,9 @@ pub fn setup_start_menu(
                 image: asset_server.load("textures/title.bmp").into(),
                 ..default()
             });
-            // TODO 将texture_atlas 直接用于ui，issue https://github.com/bevyengine/bevy/issues/1169
             parent.spawn((
-                ImageBundle {
-                    image: asset_server.load("textures/tank.png").into(),
+                AtlasImageBundle {
+                    texture_atlas: game_texture_atlas.player1.clone(),
                     style: Style {
                         width: Val::Px(20.),
                         height: Val::Px(20.),
