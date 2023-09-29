@@ -16,7 +16,6 @@ use ui::*;
 
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_rapier2d::prelude::*;
 
 const BACKGROUND_COLOR: Color = Color::BLACK;
@@ -26,10 +25,9 @@ fn main() {
     App::new()
         .register_type::<PlayerNo>()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
-        .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
+        .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
         // .add_plugin(RapierDebugRenderPlugin::default())
-        .add_plugin(LdtkPlugin)
-        // .add_plugin(WorldInspectorPlugin)
+        .add_plugins(LdtkPlugin)
         .add_event::<ExplosionEvent>()
         .add_event::<SpawnPlayerEvent>()
         .add_event::<HomeDyingEvent>()
@@ -49,59 +47,91 @@ fn main() {
         .register_ldtk_entity::<level::Player1MarkerBundle>("Player1")
         .register_ldtk_entity::<level::Player2MarkerBundle>("Player2")
         .register_ldtk_entity::<level::EnemiesMarkerBundle>("Enemies")
-        .add_startup_system(setup_camera)
-        .add_startup_system(setup_rapier)
-        .add_startup_system(setup_wall)
-        .add_startup_system(setup_explosion_assets)
-        .add_startup_system(setup_game_sounds)
-        .add_startup_system(setup_game_texture_atlas)
-        .add_system(setup_start_menu.in_schedule(OnEnter(AppState::StartMenu)))
-        .add_system(cleanup_level_items.in_schedule(OnEnter(AppState::StartMenu)))
-        .add_system(cleanup_ldtk_world.in_schedule(OnEnter(AppState::StartMenu)))
-        .add_system(cleanup_players.in_schedule(OnEnter(AppState::StartMenu)))
-        .add_system(cleanup_born.in_schedule(OnEnter(AppState::StartMenu)))
-        .add_system(cleanup_bullets.in_schedule(OnEnter(AppState::StartMenu)))
-        .add_system(cleanup_explosions.in_schedule(OnEnter(AppState::StartMenu)))
-        .add_system(cleanup_enemies.in_schedule(OnEnter(AppState::StartMenu)))
-        .add_system(reset_player_lives.in_schedule(OnEnter(AppState::StartMenu)))
-        .add_system(reset_level_selection.in_schedule(OnEnter(AppState::StartMenu)))
-        .add_system(reset_level_spawned_enemies.in_schedule(OnEnter(AppState::StartMenu)))
-        .add_system(reset_multiplayer_mode.in_schedule(OnEnter(AppState::StartMenu)))
-        .add_system(start_game.in_set(OnUpdate(AppState::StartMenu)))
-        .add_system(switch_multiplayer_mode.in_set(OnUpdate(AppState::StartMenu)))
-        .add_system(despawn_screen::<OnStartMenuScreen>.in_schedule(OnExit(AppState::StartMenu)))
-        .add_system(setup_levels.in_schedule(OnEnter(AppState::Playing)))
-        .add_system(spawn_ldtk_entity.in_set(OnUpdate(AppState::Playing)))
-        .add_system(auto_spawn_players.in_set(OnUpdate(AppState::Playing)))
-        .add_system(players_move.in_set(OnUpdate(AppState::Playing)))
-        .add_system(players_attack.in_set(OnUpdate(AppState::Playing)))
-        .add_system(animate_players.in_set(OnUpdate(AppState::Playing)))
-        .add_system(animate_shield.in_set(OnUpdate(AppState::Playing)))
-        .add_system(animate_born.in_set(OnUpdate(AppState::Playing)))
-        .add_system(remove_shield.in_set(OnUpdate(AppState::Playing)))
-        .add_system(animate_water.in_set(OnUpdate(AppState::Playing)))
-        .add_system(animate_home.in_set(OnUpdate(AppState::Playing)))
-        .add_system(spawn_explosion.in_set(OnUpdate(AppState::Playing)))
-        .add_system(animate_explosion.in_set(OnUpdate(AppState::Playing)))
-        .add_system(handle_bullet_collision.in_set(OnUpdate(AppState::Playing)))
-        .add_system(auto_switch_level.in_set(OnUpdate(AppState::Playing)))
-        .add_system(auto_spawn_enemies.in_set(OnUpdate(AppState::Playing)))
-        .add_system(animate_enemies.in_set(OnUpdate(AppState::Playing)))
-        .add_system(enemies_attack.in_set(OnUpdate(AppState::Playing)))
-        .add_system(enemies_move.in_set(OnUpdate(AppState::Playing)))
-        .add_system(handle_enemy_collision.in_set(OnUpdate(AppState::Playing)))
-        .add_system(move_bullet.in_set(OnUpdate(AppState::Playing)))
-        .add_system(pause_game.in_set(OnUpdate(AppState::Playing)))
-        .add_system(unpause_game.in_set(OnUpdate(AppState::Paused)))
-        .add_system(setup_game_over.in_schedule(OnEnter(AppState::GameOver)))
-        .add_system(animate_game_over.in_set(OnUpdate(AppState::GameOver)))
-        .add_system(animate_players.in_set(OnUpdate(AppState::GameOver)))
-        .add_system(animate_shield.in_set(OnUpdate(AppState::GameOver)))
-        .add_system(animate_water.in_set(OnUpdate(AppState::GameOver)))
-        .add_system(animate_home.in_set(OnUpdate(AppState::GameOver)))
-        .add_system(animate_explosion.in_set(OnUpdate(AppState::GameOver)))
-        .add_system(animate_enemies.in_set(OnUpdate(AppState::GameOver)))
-        .add_system(despawn_screen::<OnGameOverScreen>.in_schedule(OnExit(AppState::GameOver)))
+        .add_systems(
+            Startup,
+            (
+                setup_camera,
+                setup_rapier,
+                setup_wall,
+                setup_explosion_assets,
+                setup_game_sounds,
+                setup_game_texture_atlas,
+            ),
+        )
+        .add_systems(
+            OnEnter(AppState::StartMenu),
+            (
+                setup_start_menu,
+                cleanup_level_items,
+                cleanup_ldtk_world,
+                cleanup_players,
+                cleanup_born,
+                cleanup_bullets,
+                cleanup_explosions,
+                cleanup_enemies,
+                reset_player_lives,
+                reset_level_selection,
+                reset_level_spawned_enemies,
+                reset_multiplayer_mode,
+            ),
+        )
+        .add_systems(
+            Update,
+            (start_game, switch_multiplayer_mode).run_if(in_state(AppState::StartMenu)),
+        )
+        .add_systems(
+            OnExit(AppState::StartMenu),
+            (despawn_screen::<OnStartMenuScreen>,),
+        )
+        .add_systems(OnEnter(AppState::Playing), (setup_levels,))
+        .add_systems(
+            Update,
+            (
+                spawn_ldtk_entity,
+                auto_spawn_players,
+                players_move,
+                players_attack,
+                animate_players,
+                animate_shield,
+                animate_born,
+                remove_shield,
+                animate_water,
+                animate_home,
+                spawn_explosion,
+                animate_explosion,
+                handle_bullet_collision,
+                auto_switch_level,
+                (
+                    auto_spawn_enemies,
+                    animate_enemies,
+                    enemies_attack,
+                    enemies_move,
+                    handle_enemy_collision,
+                    move_bullet,
+                    pause_game,
+                ),
+            )
+                .run_if(in_state(AppState::Playing)),
+        )
+        .add_systems(Update, (unpause_game,).run_if(in_state(AppState::Paused)))
+        .add_systems(OnEnter(AppState::GameOver), (setup_game_over,))
+        .add_systems(
+            Update,
+            (
+                animate_game_over,
+                animate_players,
+                animate_shield,
+                animate_water,
+                animate_home,
+                animate_explosion,
+                animate_enemies,
+            )
+                .run_if(in_state(AppState::GameOver)),
+        )
+        .add_systems(
+            OnExit(AppState::GameOver),
+            (despawn_screen::<OnGameOverScreen>,),
+        )
         .run();
 }
 

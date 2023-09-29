@@ -24,7 +24,7 @@ pub struct BornRemoveTimer(pub Timer);
 #[reflect(Component)]
 pub struct PlayerNo(pub u32);
 
-#[derive(Debug)]
+#[derive(Debug, Event)]
 pub struct SpawnPlayerEvent {
     pos: Vec2,
     player_no: PlayerNo,
@@ -279,6 +279,7 @@ pub fn animate_players(
 
 // 玩家攻击
 pub fn players_attack(
+    mut commands: Commands,
     keyboard_input: Res<Input<KeyCode>>,
     mut q_players: Query<(
         &PlayerNo,
@@ -287,8 +288,6 @@ pub fn players_attack(
         &mut TankRefreshBulletTimer,
     )>,
     time: Res<Time>,
-    mut commands: Commands,
-    audio: Res<Audio>,
     game_sounds: Res<GameSounds>,
     game_texture_atlas: Res<GameTextureAtlasHandles>,
 ) {
@@ -305,7 +304,10 @@ pub fn players_attack(
                     transform.translation,
                     direction.clone(),
                 );
-                audio.play(game_sounds.player_fire.clone());
+                commands.spawn(AudioBundle {
+                    source: game_sounds.player_fire.clone(),
+                    settings: PlaybackSettings::DESPAWN,
+                });
                 refresh_bullet_timer.reset();
             }
         }

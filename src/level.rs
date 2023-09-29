@@ -60,11 +60,9 @@ pub struct StoneWallBundle {
     #[from_entity_instance]
     level_item: LevelItem,
     #[from_entity_instance]
-    #[bundle]
     pub collider_bundle: ColliderBundle,
     // #[sprite_sheet_bundle("path/to/asset.png", tile_width, tile_height, columns, rows, padding, offset, index)]
     #[sprite_sheet_bundle("textures/map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 0)]
-    #[bundle]
     sprite_bundle: SpriteSheetBundle,
 }
 #[derive(Bundle, LdtkEntity)]
@@ -72,10 +70,8 @@ pub struct IronWallBundle {
     #[from_entity_instance]
     level_item: LevelItem,
     #[from_entity_instance]
-    #[bundle]
     pub collider_bundle: ColliderBundle,
     #[sprite_sheet_bundle("textures/map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 1)]
-    #[bundle]
     sprite_bundle: SpriteSheetBundle,
 }
 #[derive(Bundle, LdtkEntity)]
@@ -83,7 +79,6 @@ pub struct TreeBundle {
     #[from_entity_instance]
     level_item: LevelItem,
     #[sprite_sheet_bundle("textures/map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 2)]
-    #[bundle]
     sprite_bundle: SpriteSheetBundle,
 }
 #[derive(Bundle, LdtkEntity)]
@@ -91,13 +86,10 @@ pub struct WaterBundle {
     #[from_entity_instance]
     level_item: LevelItem,
     #[from_entity_instance]
-    #[bundle]
     pub collider_bundle: ColliderBundle,
     #[sprite_sheet_bundle("textures/map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 3)]
-    #[bundle]
     sprite_bundle: SpriteSheetBundle,
     #[from_entity_instance]
-    #[bundle]
     pub annimation_bundle: AnimationBundle,
 }
 #[derive(Bundle, LdtkEntity)]
@@ -105,10 +97,8 @@ pub struct HomeBundle {
     #[from_entity_instance]
     level_item: LevelItem,
     #[from_entity_instance]
-    #[bundle]
     pub collider_bundle: ColliderBundle,
     #[sprite_sheet_bundle("textures/map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 5)]
-    #[bundle]
     sprite_bundle: SpriteSheetBundle,
 }
 
@@ -120,14 +110,12 @@ pub struct Player1MarkerBundle {
 pub struct Player2MarkerBundle {
     marker: Player2Marker,
     #[sprite_sheet_bundle]
-    #[bundle]
     sprite_bundle: SpriteSheetBundle,
 }
 #[derive(Bundle, LdtkEntity)]
 pub struct EnemiesMarkerBundle {
     marker: EnemiesMarker,
     #[sprite_sheet_bundle]
-    #[bundle]
     sprite_bundle: SpriteSheetBundle,
 }
 

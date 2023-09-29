@@ -18,7 +18,7 @@ pub enum Bullet {
 #[derive(Debug, Component)]
 pub struct Explosion;
 
-#[derive(Debug)]
+#[derive(Debug, Event)]
 pub struct ExplosionEvent {
     pos: Vec3,
     explosion_type: ExplosionType,
@@ -295,7 +295,6 @@ pub fn spawn_explosion(
     asset_server: Res<AssetServer>,
     mut textures: ResMut<Assets<Image>>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
-    audio: Res<Audio>,
     game_sounds: Res<GameSounds>,
 ) {
     let mut big_explosion_texture_atlas_builder = TextureAtlasBuilder::default();
@@ -348,9 +347,15 @@ pub fn spawn_explosion(
             },
         ));
         if explosion.explosion_type == ExplosionType::BigExplosion {
-            audio.play(game_sounds.big_explosion.clone());
+            commands.spawn(AudioBundle {
+                source: game_sounds.big_explosion.clone(),
+                settings: PlaybackSettings::DESPAWN,
+            });
         } else if explosion.explosion_type == ExplosionType::BulletExplosion {
-            audio.play(game_sounds.bullet_explosion.clone());
+            commands.spawn(AudioBundle {
+                source: game_sounds.bullet_explosion.clone(),
+                settings: PlaybackSettings::DESPAWN,
+            });
         }
     }
 }

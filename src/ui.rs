@@ -16,14 +16,14 @@ pub fn setup_start_menu(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
-    audio: Res<Audio>,
     game_sounds: Res<GameSounds>,
 ) {
     commands
         .spawn((
             NodeBundle {
                 style: Style {
-                    size: Size::new(Val::Percent(100.), Val::Percent(100.)),
+                    width: Val::Percent(100.),
+                    height: Val::Percent(100.),
                     align_items: AlignItems::Center,
                     justify_content: JustifyContent::Center,
                     ..default()
@@ -42,14 +42,12 @@ pub fn setup_start_menu(
                 ImageBundle {
                     image: asset_server.load("textures/tank.png").into(),
                     style: Style {
-                        size: Size::new(Val::Px(20.), Val::Px(20.)),
+                        width: Val::Px(20.),
+                        height: Val::Px(20.),
                         margin: UiRect::all(Val::Px(10.0)),
                         position_type: PositionType::Absolute,
-                        position: UiRect {
-                            top: Val::Px(412.),
-                            left: Val::Px(520.),
-                            ..default()
-                        },
+                        top: Val::Px(412.),
+                        left: Val::Px(520.),
                         ..default()
                     },
                     ..default()
@@ -57,13 +55,15 @@ pub fn setup_start_menu(
                 OnStartMenuScreenMultiplayerModeFlag,
             ));
         });
-    audio.play(game_sounds.start_menu.clone());
+    commands.spawn(AudioBundle {
+        source: game_sounds.start_menu.clone(),
+        settings: PlaybackSettings::DESPAWN,
+    });
 }
 
 pub fn setup_game_over(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    audio: Res<Audio>,
     game_sounds: Res<GameSounds>,
 ) {
     let game_over_texture = asset_server.load("textures/game_over.bmp");
@@ -75,7 +75,10 @@ pub fn setup_game_over(
             ..default()
         },
     ));
-    audio.play(game_sounds.game_over.clone());
+    commands.spawn(AudioBundle {
+        source: game_sounds.game_over.clone(),
+        settings: PlaybackSettings::DESPAWN,
+    });
 }
 
 pub fn animate_game_over(
@@ -107,30 +110,33 @@ pub fn start_game(keyboard_input: Res<Input<KeyCode>>, mut app_state: ResMut<Nex
 }
 
 pub fn switch_multiplayer_mode(
+    mut commands: Commands,
     keyboard_input: Res<Input<KeyCode>>,
     mut multiplayer_mode: ResMut<MultiplayerMode>,
     mut q_multiplayer_mode_flag: Query<&mut Style, With<OnStartMenuScreenMultiplayerModeFlag>>,
-    audio: Res<Audio>,
     game_sounds: Res<GameSounds>,
 ) {
     if keyboard_input.any_just_pressed([KeyCode::Up, KeyCode::Down]) {
         for mut style in &mut q_multiplayer_mode_flag {
             if *multiplayer_mode == MultiplayerMode::SinglePlayer {
-                style.position.top = Val::Px(440.);
+                style.top = Val::Px(440.);
                 *multiplayer_mode = MultiplayerMode::TwoPlayers;
             } else if *multiplayer_mode == MultiplayerMode::TwoPlayers {
-                style.position.top = Val::Px(412.);
+                style.top = Val::Px(412.);
                 *multiplayer_mode = MultiplayerMode::SinglePlayer;
             }
-            audio.play(game_sounds.mode_switch.clone());
+            commands.spawn(AudioBundle {
+                source: game_sounds.mode_switch.clone(),
+                settings: PlaybackSettings::DESPAWN,
+            });
         }
     }
 }
 
 pub fn pause_game(
+    mut commands: Commands,
     mut app_state: ResMut<NextState<AppState>>,
     keyboard_input: Res<Input<KeyCode>>,
-    audio: Res<Audio>,
     game_sounds: Res<GameSounds>,
     mut cold_start: Local<Duration>,
     time: Res<Time>,
@@ -140,7 +146,10 @@ pub fn pause_game(
     if cold_start.as_millis() > 100 {
         if keyboard_input.just_released(KeyCode::Escape) {
             info!("Pause game");
-            audio.play(game_sounds.game_pause.clone());
+            commands.spawn(AudioBundle {
+                source: game_sounds.game_pause.clone(),
+                settings: PlaybackSettings::DESPAWN,
+            });
             app_state.set(AppState::Paused);
             *cold_start = Duration::ZERO;
         }

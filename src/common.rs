@@ -61,7 +61,7 @@ pub struct AnimationIndices {
 #[derive(Component, Deref, DerefMut)]
 pub struct TankRefreshBulletTimer(pub Timer);
 
-#[derive(Default)]
+#[derive(Default, Event)]
 pub struct HomeDyingEvent;
 
 #[derive(Debug, Resource)]
