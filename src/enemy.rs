@@ -198,10 +198,6 @@ pub fn enemies_move(
                 }
             }
         }
-        // dbg!(can_left);
-        // dbg!(can_right);
-        // dbg!(can_up);
-        // dbg!(can_down);
         if !can_left && !can_right && !can_up && !can_down {
             continue;
         }
@@ -235,11 +231,9 @@ pub fn enemies_move(
             }
         };
 
-        dbg!(choosed_direction);
         // 设置方向和sprite
         *direction = choosed_direction;
         sprite.index = new_sprite_index(sprite.index as i32, *direction) as usize;
-        dbg!(sprite.index);
         *indices = AnimationIndices {
             first: sprite.index,
             last: sprite.index + 1,
@@ -277,7 +271,7 @@ pub fn handle_enemy_collision(
     mut q_enemies: Query<&mut EnemyChangeDirectionTimer, With<Enemy>>,
     mut collision_er: EventReader<CollisionEvent>,
 ) {
-    for event in collision_er.iter() {
+    for event in collision_er.read() {
         match event {
             CollisionEvent::Started(entity1, entity2, _flags)
             | CollisionEvent::Stopped(entity1, entity2, _flags) => {

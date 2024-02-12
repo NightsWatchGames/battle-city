@@ -55,7 +55,7 @@ pub struct AnimationBundle {
     pub indices: AnimationIndices,
 }
 
-#[derive(Bundle, LdtkEntity)]
+#[derive(Bundle, LdtkEntity, Default)]
 pub struct StoneWallBundle {
     #[from_entity_instance]
     level_item: LevelItem,
@@ -65,7 +65,7 @@ pub struct StoneWallBundle {
     #[sprite_sheet_bundle("textures/map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 0)]
     sprite_bundle: SpriteSheetBundle,
 }
-#[derive(Bundle, LdtkEntity)]
+#[derive(Bundle, LdtkEntity, Default)]
 pub struct IronWallBundle {
     #[from_entity_instance]
     level_item: LevelItem,
@@ -74,14 +74,14 @@ pub struct IronWallBundle {
     #[sprite_sheet_bundle("textures/map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 1)]
     sprite_bundle: SpriteSheetBundle,
 }
-#[derive(Bundle, LdtkEntity)]
+#[derive(Bundle, LdtkEntity, Default)]
 pub struct TreeBundle {
     #[from_entity_instance]
     level_item: LevelItem,
     #[sprite_sheet_bundle("textures/map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 2)]
     sprite_bundle: SpriteSheetBundle,
 }
-#[derive(Bundle, LdtkEntity)]
+#[derive(Bundle, LdtkEntity, Default)]
 pub struct WaterBundle {
     #[from_entity_instance]
     level_item: LevelItem,
@@ -92,7 +92,7 @@ pub struct WaterBundle {
     #[from_entity_instance]
     pub annimation_bundle: AnimationBundle,
 }
-#[derive(Bundle, LdtkEntity)]
+#[derive(Bundle, LdtkEntity, Default)]
 pub struct HomeBundle {
     #[from_entity_instance]
     level_item: LevelItem,
@@ -102,17 +102,17 @@ pub struct HomeBundle {
     sprite_bundle: SpriteSheetBundle,
 }
 
-#[derive(Bundle, LdtkEntity)]
+#[derive(Bundle, LdtkEntity, Default)]
 pub struct Player1MarkerBundle {
     marker: Player1Marker,
 }
-#[derive(Bundle, LdtkEntity)]
+#[derive(Bundle, LdtkEntity, Default)]
 pub struct Player2MarkerBundle {
     marker: Player2Marker,
     #[sprite_sheet_bundle]
     sprite_bundle: SpriteSheetBundle,
 }
-#[derive(Bundle, LdtkEntity)]
+#[derive(Bundle, LdtkEntity, Default)]
 pub struct EnemiesMarkerBundle {
     marker: EnemiesMarker,
     #[sprite_sheet_bundle]
@@ -157,7 +157,7 @@ impl From<&EntityInstance> for LevelItem {
 pub fn setup_levels(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    q_ldtk_world: Query<(), With<Handle<LdtkAsset>>>,
+    q_ldtk_world: Query<(), With<Handle<LdtkProject>>>,
 ) {
     if q_ldtk_world.iter().len() > 0 {
         // 从Paused状态进入时无需再load ldtk
@@ -243,15 +243,15 @@ pub fn auto_switch_level(
 ) {
     // 已生成的敌人数量达到最大值 并且 敌人全部阵亡，切换到下一关卡
     if level_spawned_enemies.0 == ENEMIES_PER_LEVEL && q_enemies.iter().len() == 0 {
-        if let LevelSelection::Index(index) = *level_selection {
-            if index as i32 == MAX_LEVELS - 1 {
+        if let LevelSelection::Indices(LevelIndices { level, .. }) = *level_selection {
+            if level as i32 == MAX_LEVELS - 1 {
                 // TODO 游戏胜利
                 info!("win the game!");
                 app_state.set(AppState::StartMenu);
             } else {
                 // 下一关卡
-                info!("Switch to next level, index={}", index + 1);
-                *level_selection = LevelSelection::Index(index + 1);
+                info!("Switch to next level, index={}", level + 1);
+                *level_selection = LevelSelection::index(level + 1);
                 level_spawned_enemies.0 = 0;
 
                 // 重新生成玩家
@@ -271,7 +271,7 @@ pub fn animate_home(
     mut q_level_items: Query<(&LevelItem, &mut TextureAtlasSprite)>,
     mut app_state: ResMut<NextState<AppState>>,
 ) {
-    for _ in home_dying_er.iter() {
+    for _ in home_dying_er.read() {
         for (level_item, mut sprite) in &mut q_level_items {
             if *level_item == LevelItem::Home {
                 sprite.index = 6;
@@ -289,7 +289,7 @@ pub fn cleanup_level_items(mut commands: Commands, q_level_items: Query<Entity, 
 
 pub fn cleanup_ldtk_world(
     mut commands: Commands,
-    q_ldtk_world: Query<Entity, With<Handle<LdtkAsset>>>,
+    q_ldtk_world: Query<Entity, With<Handle<LdtkProject>>>,
 ) {
     for entity in &q_ldtk_world {
         commands.entity(entity).despawn_recursive();
@@ -297,5 +297,5 @@ pub fn cleanup_ldtk_world(
 }
 
 pub fn reset_level_selection(mut level_selection: ResMut<LevelSelection>) {
-    *level_selection = LevelSelection::Index(0);
+    *level_selection = LevelSelection::index(0);
 }

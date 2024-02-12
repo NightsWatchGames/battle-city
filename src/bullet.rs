@@ -93,7 +93,7 @@ pub fn handle_bullet_collision(
     multiplayer_mode: Res<MultiplayerMode>,
     mut app_state: ResMut<NextState<AppState>>,
 ) {
-    for event in collision_er.iter() {
+    for event in collision_er.read() {
         match event {
             CollisionEvent::Started(entity1, entity2, _flags)
             | CollisionEvent::Stopped(entity1, entity2, _flags) => {
@@ -299,11 +299,14 @@ pub fn spawn_explosion(
 ) {
     let mut big_explosion_texture_atlas_builder = TextureAtlasBuilder::default();
     for handle in &explosion_assets.big_explosion {
-        let Some(texture) = textures.get(&handle) else {
-            warn!("{:?} did not resolve to an `Image` asset.", asset_server.get_handle_path(handle));
+        let Some(texture) = textures.get(handle.id()) else {
+            warn!(
+                "{:?} did not resolve to an `Image` asset.",
+                asset_server.get_path(handle.id())
+            );
             continue;
         };
-        big_explosion_texture_atlas_builder.add_texture(handle.clone(), texture);
+        big_explosion_texture_atlas_builder.add_texture(handle.id(), texture);
     }
     let big_explosion_texture_atlas = big_explosion_texture_atlas_builder
         .finish(&mut textures)
@@ -312,18 +315,21 @@ pub fn spawn_explosion(
 
     let mut bullet_explosion_texture_atlas_builder = TextureAtlasBuilder::default();
     for handle in &explosion_assets.bullet_explosion {
-        let Some(texture) = textures.get(&handle) else {
-            warn!("{:?} did not resolve to an `Image` asset.", asset_server.get_handle_path(handle));
+        let Some(texture) = textures.get(handle.id()) else {
+            warn!(
+                "{:?} did not resolve to an `Image` asset.",
+                asset_server.get_path(handle.id())
+            );
             continue;
         };
-        bullet_explosion_texture_atlas_builder.add_texture(handle.clone(), texture);
+        bullet_explosion_texture_atlas_builder.add_texture(handle.id(), texture);
     }
     let bullet_explosion_texture_atlas = bullet_explosion_texture_atlas_builder
         .finish(&mut textures)
         .unwrap();
     let bullet_explosion_texture_atlas_handle = texture_atlases.add(bullet_explosion_texture_atlas);
 
-    for explosion in explosion_er.iter() {
+    for explosion in explosion_er.read() {
         commands.spawn((
             Explosion,
             SpriteSheetBundle {

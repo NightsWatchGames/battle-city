@@ -34,7 +34,7 @@ fn main() {
         .add_state::<AppState>()
         .insert_resource(ClearColor(BACKGROUND_COLOR))
         .insert_resource(MultiplayerMode::SinglePlayer)
-        .insert_resource(LevelSelection::Index(0))
+        .insert_resource(LevelSelection::index(0))
         .insert_resource(LevelSpawnedEnemies(0))
         .insert_resource(PlayerLives {
             player1: 3,

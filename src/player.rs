@@ -87,7 +87,7 @@ pub fn auto_spawn_players(
         }
     }
     // 出生动画完毕后，进行player创建
-    for spawn_player_event in spawn_player_er.iter() {
+    for spawn_player_event in spawn_player_er.read() {
         dbg!(spawn_player_event);
         // 保护盾
         let shield = commands
@@ -233,22 +233,25 @@ pub fn players_move(
 
         match *direction {
             common::Direction::Up => {
-                sprite.index = 0;
                 *indices = AnimationIndices { first: 0, last: 1 };
             }
             common::Direction::Right => {
-                sprite.index = 2;
-                *indices = AnimationIndices { first: 2, last: 3 };
+                *indices = AnimationIndices { first: 8, last: 9 };
             }
             common::Direction::Down => {
-                sprite.index = 4;
-                *indices = AnimationIndices { first: 4, last: 5 };
+                *indices = AnimationIndices {
+                    first: 16,
+                    last: 17,
+                };
             }
             common::Direction::Left => {
-                sprite.index = 6;
-                *indices = AnimationIndices { first: 6, last: 7 };
+                *indices = AnimationIndices {
+                    first: 24,
+                    last: 25,
+                };
             }
         }
+        sprite.index = indices.first;
     }
 }
 
