@@ -146,7 +146,7 @@ pub fn handle_bullet_collision(
                             });
                             home_dying_ew.send_default();
                         }
-                        LevelItem::StoneWall => {
+                        LevelItem::BrickWall => {
                             commands.entity(bullet_entity).despawn();
                             commands.entity(other_entity).despawn();
                             explosion_ew.send(ExplosionEvent {

@@ -19,7 +19,7 @@ pub enum LevelItem {
     #[default]
     None,
     // 石墙
-    StoneWall,
+    BrickWall,
     // 贴墙
     IronWall,
     // 树木
@@ -28,10 +28,10 @@ pub enum LevelItem {
     Water,
     // 家
     Home,
-    StoneWallRight,
-    StoneWallBottom,
-    StoneWallLeft,
-    StoneWallTop,
+    BrickWallRight,
+    BrickWallBottom,
+    BrickWallLeft,
+    BrickWallTop,
     IronWallRight,
     IronWallBottom,
     IronWallLeft,
@@ -61,7 +61,7 @@ pub struct AnimationBundle {
 }
 
 #[derive(Bundle, LdtkEntity, Default)]
-pub struct StoneWallBundle {
+pub struct BrickWallBundle {
     #[from_entity_instance]
     level_item: LevelItem,
     #[from_entity_instance]
@@ -107,7 +107,7 @@ pub struct IronWallTopBundle {
     sprite_bundle: SpriteSheetBundle,
 }
 #[derive(Bundle, LdtkEntity, Default)]
-pub struct StoneWallRightBundle {
+pub struct BrickWallRightBundle {
     #[from_entity_instance]
     level_item: LevelItem,
     #[from_entity_instance]
@@ -116,7 +116,7 @@ pub struct StoneWallRightBundle {
     sprite_bundle: SpriteSheetBundle,
 }
 #[derive(Bundle, LdtkEntity, Default)]
-pub struct StoneWallBottomBundle {
+pub struct BrickWallBottomBundle {
     #[from_entity_instance]
     level_item: LevelItem,
     #[from_entity_instance]
@@ -125,7 +125,7 @@ pub struct StoneWallBottomBundle {
     sprite_bundle: SpriteSheetBundle,
 }
 #[derive(Bundle, LdtkEntity, Default)]
-pub struct StoneWallLeftBundle {
+pub struct BrickWallLeftBundle {
     #[from_entity_instance]
     level_item: LevelItem,
     #[from_entity_instance]
@@ -134,7 +134,7 @@ pub struct StoneWallLeftBundle {
     sprite_bundle: SpriteSheetBundle,
 }
 #[derive(Bundle, LdtkEntity, Default)]
-pub struct StoneWallTopBundle {
+pub struct BrickWallTopBundle {
     #[from_entity_instance]
     level_item: LevelItem,
     #[from_entity_instance]
@@ -201,11 +201,11 @@ pub struct EnemiesMarkerBundle {
 impl From<&EntityInstance> for ColliderBundle {
     fn from(entity_instance: &EntityInstance) -> ColliderBundle {
         match entity_instance.identifier.as_ref() {
-            "StoneWall" | "IronWall" | "Water" | "Home" => ColliderBundle {
+            "BrickWall" | "IronWall" | "Water" | "Home" => ColliderBundle {
                 collider: Collider::cuboid(TILE_SIZE / 2., TILE_SIZE / 2.),
                 rigid_body: RigidBody::Fixed,
             },
-            "StoneWallRight" | "IronWallRight" => ColliderBundle {
+            "BrickWallRight" | "IronWallRight" => ColliderBundle {
                 collider: Collider::cuboid(TILE_SIZE / 4., TILE_SIZE / 4.), // TODO: Fix it. How to make a cuboid not in the center of the entity?
                 rigid_body: RigidBody::Fixed,
             },
@@ -227,15 +227,15 @@ impl From<&EntityInstance> for AnimationBundle {
 impl From<&EntityInstance> for LevelItem {
     fn from(entity_instance: &EntityInstance) -> LevelItem {
         match entity_instance.identifier.as_ref() {
-            "StoneWall" => LevelItem::StoneWall,
+            "BrickWall" => LevelItem::BrickWall,
             "IronWall" => LevelItem::IronWall,
             "Tree" => LevelItem::Tree,
             "Water" => LevelItem::Water,
             "Home" => LevelItem::Home,
-            "StoneWallRight" => LevelItem::StoneWallRight,
-            "StoneWallBottom" => LevelItem::StoneWallBottom,
-            "StoneWallLeft" => LevelItem::StoneWallLeft,
-            "StoneWallTop" => LevelItem::StoneWallTop,
+            "BrickWallRight" => LevelItem::BrickWallRight,
+            "BrickWallBottom" => LevelItem::BrickWallBottom,
+            "BrickWallLeft" => LevelItem::BrickWallLeft,
+            "BrickWallTop" => LevelItem::BrickWallTop,
             "IronWallRight" => LevelItem::IronWallRight,
             "IronWallBottom" => LevelItem::IronWallBottom,
             "IronWallLeft" => LevelItem::IronWallLeft,

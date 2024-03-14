@@ -78,7 +78,7 @@
 		}
 	], "entities": [
 		{
-			"identifier": "StoneWall",
+			"identifier": "BrickWall",
 			"uid": 4,
 			"tags": [],
 			"exportToToc": false,
@@ -358,7 +358,7 @@
 			"fieldDefs": []
 		},
 		{
-			"identifier": "StoneWallRight",
+			"identifier": "BrickWallRight",
 			"uid": 16,
 			"tags": [],
 			"exportToToc": false,
@@ -428,7 +428,7 @@
 			"fieldDefs": []
 		},
 		{
-			"identifier": "StoneWallBottom",
+			"identifier": "BrickWallBottom",
 			"uid": 17,
 			"tags": [],
 			"exportToToc": false,
@@ -498,7 +498,7 @@
 			"fieldDefs": []
 		},
 		{
-			"identifier": "StoneWallLeft",
+			"identifier": "BrickWallLeft",
 			"uid": 18,
 			"tags": [],
 			"exportToToc": false,
@@ -568,7 +568,7 @@
 			"fieldDefs": []
 		},
 		{
-			"identifier": "StoneWallTop",
+			"identifier": "BrickWallTop",
 			"uid": 19,
 			"tags": [],
 			"exportToToc": false,
@@ -708,7 +708,7 @@
 					"gridTiles": [],
 					"entityInstances": [
 						{
-							"__identifier": "StoneWallRight",
+							"__identifier": "BrickWallRight",
 							"__grid": [5,12],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -724,7 +724,7 @@
 							"__worldY": 384
 						},
 						{
-							"__identifier": "StoneWallLeft",
+							"__identifier": "BrickWallLeft",
 							"__grid": [7,12],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -740,7 +740,7 @@
 							"__worldY": 384
 						},
 						{
-							"__identifier": "StoneWallBottom",
+							"__identifier": "BrickWallBottom",
 							"__grid": [6,11],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -772,7 +772,7 @@
 							"__worldY": 384
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [1,11],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -788,7 +788,7 @@
 							"__worldY": 352
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [1,10],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -804,7 +804,7 @@
 							"__worldY": 320
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [1,9],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -820,7 +820,7 @@
 							"__worldY": 288
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [3,11],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -836,7 +836,7 @@
 							"__worldY": 352
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [3,10],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -852,7 +852,7 @@
 							"__worldY": 320
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [3,9],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -868,7 +868,7 @@
 							"__worldY": 288
 						},
 						{
-							"__identifier": "StoneWallBottom",
+							"__identifier": "BrickWallBottom",
 							"__grid": [0,6],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -900,7 +900,7 @@
 							"__worldY": 224
 						},
 						{
-							"__identifier": "StoneWallBottom",
+							"__identifier": "BrickWallBottom",
 							"__grid": [1,8],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -916,7 +916,7 @@
 							"__worldY": 256
 						},
 						{
-							"__identifier": "StoneWallBottom",
+							"__identifier": "BrickWallBottom",
 							"__grid": [3,8],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -932,7 +932,7 @@
 							"__worldY": 256
 						},
 						{
-							"__identifier": "StoneWallTop",
+							"__identifier": "BrickWallTop",
 							"__grid": [2,7],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -948,7 +948,7 @@
 							"__worldY": 224
 						},
 						{
-							"__identifier": "StoneWallTop",
+							"__identifier": "BrickWallTop",
 							"__grid": [3,7],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -964,7 +964,7 @@
 							"__worldY": 224
 						},
 						{
-							"__identifier": "StoneWallBottom",
+							"__identifier": "BrickWallBottom",
 							"__grid": [2,6],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -980,7 +980,7 @@
 							"__worldY": 192
 						},
 						{
-							"__identifier": "StoneWallBottom",
+							"__identifier": "BrickWallBottom",
 							"__grid": [3,6],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -996,7 +996,7 @@
 							"__worldY": 192
 						},
 						{
-							"__identifier": "StoneWallBottom",
+							"__identifier": "BrickWallBottom",
 							"__grid": [5,7],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1012,7 +1012,7 @@
 							"__worldY": 224
 						},
 						{
-							"__identifier": "StoneWallBottom",
+							"__identifier": "BrickWallBottom",
 							"__grid": [7,7],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1028,7 +1028,7 @@
 							"__worldY": 224
 						},
 						{
-							"__identifier": "StoneWallTop",
+							"__identifier": "BrickWallTop",
 							"__grid": [9,7],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1044,7 +1044,7 @@
 							"__worldY": 224
 						},
 						{
-							"__identifier": "StoneWallTop",
+							"__identifier": "BrickWallTop",
 							"__grid": [10,7],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1060,7 +1060,7 @@
 							"__worldY": 224
 						},
 						{
-							"__identifier": "StoneWallTop",
+							"__identifier": "BrickWallTop",
 							"__grid": [1,5],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1076,7 +1076,7 @@
 							"__worldY": 160
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [1,4],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1092,7 +1092,7 @@
 							"__worldY": 128
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [1,3],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1108,7 +1108,7 @@
 							"__worldY": 96
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [1,2],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1124,7 +1124,7 @@
 							"__worldY": 64
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [1,1],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1140,7 +1140,7 @@
 							"__worldY": 32
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [3,1],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1156,7 +1156,7 @@
 							"__worldY": 32
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [3,2],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1172,7 +1172,7 @@
 							"__worldY": 64
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [3,3],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1188,7 +1188,7 @@
 							"__worldY": 96
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [3,4],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1204,7 +1204,7 @@
 							"__worldY": 128
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [5,1],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1220,7 +1220,7 @@
 							"__worldY": 32
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [5,2],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1236,7 +1236,7 @@
 							"__worldY": 64
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [5,3],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1252,7 +1252,7 @@
 							"__worldY": 96
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [7,1],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1268,7 +1268,7 @@
 							"__worldY": 32
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [7,2],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1284,7 +1284,7 @@
 							"__worldY": 64
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [7,3],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1300,7 +1300,7 @@
 							"__worldY": 96
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [9,1],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1316,7 +1316,7 @@
 							"__worldY": 32
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [9,2],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1332,7 +1332,7 @@
 							"__worldY": 64
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [9,3],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1348,7 +1348,7 @@
 							"__worldY": 96
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [9,4],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1364,7 +1364,7 @@
 							"__worldY": 128
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [11,1],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1380,7 +1380,7 @@
 							"__worldY": 32
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [11,2],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1396,7 +1396,7 @@
 							"__worldY": 64
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [11,3],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1412,7 +1412,7 @@
 							"__worldY": 96
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [11,4],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1428,7 +1428,7 @@
 							"__worldY": 128
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [5,8],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1444,7 +1444,7 @@
 							"__worldY": 256
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [6,8],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1460,7 +1460,7 @@
 							"__worldY": 256
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [7,8],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1476,7 +1476,7 @@
 							"__worldY": 256
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [5,9],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1492,7 +1492,7 @@
 							"__worldY": 288
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [7,9],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1508,7 +1508,7 @@
 							"__worldY": 288
 						},
 						{
-							"__identifier": "StoneWallTop",
+							"__identifier": "BrickWallTop",
 							"__grid": [5,10],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1524,7 +1524,7 @@
 							"__worldY": 320
 						},
 						{
-							"__identifier": "StoneWallTop",
+							"__identifier": "BrickWallTop",
 							"__grid": [7,10],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1540,7 +1540,7 @@
 							"__worldY": 320
 						},
 						{
-							"__identifier": "StoneWallTop",
+							"__identifier": "BrickWallTop",
 							"__grid": [3,5],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1556,7 +1556,7 @@
 							"__worldY": 160
 						},
 						{
-							"__identifier": "StoneWallTop",
+							"__identifier": "BrickWallTop",
 							"__grid": [9,5],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1572,7 +1572,7 @@
 							"__worldY": 160
 						},
 						{
-							"__identifier": "StoneWallTop",
+							"__identifier": "BrickWallTop",
 							"__grid": [11,5],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1588,7 +1588,7 @@
 							"__worldY": 160
 						},
 						{
-							"__identifier": "StoneWallTop",
+							"__identifier": "BrickWallTop",
 							"__grid": [5,6],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1604,7 +1604,7 @@
 							"__worldY": 192
 						},
 						{
-							"__identifier": "StoneWallTop",
+							"__identifier": "BrickWallTop",
 							"__grid": [7,6],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1620,7 +1620,7 @@
 							"__worldY": 192
 						},
 						{
-							"__identifier": "StoneWallBottom",
+							"__identifier": "BrickWallBottom",
 							"__grid": [5,5],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1636,7 +1636,7 @@
 							"__worldY": 160
 						},
 						{
-							"__identifier": "StoneWallBottom",
+							"__identifier": "BrickWallBottom",
 							"__grid": [7,5],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1652,7 +1652,7 @@
 							"__worldY": 160
 						},
 						{
-							"__identifier": "StoneWallTop",
+							"__identifier": "BrickWallTop",
 							"__grid": [5,4],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1668,7 +1668,7 @@
 							"__worldY": 128
 						},
 						{
-							"__identifier": "StoneWallTop",
+							"__identifier": "BrickWallTop",
 							"__grid": [7,4],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1684,7 +1684,7 @@
 							"__worldY": 128
 						},
 						{
-							"__identifier": "StoneWallBottom",
+							"__identifier": "BrickWallBottom",
 							"__grid": [9,6],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1700,7 +1700,7 @@
 							"__worldY": 192
 						},
 						{
-							"__identifier": "StoneWallBottom",
+							"__identifier": "BrickWallBottom",
 							"__grid": [10,6],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1716,7 +1716,7 @@
 							"__worldY": 192
 						},
 						{
-							"__identifier": "StoneWallBottom",
+							"__identifier": "BrickWallBottom",
 							"__grid": [12,6],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1748,7 +1748,7 @@
 							"__worldY": 224
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [11,11],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1764,7 +1764,7 @@
 							"__worldY": 352
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [9,11],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1780,7 +1780,7 @@
 							"__worldY": 352
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [11,10],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1796,7 +1796,7 @@
 							"__worldY": 320
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [9,10],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1812,7 +1812,7 @@
 							"__worldY": 320
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [9,9],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1828,7 +1828,7 @@
 							"__worldY": 288
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [11,9],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1844,7 +1844,7 @@
 							"__worldY": 288
 						},
 						{
-							"__identifier": "StoneWallBottom",
+							"__identifier": "BrickWallBottom",
 							"__grid": [9,8],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1860,7 +1860,7 @@
 							"__worldY": 256
 						},
 						{
-							"__identifier": "StoneWallBottom",
+							"__identifier": "BrickWallBottom",
 							"__grid": [11,8],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1974,7 +1974,7 @@
 					"gridTiles": [],
 					"entityInstances": [
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [12,17],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -1990,7 +1990,7 @@
 							"__worldY": 544
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [12,16],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2006,7 +2006,7 @@
 							"__worldY": 512
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [13,16],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2022,7 +2022,7 @@
 							"__worldY": 512
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [14,16],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2038,7 +2038,7 @@
 							"__worldY": 512
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [14,17],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2102,7 +2102,7 @@
 							"__worldY": 544
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [13,3],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2118,7 +2118,7 @@
 							"__worldY": 96
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [13,2],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2134,7 +2134,7 @@
 							"__worldY": 64
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [13,4],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2150,7 +2150,7 @@
 							"__worldY": 128
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [14,3],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2166,7 +2166,7 @@
 							"__worldY": 96
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [12,3],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2278,7 +2278,7 @@
 							"__worldY": 96
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [5,3],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2294,7 +2294,7 @@
 							"__worldY": 96
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [5,4],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2310,7 +2310,7 @@
 							"__worldY": 128
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [5,5],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2326,7 +2326,7 @@
 							"__worldY": 160
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [21,3],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2342,7 +2342,7 @@
 							"__worldY": 96
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [21,4],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2358,7 +2358,7 @@
 							"__worldY": 128
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [21,5],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2374,7 +2374,7 @@
 							"__worldY": 160
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [6,5],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2390,7 +2390,7 @@
 							"__worldY": 160
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [20,5],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2406,7 +2406,7 @@
 							"__worldY": 160
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [9,6],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2422,7 +2422,7 @@
 							"__worldY": 192
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [10,6],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2438,7 +2438,7 @@
 							"__worldY": 192
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [11,6],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2454,7 +2454,7 @@
 							"__worldY": 192
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [2,3],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2470,7 +2470,7 @@
 							"__worldY": 96
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [2,2],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2486,7 +2486,7 @@
 							"__worldY": 64
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [2,1],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2502,7 +2502,7 @@
 							"__worldY": 32
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [24,3],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2518,7 +2518,7 @@
 							"__worldY": 96
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [24,2],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2534,7 +2534,7 @@
 							"__worldY": 64
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [24,1],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2550,7 +2550,7 @@
 							"__worldY": 32
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [11,0],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2566,7 +2566,7 @@
 							"__worldY": 0
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [15,0],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2582,7 +2582,7 @@
 							"__worldY": 0
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [7,0],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2598,7 +2598,7 @@
 							"__worldY": 0
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [6,0],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2614,7 +2614,7 @@
 							"__worldY": 0
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [5,0],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2630,7 +2630,7 @@
 							"__worldY": 0
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [6,1],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2646,7 +2646,7 @@
 							"__worldY": 32
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [19,0],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2662,7 +2662,7 @@
 							"__worldY": 0
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [20,0],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2678,7 +2678,7 @@
 							"__worldY": 0
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [21,0],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2694,7 +2694,7 @@
 							"__worldY": 0
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [20,1],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2854,7 +2854,7 @@
 							"__worldY": 320
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [15,6],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2870,7 +2870,7 @@
 							"__worldY": 192
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [16,6],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -2886,7 +2886,7 @@
 							"__worldY": 192
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [17,6],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -3366,7 +3366,7 @@
 							"__worldY": 448
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [1,8],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -3382,7 +3382,7 @@
 							"__worldY": 256
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [0,8],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -3398,7 +3398,7 @@
 							"__worldY": 256
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [0,12],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -3414,7 +3414,7 @@
 							"__worldY": 384
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [1,12],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -3430,7 +3430,7 @@
 							"__worldY": 384
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [2,12],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -3446,7 +3446,7 @@
 							"__worldY": 384
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [26,12],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -3462,7 +3462,7 @@
 							"__worldY": 384
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [25,12],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -3478,7 +3478,7 @@
 							"__worldY": 384
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [24,12],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -3494,7 +3494,7 @@
 							"__worldY": 384
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [26,8],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -3510,7 +3510,7 @@
 							"__worldY": 256
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [25,8],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -3526,7 +3526,7 @@
 							"__worldY": 256
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [12,10],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -3542,7 +3542,7 @@
 							"__worldY": 320
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [13,10],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -3558,7 +3558,7 @@
 							"__worldY": 320
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [14,10],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -3622,7 +3622,7 @@
 							"__worldY": 256
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [5,8],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -3638,7 +3638,7 @@
 							"__worldY": 256
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [5,9],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -3654,7 +3654,7 @@
 							"__worldY": 288
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [5,10],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -3670,7 +3670,7 @@
 							"__worldY": 320
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [21,8],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -3686,7 +3686,7 @@
 							"__worldY": 256
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [21,9],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -3702,7 +3702,7 @@
 							"__worldY": 288
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [9,8],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -3718,7 +3718,7 @@
 							"__worldY": 256
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [9,9],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -3734,7 +3734,7 @@
 							"__worldY": 288
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [17,8],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -3750,7 +3750,7 @@
 							"__worldY": 256
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [17,9],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -3798,7 +3798,7 @@
 							"__worldY": 224
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [12,13],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -3814,7 +3814,7 @@
 							"__worldY": 416
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [14,13],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -3894,7 +3894,7 @@
 							"__worldY": 544
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [2,13],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -3910,7 +3910,7 @@
 							"__worldY": 416
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [24,13],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -3926,7 +3926,7 @@
 							"__worldY": 416
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [24,11],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -3942,7 +3942,7 @@
 							"__worldY": 352
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [2,11],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -3990,7 +3990,7 @@
 							"__worldY": 288
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [1,1],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4006,7 +4006,7 @@
 							"__worldY": 32
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [25,1],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4022,7 +4022,7 @@
 							"__worldY": 32
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [7,15],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4038,7 +4038,7 @@
 							"__worldY": 480
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [8,15],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4054,7 +4054,7 @@
 							"__worldY": 480
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [18,15],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4070,7 +4070,7 @@
 							"__worldY": 480
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [19,15],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4086,7 +4086,7 @@
 							"__worldY": 480
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [9,15],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4102,7 +4102,7 @@
 							"__worldY": 480
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [8,11],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4118,7 +4118,7 @@
 							"__worldY": 352
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [18,11],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4166,7 +4166,7 @@
 							"__worldY": 384
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [0,4],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4182,7 +4182,7 @@
 							"__worldY": 128
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [26,4],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4198,7 +4198,7 @@
 							"__worldY": 128
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [21,15],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4214,7 +4214,7 @@
 							"__worldY": 480
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [23,15],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4230,7 +4230,7 @@
 							"__worldY": 480
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [5,15],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4246,7 +4246,7 @@
 							"__worldY": 480
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [3,15],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4262,7 +4262,7 @@
 							"__worldY": 480
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [12,8],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4278,7 +4278,7 @@
 							"__worldY": 256
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [14,8],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4294,7 +4294,7 @@
 							"__worldY": 256
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [11,8],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4310,7 +4310,7 @@
 							"__worldY": 256
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [10,8],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4326,7 +4326,7 @@
 							"__worldY": 256
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [15,8],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4342,7 +4342,7 @@
 							"__worldY": 256
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [16,8],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4630,7 +4630,7 @@
 							"__worldY": 320
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [21,10],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4646,7 +4646,7 @@
 							"__worldY": 320
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [8,7],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4662,7 +4662,7 @@
 							"__worldY": 224
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [18,7],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4678,7 +4678,7 @@
 							"__worldY": 224
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [17,5],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4694,7 +4694,7 @@
 							"__worldY": 160
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [9,5],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4726,7 +4726,7 @@
 							"__worldY": 192
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [22,5],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4742,7 +4742,7 @@
 							"__worldY": 160
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [22,8],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4758,7 +4758,7 @@
 							"__worldY": 256
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [4,8],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4774,7 +4774,7 @@
 							"__worldY": 256
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [4,5],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4822,7 +4822,7 @@
 							"__worldY": 0
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [12,15],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4870,7 +4870,7 @@
 							"__worldY": 480
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [17,15],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4886,7 +4886,7 @@
 							"__worldY": 480
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [14,15],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -4998,7 +4998,7 @@
 							"__worldY": 384
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [4,10],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -5014,7 +5014,7 @@
 							"__worldY": 320
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [22,10],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -5030,7 +5030,7 @@
 							"__worldY": 320
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [21,17],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -5046,7 +5046,7 @@
 							"__worldY": 544
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [5,17],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -5062,7 +5062,7 @@
 							"__worldY": 544
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [2,17],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -5078,7 +5078,7 @@
 							"__worldY": 544
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [1,16],
 							"__pivot": [0,0],
 							"__tags": [],
@@ -5094,7 +5094,7 @@
 							"__worldY": 512
 						},
 						{
-							"__identifier": "StoneWall",
+							"__identifier": "BrickWall",
 							"__grid": [25,16],
 							"__pivot": [0,0],
 							"__tags": [],
