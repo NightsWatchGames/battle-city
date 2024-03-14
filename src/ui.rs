@@ -3,7 +3,7 @@ use std::time::Duration;
 use bevy::prelude::*;
 
 use crate::common::{
-    AppState, GameSounds, GameTextureAtlasHandles, MultiplayerMode, SPRITE_GAME_OVER_ORDER,
+    AppState, GameSounds, GameTextureAtlasHandles, MultiplayerMode, SPRITE_GAME_OVER_Z_ORDER,
 };
 
 #[derive(Component)]
@@ -41,7 +41,7 @@ pub fn setup_start_menu(
             });
             parent.spawn((
                 AtlasImageBundle {
-                    texture_atlas: game_texture_atlas.player1.clone(),
+                    texture_atlas: game_texture_atlas.tanks.clone(),
                     style: Style {
                         width: Val::Px(20.),
                         height: Val::Px(20.),
@@ -72,7 +72,7 @@ pub fn setup_game_over(
         OnGameOverScreen,
         SpriteBundle {
             texture: game_over_texture,
-            transform: Transform::from_translation(Vec3::new(0., -400., SPRITE_GAME_OVER_ORDER)),
+            transform: Transform::from_translation(Vec3::new(0., -400., SPRITE_GAME_OVER_Z_ORDER)),
             ..default()
         },
     ));
@@ -110,6 +110,12 @@ pub fn start_game(keyboard_input: Res<Input<KeyCode>>, mut app_state: ResMut<Nex
     }
 }
 
+// Helper function to speed up development: allows to skip the first screen
+pub fn dev_start_game(mut app_state: ResMut<NextState<AppState>>, mut multiplayer_mode: ResMut<MultiplayerMode>) {
+    *multiplayer_mode = MultiplayerMode::TwoPlayers;
+    app_state.set(AppState::Playing);
+}
+
 pub fn switch_multiplayer_mode(
     mut commands: Commands,
     keyboard_input: Res<Input<KeyCode>>,
@@ -142,7 +148,7 @@ pub fn pause_game(
     mut cold_start: Local<Duration>,
     time: Res<Time>,
 ) {
-    // 增加冷启动防止 pause_game 和 unpause_game 都会收到input，导致Paued<->Playing不断循环
+    // 增加冷启动防止 pause_game 和 unpause_game 都会收到input，导致Paued<->Playing不断循环 // Add cold start to prevent both pause_game and unpause_game from receiving input, causing Paued<->Playing to loop continuously.
     *cold_start += time.delta();
     if cold_start.as_millis() > 100 {
         if keyboard_input.just_released(KeyCode::Escape) {

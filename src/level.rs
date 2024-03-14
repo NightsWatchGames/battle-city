@@ -1,14 +1,11 @@
 use crate::{
-    common::{
-        AnimationIndices, AnimationTimer, AppState, HomeDyingEvent, ENEMIES_PER_LEVEL,
-        LEVEL_COLUMNS, LEVEL_ROWS, MAX_LEVELS, SPRITE_TREE_ORDER, TILE_SIZE,
-    },
     enemy::{Enemy, LevelSpawnedEnemies},
     player::PlayerNo,
 };
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_rapier2d::prelude::*;
+use crate::common::*;
 
 pub const LEVEL_TRANSLATION_OFFSET: Vec3 = Vec3::new(
     -LEVEL_COLUMNS as f32 / 2.0 * TILE_SIZE,
@@ -31,6 +28,14 @@ pub enum LevelItem {
     Water,
     // 家
     Home,
+    StoneWallRight,
+    StoneWallBottom,
+    StoneWallLeft,
+    StoneWallTop,
+    IronWallRight,
+    IronWallBottom,
+    IronWallLeft,
+    IronWallTop,
 }
 
 // 关卡player1位置标记
@@ -62,23 +67,87 @@ pub struct StoneWallBundle {
     #[from_entity_instance]
     pub collider_bundle: ColliderBundle,
     // #[sprite_sheet_bundle("path/to/asset.png", tile_width, tile_height, columns, rows, padding, offset, index)]
-    #[sprite_sheet_bundle("textures/map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 0)]
+    #[sprite_sheet_bundle]
     sprite_bundle: SpriteSheetBundle,
 }
 #[derive(Bundle, LdtkEntity, Default)]
-pub struct IronWallBundle {
+pub struct IronWallRightBundle {
     #[from_entity_instance]
     level_item: LevelItem,
     #[from_entity_instance]
     pub collider_bundle: ColliderBundle,
-    #[sprite_sheet_bundle("textures/map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 1)]
+    #[sprite_sheet_bundle]
     sprite_bundle: SpriteSheetBundle,
 }
+#[derive(Bundle, LdtkEntity, Default)]
+pub struct IronWallBottomBundle {
+    #[from_entity_instance]
+    level_item: LevelItem,
+    #[from_entity_instance]
+    pub collider_bundle: ColliderBundle,
+    #[sprite_sheet_bundle]
+    sprite_bundle: SpriteSheetBundle,
+}
+#[derive(Bundle, LdtkEntity, Default)]
+pub struct IronWallLeftBundle {
+    #[from_entity_instance]
+    level_item: LevelItem,
+    #[from_entity_instance]
+    pub collider_bundle: ColliderBundle,
+    #[sprite_sheet_bundle]
+    sprite_bundle: SpriteSheetBundle,
+}
+#[derive(Bundle, LdtkEntity, Default)]
+pub struct IronWallTopBundle {
+    #[from_entity_instance]
+    level_item: LevelItem,
+    #[from_entity_instance]
+    pub collider_bundle: ColliderBundle,
+    #[sprite_sheet_bundle]
+    sprite_bundle: SpriteSheetBundle,
+}
+#[derive(Bundle, LdtkEntity, Default)]
+pub struct StoneWallRightBundle {
+    #[from_entity_instance]
+    level_item: LevelItem,
+    #[from_entity_instance]
+    pub collider_bundle: ColliderBundle,
+    #[sprite_sheet_bundle]
+    sprite_bundle: SpriteSheetBundle,
+}
+#[derive(Bundle, LdtkEntity, Default)]
+pub struct StoneWallBottomBundle {
+    #[from_entity_instance]
+    level_item: LevelItem,
+    #[from_entity_instance]
+    pub collider_bundle: ColliderBundle,
+    #[sprite_sheet_bundle]
+    sprite_bundle: SpriteSheetBundle,
+}
+#[derive(Bundle, LdtkEntity, Default)]
+pub struct StoneWallLeftBundle {
+    #[from_entity_instance]
+    level_item: LevelItem,
+    #[from_entity_instance]
+    pub collider_bundle: ColliderBundle,
+    #[sprite_sheet_bundle]
+    sprite_bundle: SpriteSheetBundle,
+}
+#[derive(Bundle, LdtkEntity, Default)]
+pub struct StoneWallTopBundle {
+    #[from_entity_instance]
+    level_item: LevelItem,
+    #[from_entity_instance]
+    pub collider_bundle: ColliderBundle,
+    #[sprite_sheet_bundle]
+    sprite_bundle: SpriteSheetBundle,
+}
+
 #[derive(Bundle, LdtkEntity, Default)]
 pub struct TreeBundle {
     #[from_entity_instance]
     level_item: LevelItem,
-    #[sprite_sheet_bundle("textures/map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 2)]
+    #[sprite_sheet_bundle]
     sprite_bundle: SpriteSheetBundle,
 }
 #[derive(Bundle, LdtkEntity, Default)]
@@ -87,7 +156,7 @@ pub struct WaterBundle {
     level_item: LevelItem,
     #[from_entity_instance]
     pub collider_bundle: ColliderBundle,
-    #[sprite_sheet_bundle("textures/map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 3)]
+    #[sprite_sheet_bundle]
     sprite_bundle: SpriteSheetBundle,
     #[from_entity_instance]
     pub annimation_bundle: AnimationBundle,
@@ -98,13 +167,23 @@ pub struct HomeBundle {
     level_item: LevelItem,
     #[from_entity_instance]
     pub collider_bundle: ColliderBundle,
-    #[sprite_sheet_bundle("textures/map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 5)]
+    #[sprite_sheet_bundle]
     sprite_bundle: SpriteSheetBundle,
 }
-
+#[derive(Bundle, LdtkEntity, Default)]
+pub struct IronWallBundle {
+    #[from_entity_instance]
+    level_item: LevelItem,
+    #[from_entity_instance]
+    pub collider_bundle: ColliderBundle,
+    #[sprite_sheet_bundle]
+    sprite_bundle: SpriteSheetBundle,
+}
 #[derive(Bundle, LdtkEntity, Default)]
 pub struct Player1MarkerBundle {
     marker: Player1Marker,
+    #[sprite_sheet_bundle]
+    sprite_bundle: SpriteSheetBundle,
 }
 #[derive(Bundle, LdtkEntity, Default)]
 pub struct Player2MarkerBundle {
@@ -126,6 +205,10 @@ impl From<&EntityInstance> for ColliderBundle {
                 collider: Collider::cuboid(TILE_SIZE / 2., TILE_SIZE / 2.),
                 rigid_body: RigidBody::Fixed,
             },
+            "StoneWallRight" | "IronWallRight" => ColliderBundle {
+                collider: Collider::cuboid(TILE_SIZE / 4., TILE_SIZE / 4.), // TODO: Fix it. How to make a cuboid not in the center of the entity?
+                rigid_body: RigidBody::Fixed,
+            },
             _ => ColliderBundle::default(),
         }
     }
@@ -134,7 +217,7 @@ impl From<&EntityInstance> for AnimationBundle {
     fn from(entity_instance: &EntityInstance) -> AnimationBundle {
         match entity_instance.identifier.as_ref() {
             "Water" => AnimationBundle {
-                timer: AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
+                timer: AnimationTimer(Timer::from_seconds(0.5, TimerMode::Repeating)),
                 indices: AnimationIndices { first: 3, last: 4 },
             },
             _ => AnimationBundle::default(),
@@ -149,6 +232,14 @@ impl From<&EntityInstance> for LevelItem {
             "Tree" => LevelItem::Tree,
             "Water" => LevelItem::Water,
             "Home" => LevelItem::Home,
+            "StoneWallRight" => LevelItem::StoneWallRight,
+            "StoneWallBottom" => LevelItem::StoneWallBottom,
+            "StoneWallLeft" => LevelItem::StoneWallLeft,
+            "StoneWallTop" => LevelItem::StoneWallTop,
+            "IronWallRight" => LevelItem::IronWallRight,
+            "IronWallBottom" => LevelItem::IronWallBottom,
+            "IronWallLeft" => LevelItem::IronWallLeft,
+            "IronWallTop" => LevelItem::IronWallTop,
             _ => LevelItem::None,
         }
     }
@@ -160,11 +251,11 @@ pub fn setup_levels(
     q_ldtk_world: Query<(), With<Handle<LdtkProject>>>,
 ) {
     if q_ldtk_world.iter().len() > 0 {
-        // 从Paused状态进入时无需再load ldtk
+        // 从Paused状态进入时无需再load ldtk // there is no need to load ldtk when entering from the Paused state.
         return;
     }
     commands.spawn(LdtkWorldBundle {
-        ldtk_handle: asset_server.load("levels.ldtk"),
+        ldtk_handle: asset_server.load(LDTK_MAP),
         transform: Transform::from_translation(Vec3::ZERO + LEVEL_TRANSLATION_OFFSET),
         ..Default::default()
     });
@@ -173,30 +264,18 @@ pub fn setup_levels(
 pub fn spawn_ldtk_entity(
     mut commands: Commands,
     entity_query: Query<(Entity, &Transform, &EntityInstance), Added<EntityInstance>>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
-    asset_server: Res<AssetServer>,
+    game_texture_atlas: Res<GameTextureAtlasHandles>,
 ) {
     for (_entity, transform, entity_instance) in entity_query.iter() {
         if entity_instance.identifier == *"Tree" {
-            let map_texture_handle = asset_server.load("textures/map.bmp");
-            let map_texture_atlas = TextureAtlas::from_grid(
-                map_texture_handle,
-                Vec2::new(32.0, 32.0),
-                7,
-                1,
-                None,
-                None,
-            );
-            let map_texture_atlas_handle = texture_atlases.add(map_texture_atlas);
-
             let mut translation = transform.translation + LEVEL_TRANSLATION_OFFSET;
-            translation.z = SPRITE_TREE_ORDER;
+            translation.z = SPRITE_TREE_Z_ORDER;
             commands.spawn((
                 LevelItem::Tree,
                 SpriteSheetBundle {
-                    texture_atlas: map_texture_atlas_handle,
+                    texture_atlas: game_texture_atlas.map.clone(),
                     sprite: TextureAtlasSprite {
-                        index: 2,
+                        index: 11,
                         ..default()
                     },
                     transform: Transform::from_translation(translation),
@@ -207,7 +286,7 @@ pub fn spawn_ldtk_entity(
     }
 }
 
-// 水动画播放
+// 水动画播放 // Water animation playback
 pub fn animate_water(
     time: Res<Time>,
     mut query: Query<(
@@ -221,7 +300,7 @@ pub fn animate_water(
         if *level_item == LevelItem::Water {
             timer.0.tick(time.delta());
             if timer.0.just_finished() {
-                // 切换到下一个sprite
+                // 切换到下一个sprite // Switch to next sprite
                 sprite.index = if sprite.index == indices.last {
                     indices.first
                 } else {
@@ -241,20 +320,20 @@ pub fn auto_switch_level(
     mut level_spawned_enemies: ResMut<LevelSpawnedEnemies>,
     mut app_state: ResMut<NextState<AppState>>,
 ) {
-    // 已生成的敌人数量达到最大值 并且 敌人全部阵亡，切换到下一关卡
+    // 已生成的敌人数量达到最大值 并且 敌人全部阵亡，切换到下一关卡 // The number of generated enemies reaches the maximum and all enemies are killed. Switch to the next level.
     if level_spawned_enemies.0 == ENEMIES_PER_LEVEL && q_enemies.iter().len() == 0 {
         if let LevelSelection::Indices(LevelIndices { level, .. }) = *level_selection {
             if level as i32 == MAX_LEVELS - 1 {
-                // TODO 游戏胜利
+                // TODO 游戏胜利 // TODO Game Victory
                 info!("win the game!");
                 app_state.set(AppState::StartMenu);
             } else {
-                // 下一关卡
+                // 下一关卡 // Next level
                 info!("Switch to next level, index={}", level + 1);
                 *level_selection = LevelSelection::index(level + 1);
                 level_spawned_enemies.0 = 0;
 
-                // 重新生成玩家
+                // 重新生成玩家 // Respawn player
                 for player in &q_players {
                     commands.entity(player).despawn_recursive();
                 }
