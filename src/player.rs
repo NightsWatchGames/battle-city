@@ -90,7 +90,7 @@ pub fn auto_spawn_players(
 
     // 出生动画完毕后，进行player创建 // When the birth animation is completed, create the player
     for spawn_player_event in spawn_player_er.read() {
-        dbg!(spawn_player_event);
+        // dbg!(spawn_player_event);
 
         // 保护盾 // Protective shield
         let shield = commands
@@ -173,7 +173,7 @@ pub fn spawn_born(
     game_texture_atlas: &Res<GameTextureAtlasHandles>,
 ) {
     // 出生特效 // Birth effects
-    println!("spawn born once");
+    debug!("spawn born {:?}", player_no);
     commands.spawn((
         Born,
         player_no,
