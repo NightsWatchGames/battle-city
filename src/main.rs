@@ -20,7 +20,7 @@ use bevy_rapier2d::prelude::*;
 
 const BACKGROUND_COLOR: Color = Color::BLACK;
 
-// TODO 坦克碰撞导致被迫移动
+// TODO 坦克碰撞导致被迫移动 // TODO: Tank collision causes forced movement
 fn main() {
     App::new()
         .register_type::<PlayerNo>()
@@ -32,7 +32,7 @@ fn main() {
                 ..default()
             }),
         )
-        .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
+        .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(PHYSICS_SCALE_PER_METER))
         // .add_plugin(RapierDebugRenderPlugin::default())
         .add_plugins(LdtkPlugin)
         .add_event::<ExplosionEvent>()

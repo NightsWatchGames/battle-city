@@ -7,7 +7,7 @@ use crate::{
     common::{
         self, AnimationIndices, AnimationTimer, GameTextureAtlasHandles, TankRefreshBulletTimer,
         ENEMIES_PER_LEVEL, ENEMY_REFRESH_BULLET_INTERVAL, ENEMY_SPEED, MAX_LIVE_ENEMIES,
-        TANK_SCALE, TANK_SIZE, TILE_SIZE, TANKS_SPRITE_COLS_AMOUNT,
+        TANK_SCALE, TANK_SIZE, TILE_SIZE, TANKS_SPRITE_COLS_AMOUNT, TANK_ROUND_CORNERS, PHYSICS_SCALE_PER_METER
     },
     level::{EnemiesMarker, LevelItem},
     player::PlayerNo,
@@ -116,8 +116,7 @@ pub fn spawn_enemy(
         },
         common::Direction::Up,
         RigidBody::Dynamic,
-        Collider::cuboid(TANK_SIZE * TANK_SCALE / 2.0, TANK_SIZE * TANK_SCALE / 2.0),
-        ActiveEvents::COLLISION_EVENTS,
+        Collider::round_cuboid((TANK_SIZE * TANK_SCALE / 2.0) - TANK_ROUND_CORNERS, (TANK_SIZE * TANK_SCALE / 2.0) - TANK_ROUND_CORNERS, TANK_ROUND_CORNERS / PHYSICS_SCALE_PER_METER),
         LockedAxes::ROTATION_LOCKED,
     ));
 }

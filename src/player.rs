@@ -141,8 +141,7 @@ pub fn auto_spawn_players(
                 AnimationIndices { first: player_sprite_offset, last: 1 + player_sprite_offset },
                 RigidBody::Dynamic,
                 Velocity::zero(),
-                // 圆形碰撞体防止因ROTATION_LOCKED被地形卡住 // Circular collider prevents being stuck on terrain due to ROTATION_LOCKED
-                Collider::ball(TANK_SIZE * TANK_SCALE / 2.0), // TODO: Make cubic collisions because the ball collisions causes a "teleport" bug for some entities
+                Collider::round_cuboid((TANK_SIZE * TANK_SCALE / 2.0) - TANK_ROUND_CORNERS, (TANK_SIZE * TANK_SCALE / 2.0) - TANK_ROUND_CORNERS, TANK_ROUND_CORNERS / PHYSICS_SCALE_PER_METER),
                 ActiveEvents::COLLISION_EVENTS,
                 LockedAxes::ROTATION_LOCKED,
             ))

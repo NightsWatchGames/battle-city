@@ -28,6 +28,8 @@ pub const PLAYER_SPEED: f32 = 150.0;
 pub const ENEMY_SPEED: f32 = 100.0;
 pub const TANK_SIZE: f32 = 32.0;
 pub const TANK_SCALE: f32 = 1.0;
+pub const TANK_ROUND_CORNERS: f32 = 8.0;
+pub const PHYSICS_SCALE_PER_METER: f32 = 100.0;
 
 // sprite z轴顺序 // Sprite z-axis order
 pub const SPRITE_GAME_OVER_Z_ORDER: f32 = 4.0;
