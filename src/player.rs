@@ -112,18 +112,22 @@ pub fn auto_spawn_players(
             .id();
 
         // 坦克  // Battle tank
+        let mut player_sprite_offset = 0;
+        if spawn_player_event.player_no.0 == 2 {
+            player_sprite_offset = 128;
+        }
         let tank = commands
             .spawn((
                 spawn_player_event.player_no,
                 SpriteSheetBundle {
                     texture_atlas: game_texture_atlas.tanks.clone(),
                     transform: Transform {
-                        translation: if spawn_player_event.player_no.0 == 1 {
-                            spawn_player_event.pos.extend(SPRITE_PLAYER_Z_ORDER)
-                        } else {
-                            spawn_player_event.pos.extend(SPRITE_PLAYER_Z_ORDER) // TODO: Fix sprite for the second player
-                        },
+                        translation: spawn_player_event.pos.extend(SPRITE_PLAYER_Z_ORDER),
                         scale: Vec3::splat(TANK_SCALE),
+                        ..default()
+                    },
+                    sprite: TextureAtlasSprite {
+                        index: player_sprite_offset,
                         ..default()
                     },
                     ..default()
@@ -134,7 +138,7 @@ pub fn auto_spawn_players(
                 )),
                 common::Direction::Up,
                 AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
-                AnimationIndices { first: 1, last: 2 }, // TODO: Fix animation for both players
+                AnimationIndices { first: player_sprite_offset, last: 1 + player_sprite_offset },
                 RigidBody::Dynamic,
                 Velocity::zero(),
                 // 圆形碰撞体防止因ROTATION_LOCKED被地形卡住 // Circular collider prevents being stuck on terrain due to ROTATION_LOCKED
@@ -213,6 +217,7 @@ pub fn players_move(
             velocity.linvel = Vec2::ZERO;
             continue;
         }
+        let old_direction = direction.clone();
         // 一次只能移动一个方向 // Can only move in one direction at a time
         if (player_no.0 == 1 && keyboard_input.pressed(KeyCode::W))
             || (player_no.0 == 2 && keyboard_input.pressed(KeyCode::Up))
@@ -238,27 +243,34 @@ pub fn players_move(
             continue;
         }
 
+        let mut player_sprite_offset = 0;
+        if player_no.0 == 2 {
+            player_sprite_offset = 128;
+        }
         match *direction {
             common::Direction::Up => {
-                *indices = AnimationIndices { first: 0, last: 1 };
+                *indices = AnimationIndices { first: player_sprite_offset, last: 1 + player_sprite_offset };
             }
             common::Direction::Right => {
-                *indices = AnimationIndices { first: 6, last: 7 };
+                *indices = AnimationIndices { first: 6 + player_sprite_offset, last: 7 + player_sprite_offset };
             }
             common::Direction::Down => {
                 *indices = AnimationIndices {
-                    first: 4,
-                    last: 5,
+                    first: 4 + player_sprite_offset,
+                    last: 5 + player_sprite_offset,
                 };
             }
             common::Direction::Left => {
                 *indices = AnimationIndices {
-                    first: 2,
-                    last: 3,
+                    first: 2 + player_sprite_offset,
+                    last: 3 + player_sprite_offset,
                 };
             }
         }
-        sprite.index = indices.first;
+        // We want to reset the sprite only when a direction is changed, otherwise the animation will be broken.
+        if old_direction != *direction {
+            sprite.index = indices.first;
+        }
     }
 }
 
@@ -280,7 +292,7 @@ pub fn animate_players(
         if timer.0.just_finished() {
             if velocity.linvel != Vec2::ZERO {
                 // 切换到下一个sprite // Switch to next sprite
-                sprite.index = if sprite.index == indices.last {
+                sprite.index = if sprite.index >= indices.last || sprite.index < indices.first {
                     indices.first
                 } else {
                     sprite.index + 1
