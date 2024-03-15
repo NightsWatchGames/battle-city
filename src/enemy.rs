@@ -417,7 +417,7 @@ pub fn new_sprite_index(current_index: i32, direction: common::Direction) -> i32
     let index_sets = enemies_sprite_index_sets();
     for index_set in index_sets {
         if index_set.contains(&current_index) {
-            info!("found index_set");
+            trace!("found index_set");
             match direction {
                 common::Direction::Up => {
                     return *index_set.get(0).unwrap();
