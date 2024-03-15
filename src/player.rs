@@ -105,8 +105,14 @@ pub fn auto_spawn_players(
                     },
                     ..default()
                 },
-                AnimationTimer(Timer::from_seconds(BEVY_FRAMERATE / 2.0, TimerMode::Repeating)),
-                AnimationIndices { first: 17, last: 18 },
+                AnimationTimer(Timer::from_seconds(
+                    BEVY_FRAMERATE / 2.0,
+                    TimerMode::Repeating,
+                )),
+                AnimationIndices {
+                    first: 17,
+                    last: 18,
+                },
                 ShieldRemoveTimer(Timer::from_seconds(2.0, TimerMode::Once)),
             ))
             .id();
@@ -138,10 +144,17 @@ pub fn auto_spawn_players(
                 )),
                 common::Direction::Up,
                 AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
-                AnimationIndices { first: player_sprite_offset, last: 1 + player_sprite_offset },
+                AnimationIndices {
+                    first: player_sprite_offset,
+                    last: 1 + player_sprite_offset,
+                },
                 RigidBody::Dynamic,
                 Velocity::zero(),
-                Collider::round_cuboid((TANK_SIZE * TANK_SCALE / 2.0) - TANK_ROUND_CORNERS, (TANK_SIZE * TANK_SCALE / 2.0) - TANK_ROUND_CORNERS, TANK_ROUND_CORNERS / PHYSICS_SCALE_PER_METER),
+                Collider::round_cuboid(
+                    (TANK_SIZE * TANK_SCALE / 2.0) - TANK_ROUND_CORNERS,
+                    (TANK_SIZE * TANK_SCALE / 2.0) - TANK_ROUND_CORNERS,
+                    TANK_ROUND_CORNERS / PHYSICS_SCALE_PER_METER,
+                ),
                 ActiveEvents::COLLISION_EVENTS,
                 LockedAxes::ROTATION_LOCKED,
             ))
@@ -216,7 +229,7 @@ pub fn players_move(
             velocity.linvel = Vec2::ZERO;
             continue;
         }
-        let old_direction = direction.clone();
+        let old_direction = *direction;
         // 一次只能移动一个方向 // Can only move in one direction at a time
         if (player_no.0 == 1 && keyboard_input.pressed(KeyCode::W))
             || (player_no.0 == 2 && keyboard_input.pressed(KeyCode::Up))
@@ -248,10 +261,16 @@ pub fn players_move(
         }
         match *direction {
             common::Direction::Up => {
-                *indices = AnimationIndices { first: player_sprite_offset, last: 1 + player_sprite_offset };
+                *indices = AnimationIndices {
+                    first: player_sprite_offset,
+                    last: 1 + player_sprite_offset,
+                };
             }
             common::Direction::Right => {
-                *indices = AnimationIndices { first: 6 + player_sprite_offset, last: 7 + player_sprite_offset };
+                *indices = AnimationIndices {
+                    first: 6 + player_sprite_offset,
+                    last: 7 + player_sprite_offset,
+                };
             }
             common::Direction::Down => {
                 *indices = AnimationIndices {
@@ -329,7 +348,7 @@ pub fn players_attack(
                     &game_texture_atlas,
                     Bullet::Player,
                     transform.translation,
-                    direction.clone(),
+                    *direction,
                 );
                 commands.spawn(AudioBundle {
                     source: game_sounds.player_fire.clone(),
@@ -416,7 +435,7 @@ pub fn animate_born(
             commands.entity(entity).despawn();
             spawn_player_ew.send(SpawnPlayerEvent {
                 pos: transform.translation.truncate(),
-                player_no: player_no.clone(),
+                player_no: *player_no,
             });
         }
     }

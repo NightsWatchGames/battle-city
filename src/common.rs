@@ -2,14 +2,14 @@ use bevy::prelude::*;
 
 // 关卡地图行数和列数 // Level map row and column numbers
 /*
-pub const LDTK_MAP: &'static str = "levels_namcot_original_35.ldtk";
+pub const LDTK_MAP: &str = "levels_namcot_original_35.ldtk";
 pub const LEVEL_ROWS: i32 = 13;
 pub const LEVEL_COLUMNS: i32 = 13;
 pub const TILE_SIZE: f32 = 32.0;
  */
 
 // Uncomment it to return to a custom map settings
-pub const LDTK_MAP: &'static str = "levels.ldtk";
+pub const LDTK_MAP: &str = "levels.ldtk";
 pub const LEVEL_ROWS: i32 = 18;
 pub const LEVEL_COLUMNS: i32 = 27;
 pub const TILE_SIZE: f32 = 32.0;
@@ -35,10 +35,10 @@ pub const PHYSICS_SCALE_PER_METER: f32 = 100.0;
 pub const SPRITE_GAME_OVER_Z_ORDER: f32 = 4.0;
 pub const SPRITE_TREE_Z_ORDER: f32 = 3.0;
 pub const SPRITE_PLAYER_Z_ORDER: f32 = 1.0;
-pub const TANKS_SPRITE: &'static str = "textures/spriteTanks32.png";
+pub const TANKS_SPRITE: &str = "textures/spriteTanks32.png";
 pub const TANKS_SPRITE_CELL: f32 = 32.0;
 pub const TANKS_SPRITE_COLS_AMOUNT: i32 = 16;
-pub const MAP_SPRITE: &'static str = "textures/spriteMapObjects32.png";
+pub const MAP_SPRITE: &str = "textures/spriteMapObjects32.png";
 pub const MAP_SPRITE_CELL: f32 = 32.0;
 
 pub const BEVY_FRAMERATE: f32 = 0.14; // TODO: Change it to 0.15 for Bevy v0.13
@@ -133,7 +133,7 @@ pub fn setup_game_texture_atlas(
 
     // Players and enemies tanks sprite
     let tanks_texture_atlas = TextureAtlas::from_grid(
-        asset_server.load(TANKS_SPRITE),  // TODO: I think it will be obsolete since v0.13
+        asset_server.load(TANKS_SPRITE), // TODO: I think it will be obsolete since v0.13
         Vec2::new(TANKS_SPRITE_CELL, TANKS_SPRITE_CELL),
         16,
         16,
@@ -144,7 +144,7 @@ pub fn setup_game_texture_atlas(
 
     // Map objects sprite with Home and Shield
     let map_texture_atlas = TextureAtlas::from_grid(
-        asset_server.load(MAP_SPRITE),  // TODO: I think it will be obsolete since v0.13
+        asset_server.load(MAP_SPRITE), // TODO: I think it will be obsolete since v0.13
         Vec2::new(MAP_SPRITE_CELL, MAP_SPRITE_CELL),
         5,
         4,

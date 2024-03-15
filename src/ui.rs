@@ -111,7 +111,10 @@ pub fn start_game(keyboard_input: Res<Input<KeyCode>>, mut app_state: ResMut<Nex
 }
 
 // Helper function to speed up development: allows to skip the first screen
-pub fn dev_start_game(mut app_state: ResMut<NextState<AppState>>, mut multiplayer_mode: ResMut<MultiplayerMode>) {
+pub fn dev_start_game(
+    mut app_state: ResMut<NextState<AppState>>,
+    mut multiplayer_mode: ResMut<MultiplayerMode>,
+) {
     *multiplayer_mode = MultiplayerMode::TwoPlayers;
     app_state.set(AppState::Playing);
 }
@@ -150,16 +153,14 @@ pub fn pause_game(
 ) {
     // 增加冷启动防止 pause_game 和 unpause_game 都会收到input，导致Paued<->Playing不断循环 // Add cold start to prevent both pause_game and unpause_game from receiving input, causing Paued<->Playing to loop continuously.
     *cold_start += time.delta();
-    if cold_start.as_millis() > 100 {
-        if keyboard_input.just_released(KeyCode::Escape) {
-            info!("Pause game");
-            commands.spawn(AudioBundle {
-                source: game_sounds.game_pause.clone(),
-                settings: PlaybackSettings::DESPAWN,
-            });
-            app_state.set(AppState::Paused);
-            *cold_start = Duration::ZERO;
-        }
+    if cold_start.as_millis() > 100 && keyboard_input.just_released(KeyCode::Escape) {
+        info!("Pause game");
+        commands.spawn(AudioBundle {
+            source: game_sounds.game_pause.clone(),
+            settings: PlaybackSettings::DESPAWN,
+        });
+        app_state.set(AppState::Paused);
+        *cold_start = Duration::ZERO;
     }
 }
 
@@ -170,12 +171,10 @@ pub fn unpause_game(
     time: Res<Time>,
 ) {
     *cold_start += time.delta();
-    if cold_start.as_millis() > 100 {
-        if keyboard_input.just_released(KeyCode::Escape) {
-            info!("Unpause game");
-            app_state.set(AppState::Playing);
-            *cold_start = Duration::ZERO;
-        }
+    if cold_start.as_millis() > 100 && keyboard_input.just_released(KeyCode::Escape) {
+        info!("Unpause game");
+        app_state.set(AppState::Playing);
+        *cold_start = Duration::ZERO;
     }
 }
 

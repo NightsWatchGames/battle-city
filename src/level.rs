@@ -1,3 +1,4 @@
+use crate::common::*;
 use crate::{
     enemy::{Enemy, LevelSpawnedEnemies},
     player::PlayerNo,
@@ -5,7 +6,6 @@ use crate::{
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_rapier2d::prelude::*;
-use crate::common::*;
 
 pub const LEVEL_TRANSLATION_OFFSET: Vec3 = Vec3::new(
     -LEVEL_COLUMNS as f32 / 2.0 * TILE_SIZE,

@@ -112,7 +112,9 @@ pub fn handle_bullet_collision(
 
                 trace!(
                     "Bullet: {:?}, collision entity1: {:?}, entity2: {:?}",
-                    bullet_entity, entity1, entity2
+                    bullet_entity,
+                    entity1,
+                    entity2
                 );
 
                 let bullet = q_bullets.get_component::<Bullet>(bullet_entity).unwrap();
