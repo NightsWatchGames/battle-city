@@ -24,9 +24,16 @@ const BACKGROUND_COLOR: Color = Color::BLACK;
 fn main() {
     App::new()
         .register_type::<PlayerNo>()
-        .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
+        .add_plugins(DefaultPlugins
+            .set(ImagePlugin::default_nearest())
+            .set(bevy::log::LogPlugin {
+                level: bevy::log::Level::DEBUG,
+                filter: "wgpu=warn,bevy_ecs=info,naga=info,bevy_render=info,bevy_app=info".to_string(),
+                ..default()
+            }),
+        )
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(PHYSICS_SCALE_PER_METER))
-        //.add_plugins(RapierDebugRenderPlugin::default())
+        // .add_plugin(RapierDebugRenderPlugin::default())
         .add_plugins(LdtkPlugin)
         .add_event::<ExplosionEvent>()
         .add_event::<SpawnPlayerEvent>()
