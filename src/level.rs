@@ -68,7 +68,7 @@ pub struct BrickWallBundle {
     pub collider_bundle: ColliderBundle,
     // #[sprite_sheet_bundle("path/to/asset.png", tile_width, tile_height, columns, rows, padding, offset, index)]
     #[sprite_sheet_bundle]
-    sprite_bundle: SpriteSheetBundle,
+    sprite_bundle: LdtkSpriteSheetBundle,
 }
 #[derive(Bundle, LdtkEntity, Default)]
 pub struct IronWallRightBundle {
@@ -77,7 +77,7 @@ pub struct IronWallRightBundle {
     #[from_entity_instance]
     pub collider_bundle: ColliderBundle,
     #[sprite_sheet_bundle]
-    sprite_bundle: SpriteSheetBundle,
+    sprite_bundle: LdtkSpriteSheetBundle,
 }
 #[derive(Bundle, LdtkEntity, Default)]
 pub struct IronWallBottomBundle {
@@ -86,7 +86,7 @@ pub struct IronWallBottomBundle {
     #[from_entity_instance]
     pub collider_bundle: ColliderBundle,
     #[sprite_sheet_bundle]
-    sprite_bundle: SpriteSheetBundle,
+    sprite_bundle: LdtkSpriteSheetBundle,
 }
 #[derive(Bundle, LdtkEntity, Default)]
 pub struct IronWallLeftBundle {
@@ -95,7 +95,7 @@ pub struct IronWallLeftBundle {
     #[from_entity_instance]
     pub collider_bundle: ColliderBundle,
     #[sprite_sheet_bundle]
-    sprite_bundle: SpriteSheetBundle,
+    sprite_bundle: LdtkSpriteSheetBundle,
 }
 #[derive(Bundle, LdtkEntity, Default)]
 pub struct IronWallTopBundle {
@@ -104,7 +104,7 @@ pub struct IronWallTopBundle {
     #[from_entity_instance]
     pub collider_bundle: ColliderBundle,
     #[sprite_sheet_bundle]
-    sprite_bundle: SpriteSheetBundle,
+    sprite_bundle: LdtkSpriteSheetBundle,
 }
 #[derive(Bundle, LdtkEntity, Default)]
 pub struct BrickWallRightBundle {
@@ -113,7 +113,7 @@ pub struct BrickWallRightBundle {
     #[from_entity_instance]
     pub collider_bundle: ColliderBundle,
     #[sprite_sheet_bundle]
-    sprite_bundle: SpriteSheetBundle,
+    sprite_bundle: LdtkSpriteSheetBundle,
 }
 #[derive(Bundle, LdtkEntity, Default)]
 pub struct BrickWallBottomBundle {
@@ -122,7 +122,7 @@ pub struct BrickWallBottomBundle {
     #[from_entity_instance]
     pub collider_bundle: ColliderBundle,
     #[sprite_sheet_bundle]
-    sprite_bundle: SpriteSheetBundle,
+    sprite_bundle: LdtkSpriteSheetBundle,
 }
 #[derive(Bundle, LdtkEntity, Default)]
 pub struct BrickWallLeftBundle {
@@ -131,7 +131,7 @@ pub struct BrickWallLeftBundle {
     #[from_entity_instance]
     pub collider_bundle: ColliderBundle,
     #[sprite_sheet_bundle]
-    sprite_bundle: SpriteSheetBundle,
+    sprite_bundle: LdtkSpriteSheetBundle,
 }
 #[derive(Bundle, LdtkEntity, Default)]
 pub struct BrickWallTopBundle {
@@ -140,7 +140,7 @@ pub struct BrickWallTopBundle {
     #[from_entity_instance]
     pub collider_bundle: ColliderBundle,
     #[sprite_sheet_bundle]
-    sprite_bundle: SpriteSheetBundle,
+    sprite_bundle: LdtkSpriteSheetBundle,
 }
 
 #[derive(Bundle, LdtkEntity, Default)]
@@ -148,7 +148,7 @@ pub struct TreeBundle {
     #[from_entity_instance]
     level_item: LevelItem,
     #[sprite_sheet_bundle]
-    sprite_bundle: SpriteSheetBundle,
+    sprite_bundle: LdtkSpriteSheetBundle,
 }
 #[derive(Bundle, LdtkEntity, Default)]
 pub struct WaterBundle {
@@ -157,9 +157,9 @@ pub struct WaterBundle {
     #[from_entity_instance]
     pub collider_bundle: ColliderBundle,
     #[sprite_sheet_bundle]
-    sprite_bundle: SpriteSheetBundle,
+    sprite_bundle: LdtkSpriteSheetBundle,
     #[from_entity_instance]
-    pub annimation_bundle: AnimationBundle,
+    pub animation_bundle: AnimationBundle,
 }
 #[derive(Bundle, LdtkEntity, Default)]
 pub struct HomeBundle {
@@ -168,7 +168,7 @@ pub struct HomeBundle {
     #[from_entity_instance]
     pub collider_bundle: ColliderBundle,
     #[sprite_sheet_bundle]
-    sprite_bundle: SpriteSheetBundle,
+    sprite_bundle: LdtkSpriteSheetBundle,
 }
 #[derive(Bundle, LdtkEntity, Default)]
 pub struct IronWallBundle {
@@ -177,25 +177,25 @@ pub struct IronWallBundle {
     #[from_entity_instance]
     pub collider_bundle: ColliderBundle,
     #[sprite_sheet_bundle]
-    sprite_bundle: SpriteSheetBundle,
+    sprite_bundle: LdtkSpriteSheetBundle,
 }
 #[derive(Bundle, LdtkEntity, Default)]
 pub struct Player1MarkerBundle {
     marker: Player1Marker,
     #[sprite_sheet_bundle]
-    sprite_bundle: SpriteSheetBundle,
+    sprite_bundle: LdtkSpriteSheetBundle,
 }
 #[derive(Bundle, LdtkEntity, Default)]
 pub struct Player2MarkerBundle {
     marker: Player2Marker,
     #[sprite_sheet_bundle]
-    sprite_bundle: SpriteSheetBundle,
+    sprite_bundle: LdtkSpriteSheetBundle,
 }
 #[derive(Bundle, LdtkEntity, Default)]
 pub struct EnemiesMarkerBundle {
     marker: EnemiesMarker,
     #[sprite_sheet_bundle]
-    sprite_bundle: SpriteSheetBundle,
+    sprite_bundle: LdtkSpriteSheetBundle,
 }
 
 impl From<&EntityInstance> for ColliderBundle {
@@ -264,7 +264,8 @@ pub fn setup_levels(
 pub fn spawn_ldtk_entity(
     mut commands: Commands,
     entity_query: Query<(Entity, &Transform, &EntityInstance), Added<EntityInstance>>,
-    game_texture_atlas: Res<GameTextureAtlasHandles>,
+    game_texture_atlas: Res<GameTextureLayout>,
+    game_texture_handles: Res<GameTextureHandles>,
 ) {
     for (_entity, transform, entity_instance) in entity_query.iter() {
         if entity_instance.identifier == *"Tree" {
@@ -272,13 +273,14 @@ pub fn spawn_ldtk_entity(
             translation.z = SPRITE_TREE_Z_ORDER;
             commands.spawn((
                 LevelItem::Tree,
-                SpriteSheetBundle {
-                    texture_atlas: game_texture_atlas.map.clone(),
-                    sprite: TextureAtlasSprite {
-                        index: 11,
-                        ..default()
-                    },
+                SpriteBundle {
+                    texture: game_texture_handles.map.clone(),
                     transform: Transform::from_translation(translation),
+                    ..default()
+                },
+                TextureAtlas {
+                    layout: game_texture_atlas.map.clone(),
+                    index: 11,
                     ..default()
                 },
             ));
@@ -293,7 +295,7 @@ pub fn animate_water(
         &LevelItem,
         &mut AnimationTimer,
         &AnimationIndices,
-        &mut TextureAtlasSprite,
+        &mut TextureAtlas,
     )>,
 ) {
     for (level_item, mut timer, indices, mut sprite) in &mut query {
@@ -347,7 +349,7 @@ pub fn auto_switch_level(
 
 pub fn animate_home(
     mut home_dying_er: EventReader<HomeDyingEvent>,
-    mut q_level_items: Query<(&LevelItem, &mut TextureAtlasSprite)>,
+    mut q_level_items: Query<(&LevelItem, &mut TextureAtlas)>,
     mut app_state: ResMut<NextState<AppState>>,
 ) {
     for _ in home_dying_er.read() {

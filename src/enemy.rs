@@ -2,10 +2,11 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use rand::Rng;
 
+use crate::common::{animate_sprite, GameTextureHandles};
 use crate::{
     bullet::{spawn_bullet, Bullet},
     common::{
-        self, AnimationIndices, AnimationTimer, GameTextureAtlasHandles, TankRefreshBulletTimer,
+        self, AnimationIndices, AnimationTimer, GameTextureLayout, TankRefreshBulletTimer,
         ENEMIES_PER_LEVEL, ENEMY_REFRESH_BULLET_INTERVAL, ENEMY_SPEED, MAX_LIVE_ENEMIES,
         PHYSICS_SCALE_PER_METER, TANKS_SPRITE_COLS_AMOUNT, TANK_ROUND_CORNERS, TANK_SCALE,
         TANK_SIZE, TILE_SIZE,
@@ -31,7 +32,8 @@ pub fn auto_spawn_enemies(
     q_enemies: Query<&Transform, With<Enemy>>,
     q_enemies_marker: Query<&GlobalTransform, With<EnemiesMarker>>,
     q_players: Query<&Transform, With<PlayerNo>>,
-    game_texture_atlas: Res<GameTextureAtlasHandles>,
+    game_texture_atlas: Res<GameTextureLayout>,
+    game_texture_handles: Res<GameTextureHandles>,
 ) {
     if q_enemies.into_iter().len() >= MAX_LIVE_ENEMIES as usize {
         // 战场上存活敌人已达到最大值 // The number of surviving enemies on the battlefield has reached the maximum value
@@ -53,23 +55,28 @@ pub fn auto_spawn_enemies(
     if !marker_positions.is_empty() {
         // 随机地点 // Random location
         let mut rng = rand::thread_rng();
-        let choosed_pos = marker_positions
+        let chosen_pos = marker_positions
             .get(rng.gen_range(0..marker_positions.len()))
             .unwrap()
             .translation();
 
         // 不能距离战场坦克过近 // Don’t get too close to tanks on the battlefield
         for enemy_pos in &q_enemies {
-            if choosed_pos.distance(enemy_pos.translation) < 2. * TILE_SIZE {
+            if chosen_pos.distance(enemy_pos.translation) < 2. * TILE_SIZE {
                 return;
             }
         }
         for player_pos in &q_players {
-            if choosed_pos.distance(player_pos.translation) < 2. * TILE_SIZE {
+            if chosen_pos.distance(player_pos.translation) < 2. * TILE_SIZE {
                 return;
             }
         }
-        spawn_enemy(choosed_pos, &mut commands, &game_texture_atlas);
+        spawn_enemy(
+            chosen_pos,
+            &mut commands,
+            game_texture_atlas.tanks.clone(),
+            game_texture_handles.tanks.clone(),
+        );
         level_spawned_enemies.0 += 1;
     }
 }
@@ -77,7 +84,8 @@ pub fn auto_spawn_enemies(
 pub fn spawn_enemy(
     pos: Vec3,
     commands: &mut Commands,
-    game_texture_atlas: &Res<GameTextureAtlasHandles>,
+    tank_texture_layout: Handle<TextureAtlasLayout>,
+    tank_texture_handle: Handle<Image>,
 ) {
     // 随机颜色 // Random type
     let indexes: Vec<i32> = enemies_sprite_index_sets()
@@ -85,21 +93,22 @@ pub fn spawn_enemy(
         .map(|v| *v.get(0).unwrap())
         .collect();
     let mut rng = rand::thread_rng();
-    let choosed_index = indexes.get(rng.gen_range(0..indexes.len())).unwrap();
+    let chosen_index = indexes.get(rng.gen_range(0..indexes.len())).unwrap();
 
     commands.spawn((
         Enemy,
-        SpriteSheetBundle {
-            sprite: TextureAtlasSprite {
-                index: *choosed_index as usize,
-                ..default()
-            },
-            texture_atlas: game_texture_atlas.tanks.clone(),
+        SpriteBundle {
+            texture: tank_texture_handle,
             transform: Transform {
                 translation: pos,
                 scale: Vec3::splat(TANK_SCALE),
                 ..default()
             },
+            ..default()
+        },
+        TextureAtlas {
+            layout: tank_texture_layout,
+            index: *chosen_index as usize,
             ..default()
         },
         TankRefreshBulletTimer(Timer::from_seconds(
@@ -109,8 +118,8 @@ pub fn spawn_enemy(
         EnemyChangeDirectionTimer(Timer::from_seconds(1.0, TimerMode::Once)),
         AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
         AnimationIndices {
-            first: *choosed_index as usize,
-            last: *choosed_index as usize + 1,
+            first: *chosen_index as usize,
+            last: *chosen_index as usize + 1,
         },
         common::Direction::Up,
         RigidBody::Dynamic,
@@ -129,7 +138,7 @@ pub fn enemies_move(
         (
             &mut Transform,
             &mut common::Direction,
-            &mut TextureAtlasSprite,
+            &mut TextureAtlas,
             &mut AnimationIndices,
             &mut EnemyChangeDirectionTimer,
         ),
@@ -204,7 +213,7 @@ pub fn enemies_move(
 
         // 根据权重随机一个方向 // Randomly move in a direction based on weight
         let mut rng = rand::thread_rng();
-        let choosed_direction = loop {
+        let chosen_direction = loop {
             let rand = rng.gen_range(0..9);
             match rand {
                 0 => {
@@ -232,7 +241,7 @@ pub fn enemies_move(
         };
 
         // 设置方向和sprite // Set direction and sprite
-        *direction = choosed_direction;
+        *direction = chosen_direction;
         sprite.index = new_sprite_index(sprite.index as i32, *direction) as usize;
         *indices = AnimationIndices {
             first: sprite.index,
@@ -251,7 +260,8 @@ pub fn enemies_attack(
     >,
     time: Res<Time>,
     mut commands: Commands,
-    game_texture_atlas: Res<GameTextureAtlasHandles>,
+    game_texture_atlas: Res<GameTextureLayout>,
+    game_texture_handles: Res<GameTextureHandles>,
 ) {
     for (transform, direction, mut refresh_bullet_timer) in &mut q_players {
         refresh_bullet_timer.tick(time.delta());
@@ -262,6 +272,7 @@ pub fn enemies_attack(
                 Bullet::Enemy,
                 transform.translation,
                 *direction,
+                game_texture_handles.bullet.clone(),
             );
         }
     }
@@ -285,7 +296,7 @@ pub fn handle_enemy_collision(
 
                 // 重置转向计时器 // Reset turn timer
                 let mut change_direction_timer = q_enemies
-                    .get_component_mut::<EnemyChangeDirectionTimer>(enemy_entity)
+                    .get_mut(enemy_entity)
                     .unwrap();
                 change_direction_timer.0.reset();
             }
@@ -296,26 +307,9 @@ pub fn handle_enemy_collision(
 // 坦克移动动画播放 // Tank moving animation playback
 pub fn animate_enemies(
     time: Res<Time>,
-    mut query: Query<
-        (
-            &mut AnimationTimer,
-            &AnimationIndices,
-            &mut TextureAtlasSprite,
-        ),
-        With<Enemy>,
-    >,
+    mut query: Query<(&mut AnimationTimer, &AnimationIndices, &mut TextureAtlas), With<Enemy>>,
 ) {
-    for (mut timer, indices, mut sprite) in &mut query {
-        timer.0.tick(time.delta());
-        if timer.0.just_finished() {
-            // 切换到下一个sprite // Switch to next sprite
-            sprite.index = if sprite.index == indices.last {
-                indices.first
-            } else {
-                sprite.index + 1
-            };
-        }
-    }
+    animate_sprite(time, query);
 }
 
 pub fn cleanup_enemies(mut commands: Commands, q_enemies: Query<Entity, With<Enemy>>) {
@@ -331,7 +325,7 @@ pub fn reset_level_spawned_enemies(mut level_spawned_enemies: ResMut<LevelSpawne
 // TODO: Refactor it.
 pub fn enemies_sprite_index_sets() -> Vec<Vec<i32>> {
     vec![
-        // 上右下左 + 其他可能index // Columns: top, right, bottom, left + the same postitions for movement
+        // 上右下左 + 其他可能index // Columns: top, right, bottom, left + the same positions for movement
         vec![
             8 + TANKS_SPRITE_COLS_AMOUNT * 0,
             14 + TANKS_SPRITE_COLS_AMOUNT * 0,
@@ -419,20 +413,12 @@ pub fn new_sprite_index(current_index: i32, direction: common::Direction) -> i32
     for index_set in index_sets {
         if index_set.contains(&current_index) {
             trace!("found index_set");
-            match direction {
-                common::Direction::Up => {
-                    return *index_set.get(0).unwrap();
-                }
-                common::Direction::Right => {
-                    return *index_set.get(1).unwrap();
-                }
-                common::Direction::Down => {
-                    return *index_set.get(2).unwrap();
-                }
-                common::Direction::Left => {
-                    return *index_set.get(3).unwrap();
-                }
-            }
+            return match direction {
+                common::Direction::Up => *index_set.get(0).unwrap(),
+                common::Direction::Right => *index_set.get(1).unwrap(),
+                common::Direction::Down => *index_set.get(2).unwrap(),
+                common::Direction::Left => *index_set.get(3).unwrap(),
+            };
         }
     }
     0

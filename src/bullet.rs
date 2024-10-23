@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::area::*;
-use crate::common::{self, Direction, *};
+use crate::common::{Direction, *};
 use crate::enemy::Enemy;
 use crate::level::LevelItem;
 use crate::player::{PlayerLives, PlayerNo, Shield};
@@ -57,21 +57,19 @@ pub fn setup_explosion_assets(mut commands: Commands, asset_server: Res<AssetSer
 
 // 炮弹移动 // Bullet movement
 pub fn move_bullet(
-    mut q_bullet: Query<(&mut Transform, &common::Direction), With<Bullet>>,
+    mut q_bullet: Query<(&mut Transform, &Direction), With<Bullet>>,
     time: Res<Time>,
 ) {
     for (mut bullet_transform, direction) in &mut q_bullet {
         match direction {
-            common::Direction::Left => {
+            Direction::Left => {
                 bullet_transform.translation.x -= BULLET_SPEED * time.delta_seconds()
             }
-            common::Direction::Right => {
+            Direction::Right => {
                 bullet_transform.translation.x += BULLET_SPEED * time.delta_seconds()
             }
-            common::Direction::Up => {
-                bullet_transform.translation.y += BULLET_SPEED * time.delta_seconds()
-            }
-            common::Direction::Down => {
+            Direction::Up => bullet_transform.translation.y += BULLET_SPEED * time.delta_seconds(),
+            Direction::Down => {
                 bullet_transform.translation.y -= BULLET_SPEED * time.delta_seconds()
             }
         }
@@ -81,7 +79,7 @@ pub fn move_bullet(
 pub fn handle_bullet_collision(
     mut commands: Commands,
     q_bullets: Query<(Entity, &Bullet, &Transform)>,
-    q_level_items: Query<(&LevelItem, &GlobalTransform, &mut TextureAtlasSprite)>,
+    q_level_items: Query<(&LevelItem, &GlobalTransform, &mut TextureAtlas)>,
     q_area_wall: Query<(), With<AreaWall>>,
     q_players: Query<(&Transform, &Children), With<PlayerNo>>,
     q_shields: Query<Entity, With<Shield>>,
@@ -117,16 +115,12 @@ pub fn handle_bullet_collision(
                     entity2
                 );
 
-                let bullet = q_bullets.get_component::<Bullet>(bullet_entity).unwrap();
-                let bullet_transform = q_bullets.get_component::<Transform>(bullet_entity).unwrap();
+                let (_, bullet, bullet_transform) = q_bullets.get(bullet_entity).unwrap();
 
                 // 另一个物体 // Another object
                 if q_level_items.contains(other_entity) {
-                    let level_item = q_level_items
-                        .get_component::<LevelItem>(other_entity)
-                        .unwrap();
-                    let level_item_transform = q_level_items
-                        .get_component::<GlobalTransform>(other_entity)
+                    let (level_item,level_item_transform,_) = q_level_items
+                        .get(other_entity)
                         .unwrap();
                     trace!("Bullet hit {:?}", level_item);
                     // dbg!(level_item);
@@ -190,7 +184,7 @@ pub fn handle_bullet_collision(
                 if *bullet == Bullet::Player && q_enemies.contains(other_entity) {
                     debug!("Player bullet hit enemy");
                     let enemy_transform =
-                        q_enemies.get_component::<Transform>(other_entity).unwrap();
+                        q_enemies.get(other_entity).unwrap();
                     commands.entity(bullet_entity).despawn();
                     commands.entity(other_entity).despawn();
                     explosion_ew.send(ExplosionEvent {
@@ -205,8 +199,8 @@ pub fn handle_bullet_collision(
 
                 if *bullet == Bullet::Enemy && q_players.contains(other_entity) {
                     debug!("Enemy bullet hit player");
-                    let player_children =
-                        q_players.get_component::<Children>(other_entity).unwrap();
+                    let (player_transform,player_children) =
+                        q_players.get(other_entity).unwrap();
                     let mut player_has_shield = false;
                     for child in player_children.iter() {
                         if q_shields.contains(*child) {
@@ -215,8 +209,6 @@ pub fn handle_bullet_collision(
                         }
                     }
 
-                    let player_transform =
-                        q_players.get_component::<Transform>(other_entity).unwrap();
                     commands.entity(bullet_entity).despawn();
 
                     if player_has_shield {
@@ -256,24 +248,16 @@ pub fn handle_bullet_collision(
 
 pub fn spawn_bullet(
     commands: &mut Commands,
-    game_texture_atlas: &Res<GameTextureAtlasHandles>,
+    game_texture_atlas: &Res<GameTextureLayout>,
     bullet: Bullet,
     translation: Vec3,
     direction: Direction,
+    game_texture_handle: Handle<Image>,
 ) {
     commands
         .spawn(bullet)
-        .insert(SpriteSheetBundle {
-            texture_atlas: game_texture_atlas.bullet.clone(),
-            sprite: TextureAtlasSprite {
-                index: match direction {
-                    common::Direction::Up => 0,
-                    common::Direction::Right => 1,
-                    common::Direction::Down => 2,
-                    common::Direction::Left => 3,
-                },
-                ..default()
-            },
+        .insert(SpriteBundle {
+            texture: game_texture_handle,
             transform: Transform {
                 translation: Vec3::new(translation.x, translation.y, translation.z),
                 ..default()
@@ -286,6 +270,16 @@ pub fn spawn_bullet(
             RigidBody::Dynamic,
             ActiveEvents::COLLISION_EVENTS,
         ))
+        .insert(TextureAtlas {
+            layout: game_texture_atlas.bullet.clone(),
+            index: match direction {
+                Direction::Up => 0,
+                Direction::Right => 1,
+                Direction::Down => 2,
+                Direction::Left => 3,
+            },
+            ..default()
+        })
         .insert(direction);
 }
 
@@ -295,8 +289,8 @@ pub fn spawn_explosion(
     explosion_assets: Res<ExplosionAssets>,
     asset_server: Res<AssetServer>,
     mut textures: ResMut<Assets<Image>>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     game_sounds: Res<GameSounds>,
+    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
     let mut big_explosion_texture_atlas_builder = TextureAtlasBuilder::default();
     for handle in &explosion_assets.big_explosion {
@@ -307,12 +301,11 @@ pub fn spawn_explosion(
             );
             continue;
         };
-        big_explosion_texture_atlas_builder.add_texture(handle.id(), texture);
+
+        big_explosion_texture_atlas_builder.add_texture(Some(handle.id()), texture);
     }
-    let big_explosion_texture_atlas = big_explosion_texture_atlas_builder
-        .finish(&mut textures)
-        .unwrap();
-    let big_explosion_texture_atlas_handle = texture_atlases.add(big_explosion_texture_atlas);
+    let big_explosion_texture_atlas = big_explosion_texture_atlas_builder.build().unwrap();
+    let big_explosion_layout = texture_atlas_layouts.add(big_explosion_texture_atlas.0);
 
     let mut bullet_explosion_texture_atlas_builder = TextureAtlasBuilder::default();
     for handle in &explosion_assets.bullet_explosion {
@@ -323,23 +316,16 @@ pub fn spawn_explosion(
             );
             continue;
         };
-        bullet_explosion_texture_atlas_builder.add_texture(handle.id(), texture);
+        bullet_explosion_texture_atlas_builder.add_texture(Some(handle.id()), texture);
     }
-    let bullet_explosion_texture_atlas = bullet_explosion_texture_atlas_builder
-        .finish(&mut textures)
-        .unwrap();
-    let bullet_explosion_texture_atlas_handle = texture_atlases.add(bullet_explosion_texture_atlas);
+    let bullet_explosion_texture_atlas = bullet_explosion_texture_atlas_builder.build().unwrap();
+    let bullet_explosion_layout = texture_atlas_layouts.add(bullet_explosion_texture_atlas.0);
 
     for explosion in explosion_er.read() {
         commands.spawn((
             Explosion,
-            SpriteSheetBundle {
-                sprite: TextureAtlasSprite::new(0),
-                texture_atlas: if explosion.explosion_type == ExplosionType::BigExplosion {
-                    big_explosion_texture_atlas_handle.clone()
-                } else {
-                    bullet_explosion_texture_atlas_handle.clone()
-                },
+            SpriteBundle {
+                texture: asset_server.load("textures/big_explosion_1.png"),
                 transform: Transform::from_translation(explosion.pos),
                 ..default()
             },
@@ -351,6 +337,14 @@ pub fn spawn_explosion(
                 } else {
                     2
                 },
+            },
+            TextureAtlas {
+                layout: if explosion.explosion_type == ExplosionType::BigExplosion {
+                    big_explosion_layout.clone()
+                } else {
+                    bullet_explosion_layout.clone()
+                },
+                index: 0,
             },
         ));
         if explosion.explosion_type == ExplosionType::BigExplosion {
@@ -374,7 +368,7 @@ pub fn animate_explosion(
             Entity,
             &mut AnimationTimer,
             &AnimationIndices,
-            &mut TextureAtlasSprite,
+            &mut TextureAtlas,
         ),
         With<Explosion>,
     >,
