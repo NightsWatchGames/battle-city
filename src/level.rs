@@ -62,8 +62,8 @@ pub struct StoneWallBundle {
     #[from_entity_instance]
     pub collider_bundle: ColliderBundle,
     // #[sprite_sheet_bundle("path/to/asset.png", tile_width, tile_height, columns, rows, padding, offset, index)]
-    #[sprite_sheet_bundle("textures/map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 0)]
-    sprite_bundle: SpriteSheetBundle,
+    #[sprite_sheet_bundle("textures/map.bmp", 32, 32, 7, 1, 0, 0, 0)]
+    sprite_bundle: LdtkSpriteSheetBundle,
 }
 #[derive(Bundle, LdtkEntity, Default)]
 pub struct IronWallBundle {
@@ -71,15 +71,15 @@ pub struct IronWallBundle {
     level_item: LevelItem,
     #[from_entity_instance]
     pub collider_bundle: ColliderBundle,
-    #[sprite_sheet_bundle("textures/map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 1)]
-    sprite_bundle: SpriteSheetBundle,
+    #[sprite_sheet_bundle("textures/map.bmp", 32, 32, 7, 1, 0, 0, 1)]
+    sprite_bundle: LdtkSpriteSheetBundle,
 }
 #[derive(Bundle, LdtkEntity, Default)]
 pub struct TreeBundle {
     #[from_entity_instance]
     level_item: LevelItem,
-    #[sprite_sheet_bundle("textures/map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 2)]
-    sprite_bundle: SpriteSheetBundle,
+    #[sprite_sheet_bundle("textures/map.bmp", 32, 32, 7, 1, 0, 0, 2)]
+    sprite_bundle: LdtkSpriteSheetBundle,
 }
 #[derive(Bundle, LdtkEntity, Default)]
 pub struct WaterBundle {
@@ -87,8 +87,8 @@ pub struct WaterBundle {
     level_item: LevelItem,
     #[from_entity_instance]
     pub collider_bundle: ColliderBundle,
-    #[sprite_sheet_bundle("textures/map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 3)]
-    sprite_bundle: SpriteSheetBundle,
+    #[sprite_sheet_bundle("textures/map.bmp", 32, 32, 7, 1, 0, 0, 3)]
+    sprite_bundle: LdtkSpriteSheetBundle,
     #[from_entity_instance]
     pub annimation_bundle: AnimationBundle,
 }
@@ -98,8 +98,8 @@ pub struct HomeBundle {
     level_item: LevelItem,
     #[from_entity_instance]
     pub collider_bundle: ColliderBundle,
-    #[sprite_sheet_bundle("textures/map.bmp", 32.0, 32.0, 7, 1, 0.0, 0.0, 5)]
-    sprite_bundle: SpriteSheetBundle,
+    #[sprite_sheet_bundle("textures/map.bmp", 32, 32, 7, 1, 0, 0, 5)]
+    sprite_bundle: LdtkSpriteSheetBundle,
 }
 
 #[derive(Bundle, LdtkEntity, Default)]
@@ -110,13 +110,13 @@ pub struct Player1MarkerBundle {
 pub struct Player2MarkerBundle {
     marker: Player2Marker,
     #[sprite_sheet_bundle]
-    sprite_bundle: SpriteSheetBundle,
+    sprite_bundle: LdtkSpriteSheetBundle,
 }
 #[derive(Bundle, LdtkEntity, Default)]
 pub struct EnemiesMarkerBundle {
     marker: EnemiesMarker,
     #[sprite_sheet_bundle]
-    sprite_bundle: SpriteSheetBundle,
+    sprite_bundle: LdtkSpriteSheetBundle,
 }
 
 impl From<&EntityInstance> for ColliderBundle {
@@ -173,20 +173,14 @@ pub fn setup_levels(
 pub fn spawn_ldtk_entity(
     mut commands: Commands,
     entity_query: Query<(Entity, &Transform, &EntityInstance), Added<EntityInstance>>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    mut texture_atlases: ResMut<Assets<TextureAtlasLayout>>,
     asset_server: Res<AssetServer>,
 ) {
     for (_entity, transform, entity_instance) in entity_query.iter() {
         if entity_instance.identifier == *"Tree" {
             let map_texture_handle = asset_server.load("textures/map.bmp");
-            let map_texture_atlas = TextureAtlas::from_grid(
-                map_texture_handle,
-                Vec2::new(32.0, 32.0),
-                7,
-                1,
-                None,
-                None,
-            );
+            let map_texture_atlas =
+                TextureAtlasLayout::from_grid(UVec2::new(32, 32), 7, 1, None, None);
             let map_texture_atlas_handle = texture_atlases.add(map_texture_atlas);
 
             let mut translation = transform.translation + LEVEL_TRANSLATION_OFFSET;
@@ -194,11 +188,11 @@ pub fn spawn_ldtk_entity(
             commands.spawn((
                 LevelItem::Tree,
                 SpriteSheetBundle {
-                    texture_atlas: map_texture_atlas_handle,
-                    sprite: TextureAtlasSprite {
+                    atlas: TextureAtlas {
                         index: 2,
-                        ..default()
+                        layout: map_texture_atlas_handle,
                     },
+                    texture: map_texture_handle,
                     transform: Transform::from_translation(translation),
                     ..default()
                 },
@@ -214,7 +208,7 @@ pub fn animate_water(
         &LevelItem,
         &mut AnimationTimer,
         &AnimationIndices,
-        &mut TextureAtlasSprite,
+        &mut TextureAtlas,
     )>,
 ) {
     for (level_item, mut timer, indices, mut sprite) in &mut query {
@@ -268,7 +262,7 @@ pub fn auto_switch_level(
 
 pub fn animate_home(
     mut home_dying_er: EventReader<HomeDyingEvent>,
-    mut q_level_items: Query<(&LevelItem, &mut TextureAtlasSprite)>,
+    mut q_level_items: Query<(&LevelItem, &mut TextureAtlas)>,
     mut app_state: ResMut<NextState<AppState>>,
 ) {
     for _ in home_dying_er.read() {

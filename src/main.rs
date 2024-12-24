@@ -31,7 +31,7 @@ fn main() {
         .add_event::<ExplosionEvent>()
         .add_event::<SpawnPlayerEvent>()
         .add_event::<HomeDyingEvent>()
-        .add_state::<AppState>()
+        .init_state::<AppState>()
         .insert_resource(ClearColor(BACKGROUND_COLOR))
         .insert_resource(MultiplayerMode::SinglePlayer)
         .insert_resource(LevelSelection::index(0))
@@ -55,7 +55,6 @@ fn main() {
                 setup_wall,
                 setup_explosion_assets,
                 setup_game_sounds,
-                setup_game_texture_atlas,
             ),
         )
         .add_systems(

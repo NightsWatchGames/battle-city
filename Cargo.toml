@@ -4,12 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bevy_rapier2d = "0.24"
-bevy_ecs_ldtk = "0.9"
+bevy_rapier2d = "0.27"
+bevy_ecs_ldtk = "0.10"
 rand = "0.8.5"
 
 [dependencies.bevy]
-version = "0.12"
+version = "0.14"
 features = [
     "bmp",
 ]

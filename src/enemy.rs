@@ -5,9 +5,9 @@ use rand::Rng;
 use crate::{
     bullet::{spawn_bullet, Bullet},
     common::{
-        self, AnimationIndices, AnimationTimer, GameTextureAtlasHandles, TankRefreshBulletTimer,
-        ENEMIES_PER_LEVEL, ENEMY_REFRESH_BULLET_INTERVAL, ENEMY_SPEED, MAX_LIVE_ENEMIES,
-        TANK_SCALE, TANK_SIZE, TILE_SIZE,
+        self, AnimationIndices, AnimationTimer, TankRefreshBulletTimer, ENEMIES_PER_LEVEL,
+        ENEMY_REFRESH_BULLET_INTERVAL, ENEMY_SPEED, MAX_LIVE_ENEMIES, TANK_SCALE, TANK_SIZE,
+        TILE_SIZE,
     },
     level::{EnemiesMarker, LevelItem},
     player::PlayerNo,
@@ -30,7 +30,8 @@ pub fn auto_spawn_enemies(
     q_enemies: Query<&Transform, With<Enemy>>,
     q_enemies_marker: Query<&GlobalTransform, With<EnemiesMarker>>,
     q_players: Query<&Transform, With<PlayerNo>>,
-    game_texture_atlas: Res<GameTextureAtlasHandles>,
+    asset_server: Res<AssetServer>,
+    mut atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
     if q_enemies.into_iter().len() >= MAX_LIVE_ENEMIES as usize {
         // 战场上存活敌人已达到最大值
@@ -68,7 +69,12 @@ pub fn auto_spawn_enemies(
                 return;
             }
         }
-        spawn_enemy(choosed_pos, &mut commands, &game_texture_atlas);
+        spawn_enemy(
+            choosed_pos,
+            &mut commands,
+            &asset_server,
+            &mut atlas_layouts,
+        );
         level_spawned_enemies.0 += 1;
     }
 }
@@ -76,8 +82,14 @@ pub fn auto_spawn_enemies(
 pub fn spawn_enemy(
     pos: Vec3,
     commands: &mut Commands,
-    game_texture_atlas: &Res<GameTextureAtlasHandles>,
+    asset_server: &Res<AssetServer>,
+    atlas_layouts: &mut ResMut<Assets<TextureAtlasLayout>>,
 ) {
+    let enemies_texture_handle = asset_server.load("textures/enemies.bmp");
+    let enemies_texture_atlas =
+        TextureAtlasLayout::from_grid(UVec2::new(TANK_SIZE, TANK_SIZE), 8, 8, None, None);
+    let enemies_atlas_layout_handle = atlas_layouts.add(enemies_texture_atlas);
+
     // 随机颜色
     let indexes: Vec<i32> = enemies_sprite_index_sets()
         .iter()
@@ -92,11 +104,11 @@ pub fn spawn_enemy(
     commands.spawn((
         Enemy,
         SpriteSheetBundle {
-            sprite: TextureAtlasSprite {
+            atlas: TextureAtlas {
+                layout: enemies_atlas_layout_handle,
                 index: choosed_index as usize,
-                ..default()
             },
-            texture_atlas: game_texture_atlas.enemies.clone(),
+            texture: enemies_texture_handle,
             transform: Transform {
                 translation: pos,
                 scale: Vec3::splat(TANK_SCALE),
@@ -116,7 +128,10 @@ pub fn spawn_enemy(
         },
         common::Direction::Up,
         RigidBody::Dynamic,
-        Collider::cuboid(TANK_SIZE * TANK_SCALE / 2.0, TANK_SIZE * TANK_SCALE / 2.0),
+        Collider::cuboid(
+            TANK_SIZE as f32 * TANK_SCALE / 2.0,
+            TANK_SIZE as f32 * TANK_SCALE / 2.0,
+        ),
         ActiveEvents::COLLISION_EVENTS,
         LockedAxes::ROTATION_LOCKED,
     ));
@@ -129,7 +144,7 @@ pub fn enemies_move(
         (
             &mut Transform,
             &mut common::Direction,
-            &mut TextureAtlasSprite,
+            &mut TextureAtlas,
             &mut AnimationIndices,
             &mut EnemyChangeDirectionTimer,
         ),
@@ -170,7 +185,7 @@ pub fn enemies_move(
                 continue;
             }
             if (level_item_transform.translation().x - transform.translation.x).abs()
-                < (TANK_SIZE + TILE_SIZE) / 2.0 - 5.0
+                < (TANK_SIZE as f32 + TILE_SIZE) / 2.0 - 5.0
             {
                 if level_item_transform.translation().y > transform.translation.y
                     && level_item_transform.translation().y - transform.translation.y < TILE_SIZE
@@ -184,7 +199,7 @@ pub fn enemies_move(
                 }
             }
             if (level_item_transform.translation().y - transform.translation.y).abs()
-                < (TANK_SIZE + TILE_SIZE) / 2. - 5.0
+                < (TANK_SIZE as f32 + TILE_SIZE) / 2. - 5.0
             {
                 if level_item_transform.translation().x > transform.translation.x
                     && level_item_transform.translation().x - transform.translation.x < TILE_SIZE
@@ -251,14 +266,16 @@ pub fn enemies_attack(
     >,
     time: Res<Time>,
     mut commands: Commands,
-    game_texture_atlas: Res<GameTextureAtlasHandles>,
+    asset_server: Res<AssetServer>,
+    mut atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
     for (transform, direction, mut refresh_bullet_timer) in &mut q_players {
         refresh_bullet_timer.tick(time.delta());
         if refresh_bullet_timer.just_finished() {
             spawn_bullet(
                 &mut commands,
-                &game_texture_atlas,
+                &asset_server,
+                &mut atlas_layouts,
                 Bullet::Enemy,
                 transform.translation,
                 direction.clone(),
@@ -284,9 +301,7 @@ pub fn handle_enemy_collision(
                 };
 
                 // 重置转向计时器
-                let mut change_direction_timer = q_enemies
-                    .get_component_mut::<EnemyChangeDirectionTimer>(enemy_entity)
-                    .unwrap();
+                let mut change_direction_timer = q_enemies.get_mut(enemy_entity).unwrap();
                 change_direction_timer.0.reset();
             }
         }
@@ -296,14 +311,7 @@ pub fn handle_enemy_collision(
 // 坦克移动动画播放
 pub fn animate_enemies(
     time: Res<Time>,
-    mut query: Query<
-        (
-            &mut AnimationTimer,
-            &AnimationIndices,
-            &mut TextureAtlasSprite,
-        ),
-        With<Enemy>,
-    >,
+    mut query: Query<(&mut AnimationTimer, &AnimationIndices, &mut TextureAtlas), With<Enemy>>,
 ) {
     for (mut timer, indices, mut sprite) in &mut query {
         timer.0.tick(time.delta());

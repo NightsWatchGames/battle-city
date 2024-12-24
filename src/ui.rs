@@ -1,10 +1,7 @@
-use std::time::Duration;
-
+use crate::common::{AppState, GameSounds, MultiplayerMode, SPRITE_GAME_OVER_ORDER, TANK_SIZE};
+use bevy::input::keyboard::KeyboardInput;
 use bevy::prelude::*;
-
-use crate::common::{
-    AppState, GameSounds, GameTextureAtlasHandles, MultiplayerMode, SPRITE_GAME_OVER_ORDER,
-};
+use std::time::Duration;
 
 #[derive(Component)]
 pub struct OnStartMenuScreen;
@@ -17,23 +14,25 @@ pub struct OnGameOverScreen;
 pub fn setup_start_menu(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    game_sounds: Res<GameSounds>,
-    game_texture_atlas: Res<GameTextureAtlasHandles>,
+    mut atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
+    let player1_texture_handle = asset_server.load("textures/tank1.bmp");
+    let player1_texture_atlas =
+        TextureAtlasLayout::from_grid(UVec2::new(TANK_SIZE, TANK_SIZE), 8, 4, None, None);
+    let player1_atlas_layout_handle = atlas_layouts.add(player1_texture_atlas);
+
     commands
-        .spawn((
-            NodeBundle {
-                style: Style {
-                    width: Val::Percent(100.),
-                    height: Val::Percent(100.),
-                    align_items: AlignItems::Center,
-                    justify_content: JustifyContent::Center,
-                    ..default()
-                },
+        .spawn(NodeBundle {
+            style: Style {
+                width: Val::Percent(100.),
+                height: Val::Percent(100.),
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
                 ..default()
             },
-            OnStartMenuScreen,
-        ))
+            ..default()
+        })
+        .insert(OnStartMenuScreen)
         .with_children(|parent| {
             parent.spawn(ImageBundle {
                 image: asset_server.load("textures/title.bmp").into(),
@@ -41,7 +40,11 @@ pub fn setup_start_menu(
             });
             parent.spawn((
                 AtlasImageBundle {
-                    texture_atlas: game_texture_atlas.player1.clone(),
+                    image: player1_texture_handle.into(),
+                    texture_atlas: TextureAtlas {
+                        index: 0,
+                        layout: player1_atlas_layout_handle,
+                    },
                     style: Style {
                         width: Val::Px(20.),
                         height: Val::Px(20.),
@@ -57,7 +60,7 @@ pub fn setup_start_menu(
             ));
         });
     commands.spawn(AudioBundle {
-        source: game_sounds.start_menu.clone(),
+        source: asset_server.load("sounds/start_menu.ogg"),
         settings: PlaybackSettings::DESPAWN,
     });
 }
@@ -68,14 +71,13 @@ pub fn setup_game_over(
     game_sounds: Res<GameSounds>,
 ) {
     let game_over_texture = asset_server.load("textures/game_over.bmp");
-    commands.spawn((
-        OnGameOverScreen,
-        SpriteBundle {
+    commands
+        .spawn(SpriteBundle {
             texture: game_over_texture,
             transform: Transform::from_translation(Vec3::new(0., -400., SPRITE_GAME_OVER_ORDER)),
             ..default()
-        },
-    ));
+        })
+        .insert(OnGameOverScreen);
     commands.spawn(AudioBundle {
         source: game_sounds.game_over.clone(),
         settings: PlaybackSettings::DESPAWN,
@@ -103,8 +105,11 @@ pub fn animate_game_over(
     }
 }
 
-pub fn start_game(keyboard_input: Res<Input<KeyCode>>, mut app_state: ResMut<NextState<AppState>>) {
-    if keyboard_input.any_just_pressed([KeyCode::Return, KeyCode::Space]) {
+pub fn start_game(
+    keyboard_input: Res<ButtonInput<KeyCode>>,
+    mut app_state: ResMut<NextState<AppState>>,
+) {
+    if keyboard_input.any_just_pressed([KeyCode::Enter, KeyCode::Space]) {
         info!("Switch app state to playing");
         app_state.set(AppState::Playing);
     }
@@ -112,12 +117,12 @@ pub fn start_game(keyboard_input: Res<Input<KeyCode>>, mut app_state: ResMut<Nex
 
 pub fn switch_multiplayer_mode(
     mut commands: Commands,
-    keyboard_input: Res<Input<KeyCode>>,
+    keyboard_input: Res<ButtonInput<KeyCode>>,
     mut multiplayer_mode: ResMut<MultiplayerMode>,
     mut q_multiplayer_mode_flag: Query<&mut Style, With<OnStartMenuScreenMultiplayerModeFlag>>,
     game_sounds: Res<GameSounds>,
 ) {
-    if keyboard_input.any_just_pressed([KeyCode::Up, KeyCode::Down]) {
+    if keyboard_input.any_just_pressed([KeyCode::ArrowUp, KeyCode::ArrowDown]) {
         for mut style in &mut q_multiplayer_mode_flag {
             if *multiplayer_mode == MultiplayerMode::SinglePlayer {
                 style.top = Val::Px(440.);
@@ -137,7 +142,7 @@ pub fn switch_multiplayer_mode(
 pub fn pause_game(
     mut commands: Commands,
     mut app_state: ResMut<NextState<AppState>>,
-    keyboard_input: Res<Input<KeyCode>>,
+    keyboard_input: Res<ButtonInput<KeyCode>>,
     game_sounds: Res<GameSounds>,
     mut cold_start: Local<Duration>,
     time: Res<Time>,
@@ -159,7 +164,7 @@ pub fn pause_game(
 
 pub fn unpause_game(
     mut app_state: ResMut<NextState<AppState>>,
-    keyboard_input: Res<Input<KeyCode>>,
+    keyboard_input: Res<ButtonInput<KeyCode>>,
     mut cold_start: Local<Duration>,
     time: Res<Time>,
 ) {

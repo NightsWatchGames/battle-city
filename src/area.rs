@@ -20,17 +20,14 @@ pub fn setup_wall(
     let arena_height = top_wall - bottom_wall;
     let arena_width = right_wall - left_wall;
     let wall_color = Color::rgb(0.8, 0.8, 0.8);
-    let material_handle = materials.add(wall_color.into());
+    let material_handle = materials.add(ColorMaterial::from_color(wall_color));
 
     // left wall
     commands.spawn((
         AreaWall,
         MaterialMesh2dBundle {
             mesh: meshes
-                .add(
-                    shape::Quad::new(Vec2::new(WALL_THICKNESS, arena_height + WALL_THICKNESS))
-                        .into(),
-                )
+                .add(Rectangle::new(WALL_THICKNESS, arena_height + WALL_THICKNESS).mesh())
                 .into(),
             material: material_handle.clone(),
             transform: Transform::from_translation(Vec3::new(left_wall, 0., 0.)),
@@ -45,10 +42,7 @@ pub fn setup_wall(
         AreaWall,
         MaterialMesh2dBundle {
             mesh: meshes
-                .add(
-                    shape::Quad::new(Vec2::new(WALL_THICKNESS, arena_height + WALL_THICKNESS))
-                        .into(),
-                )
+                .add(Rectangle::new(WALL_THICKNESS, arena_height + WALL_THICKNESS).mesh())
                 .into(),
             material: material_handle.clone(),
             transform: Transform::from_translation(Vec3::new(right_wall, 0., 0.)),
@@ -63,10 +57,7 @@ pub fn setup_wall(
         AreaWall,
         MaterialMesh2dBundle {
             mesh: meshes
-                .add(
-                    shape::Quad::new(Vec2::new(arena_width + WALL_THICKNESS, WALL_THICKNESS))
-                        .into(),
-                )
+                .add(Rectangle::new(arena_width + WALL_THICKNESS, WALL_THICKNESS).mesh())
                 .into(),
             material: material_handle.clone(),
             transform: Transform::from_translation(Vec3::new(0.0, top_wall, 0.)),
@@ -81,10 +72,7 @@ pub fn setup_wall(
         AreaWall,
         MaterialMesh2dBundle {
             mesh: meshes
-                .add(
-                    shape::Quad::new(Vec2::new(arena_width + WALL_THICKNESS, WALL_THICKNESS))
-                        .into(),
-                )
+                .add(Rectangle::new(arena_width + WALL_THICKNESS, WALL_THICKNESS).mesh())
                 .into(),
             material: material_handle.clone(),
             transform: Transform::from_translation(Vec3::new(0.0, bottom_wall, 0.)),
