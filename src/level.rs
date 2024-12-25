@@ -62,8 +62,8 @@ pub struct StoneWallBundle {
     #[from_entity_instance]
     pub collider_bundle: ColliderBundle,
     // #[sprite_sheet_bundle("path/to/asset.png", tile_width, tile_height, columns, rows, padding, offset, index)]
-    #[sprite_sheet_bundle("textures/map.bmp", 32, 32, 7, 1, 0, 0, 0)]
-    sprite_bundle: LdtkSpriteSheetBundle,
+    #[sprite_sheet("textures/map.bmp", 32, 32, 7, 1, 0, 0, 0)]
+    sprite_sheet: Sprite,
 }
 #[derive(Bundle, LdtkEntity, Default)]
 pub struct IronWallBundle {
@@ -71,15 +71,15 @@ pub struct IronWallBundle {
     level_item: LevelItem,
     #[from_entity_instance]
     pub collider_bundle: ColliderBundle,
-    #[sprite_sheet_bundle("textures/map.bmp", 32, 32, 7, 1, 0, 0, 1)]
-    sprite_bundle: LdtkSpriteSheetBundle,
+    #[sprite_sheet("textures/map.bmp", 32, 32, 7, 1, 0, 0, 1)]
+    sprite_sheet: Sprite,
 }
 #[derive(Bundle, LdtkEntity, Default)]
 pub struct TreeBundle {
     #[from_entity_instance]
     level_item: LevelItem,
-    #[sprite_sheet_bundle("textures/map.bmp", 32, 32, 7, 1, 0, 0, 2)]
-    sprite_bundle: LdtkSpriteSheetBundle,
+    #[sprite_sheet("textures/map.bmp", 32, 32, 7, 1, 0, 0, 2)]
+    sprite_sheet: Sprite,
 }
 #[derive(Bundle, LdtkEntity, Default)]
 pub struct WaterBundle {
@@ -87,8 +87,8 @@ pub struct WaterBundle {
     level_item: LevelItem,
     #[from_entity_instance]
     pub collider_bundle: ColliderBundle,
-    #[sprite_sheet_bundle("textures/map.bmp", 32, 32, 7, 1, 0, 0, 3)]
-    sprite_bundle: LdtkSpriteSheetBundle,
+    #[sprite_sheet("textures/map.bmp", 32, 32, 7, 1, 0, 0, 3)]
+    sprite_sheet: Sprite,
     #[from_entity_instance]
     pub annimation_bundle: AnimationBundle,
 }
@@ -98,8 +98,8 @@ pub struct HomeBundle {
     level_item: LevelItem,
     #[from_entity_instance]
     pub collider_bundle: ColliderBundle,
-    #[sprite_sheet_bundle("textures/map.bmp", 32, 32, 7, 1, 0, 0, 5)]
-    sprite_bundle: LdtkSpriteSheetBundle,
+    #[sprite_sheet("textures/map.bmp", 32, 32, 7, 1, 0, 0, 5)]
+    sprite_sheet: Sprite,
 }
 
 #[derive(Bundle, LdtkEntity, Default)]
@@ -109,14 +109,14 @@ pub struct Player1MarkerBundle {
 #[derive(Bundle, LdtkEntity, Default)]
 pub struct Player2MarkerBundle {
     marker: Player2Marker,
-    #[sprite_sheet_bundle]
-    sprite_bundle: LdtkSpriteSheetBundle,
+    #[sprite_sheet]
+    sprite_sheet: Sprite,
 }
 #[derive(Bundle, LdtkEntity, Default)]
 pub struct EnemiesMarkerBundle {
     marker: EnemiesMarker,
-    #[sprite_sheet_bundle]
-    sprite_bundle: LdtkSpriteSheetBundle,
+    #[sprite_sheet]
+    sprite_sheet: Sprite,
 }
 
 impl From<&EntityInstance> for ColliderBundle {
@@ -157,14 +157,14 @@ impl From<&EntityInstance> for LevelItem {
 pub fn setup_levels(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    q_ldtk_world: Query<(), With<Handle<LdtkProject>>>,
+    q_ldtk_world: Query<(), With<LdtkProjectHandle>>,
 ) {
     if q_ldtk_world.iter().len() > 0 {
         // 从Paused状态进入时无需再load ldtk
         return;
     }
     commands.spawn(LdtkWorldBundle {
-        ldtk_handle: asset_server.load("levels.ldtk"),
+        ldtk_handle: asset_server.load("levels.ldtk").into(),
         transform: Transform::from_translation(Vec3::ZERO + LEVEL_TRANSLATION_OFFSET),
         ..Default::default()
     });
@@ -187,15 +187,15 @@ pub fn spawn_ldtk_entity(
             translation.z = SPRITE_TREE_ORDER;
             commands.spawn((
                 LevelItem::Tree,
-                SpriteSheetBundle {
-                    atlas: TextureAtlas {
+                Sprite {
+                    image: map_texture_handle,
+                    texture_atlas: Some(TextureAtlas {
                         index: 2,
                         layout: map_texture_atlas_handle,
-                    },
-                    texture: map_texture_handle,
-                    transform: Transform::from_translation(translation),
+                    }),
                     ..default()
                 },
+                Transform::from_translation(translation),
             ));
         }
     }
@@ -208,7 +208,7 @@ pub fn animate_water(
         &LevelItem,
         &mut AnimationTimer,
         &AnimationIndices,
-        &mut TextureAtlas,
+        &mut Sprite,
     )>,
 ) {
     for (level_item, mut timer, indices, mut sprite) in &mut query {
@@ -216,11 +216,13 @@ pub fn animate_water(
             timer.0.tick(time.delta());
             if timer.0.just_finished() {
                 // 切换到下一个sprite
-                sprite.index = if sprite.index == indices.last {
-                    indices.first
-                } else {
-                    sprite.index + 1
-                };
+                if let Some(atlas) = &mut sprite.texture_atlas {
+                    atlas.index = if atlas.index == indices.last {
+                        indices.first
+                    } else {
+                        atlas.index + 1
+                    };
+                }
             }
         }
     }
@@ -262,13 +264,13 @@ pub fn auto_switch_level(
 
 pub fn animate_home(
     mut home_dying_er: EventReader<HomeDyingEvent>,
-    mut q_level_items: Query<(&LevelItem, &mut TextureAtlas)>,
+    mut q_level_items: Query<(&LevelItem, &mut Sprite)>,
     mut app_state: ResMut<NextState<AppState>>,
 ) {
     for _ in home_dying_er.read() {
         for (level_item, mut sprite) in &mut q_level_items {
             if *level_item == LevelItem::Home {
-                sprite.index = 6;
+                sprite.texture_atlas.as_mut().unwrap().index = 6;
                 app_state.set(AppState::GameOver);
             }
         }
@@ -283,7 +285,7 @@ pub fn cleanup_level_items(mut commands: Commands, q_level_items: Query<Entity, 
 
 pub fn cleanup_ldtk_world(
     mut commands: Commands,
-    q_ldtk_world: Query<Entity, With<Handle<LdtkProject>>>,
+    q_ldtk_world: Query<Entity, With<LdtkProjectHandle>>,
 ) {
     for entity in &q_ldtk_world {
         commands.entity(entity).despawn_recursive();

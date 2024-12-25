@@ -66,7 +66,6 @@ pub struct HomeDyingEvent;
 
 #[derive(Debug, Resource)]
 pub struct GameSounds {
-    pub start_menu: Handle<AudioSource>,
     pub mode_switch: Handle<AudioSource>,
     pub bullet_explosion: Handle<AudioSource>,
     pub big_explosion: Handle<AudioSource>,
@@ -77,7 +76,6 @@ pub struct GameSounds {
 
 pub fn setup_game_sounds(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.insert_resource(GameSounds {
-        start_menu: asset_server.load("sounds/start_menu.ogg"),
         mode_switch: asset_server.load("sounds/mode_switch.ogg"),
         bullet_explosion: asset_server.load("sounds/bullet_explosion.ogg"),
         big_explosion: asset_server.load("sounds/big_explosion.ogg"),

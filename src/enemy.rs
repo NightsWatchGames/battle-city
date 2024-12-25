@@ -103,17 +103,17 @@ pub fn spawn_enemy(
 
     commands.spawn((
         Enemy,
-        SpriteSheetBundle {
-            atlas: TextureAtlas {
+        Sprite {
+            image: enemies_texture_handle,
+            texture_atlas: Some(TextureAtlas {
                 layout: enemies_atlas_layout_handle,
                 index: choosed_index as usize,
-            },
-            texture: enemies_texture_handle,
-            transform: Transform {
-                translation: pos,
-                scale: Vec3::splat(TANK_SCALE),
-                ..default()
-            },
+            }),
+            ..default()
+        },
+        Transform {
+            translation: pos,
+            scale: Vec3::splat(TANK_SCALE),
             ..default()
         },
         TankRefreshBulletTimer(Timer::from_seconds(
@@ -144,7 +144,7 @@ pub fn enemies_move(
         (
             &mut Transform,
             &mut common::Direction,
-            &mut TextureAtlas,
+            &mut Sprite,
             &mut AnimationIndices,
             &mut EnemyChangeDirectionTimer,
         ),
@@ -158,16 +158,16 @@ pub fn enemies_move(
         if !timer.0.finished() {
             match *direction {
                 common::Direction::Up => {
-                    transform.translation.y += ENEMY_SPEED * time.delta_seconds();
+                    transform.translation.y += ENEMY_SPEED * time.delta_secs();
                 }
                 common::Direction::Right => {
-                    transform.translation.x += ENEMY_SPEED * time.delta_seconds();
+                    transform.translation.x += ENEMY_SPEED * time.delta_secs();
                 }
                 common::Direction::Down => {
-                    transform.translation.y -= ENEMY_SPEED * time.delta_seconds();
+                    transform.translation.y -= ENEMY_SPEED * time.delta_secs();
                 }
                 common::Direction::Left => {
-                    transform.translation.x -= ENEMY_SPEED * time.delta_seconds();
+                    transform.translation.x -= ENEMY_SPEED * time.delta_secs();
                 }
             }
             continue;
@@ -248,11 +248,13 @@ pub fn enemies_move(
 
         // 设置方向和sprite
         *direction = choosed_direction;
-        sprite.index = new_sprite_index(sprite.index as i32, *direction) as usize;
-        *indices = AnimationIndices {
-            first: sprite.index,
-            last: sprite.index + 1,
-        };
+        if let Some(atlas) = &mut sprite.texture_atlas {
+            atlas.index = new_sprite_index(atlas.index as i32, *direction) as usize;
+            *indices = AnimationIndices {
+                first: atlas.index,
+                last: atlas.index + 1,
+            };
+        }
 
         // 重置转向计时器
         timer.0.reset();
@@ -311,17 +313,19 @@ pub fn handle_enemy_collision(
 // 坦克移动动画播放
 pub fn animate_enemies(
     time: Res<Time>,
-    mut query: Query<(&mut AnimationTimer, &AnimationIndices, &mut TextureAtlas), With<Enemy>>,
+    mut query: Query<(&mut AnimationTimer, &AnimationIndices, &mut Sprite), With<Enemy>>,
 ) {
     for (mut timer, indices, mut sprite) in &mut query {
         timer.0.tick(time.delta());
         if timer.0.just_finished() {
             // 切换到下一个sprite
-            sprite.index = if sprite.index == indices.last {
-                indices.first
-            } else {
-                sprite.index + 1
-            };
+            if let Some(atlas) = &mut sprite.texture_atlas {
+                atlas.index = if atlas.index == indices.last {
+                    indices.first
+                } else {
+                    atlas.index + 1
+                };
+            }
         }
     }
 }

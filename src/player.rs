@@ -113,15 +113,15 @@ pub fn auto_spawn_players(
         let shield = commands
             .spawn((
                 Shield,
-                SpriteSheetBundle {
-                    texture: shield_texture_handle.clone(),
-                    atlas: TextureAtlas {
+                Sprite {
+                    image: shield_texture_handle.clone(),
+                    texture_atlas: Some(TextureAtlas {
                         index: 0,
                         layout: shield_atlas_layout_handle.clone(),
-                    },
-                    transform: Transform::from_translation(Vec3::new(0.0, 0.0, -1.0)), // 通过z轴控制sprite order
+                    }),
                     ..default()
                 },
+                Transform::from_translation(Vec3::new(0.0, 0.0, -1.0)), // 通过z轴控制sprite order
                 AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
                 AnimationIndices { first: 0, last: 1 },
                 ShieldRemoveTimer(Timer::from_seconds(5.0, TimerMode::Once)),
@@ -132,25 +132,25 @@ pub fn auto_spawn_players(
         let tank = commands
             .spawn((
                 spawn_player_event.player_no,
-                SpriteSheetBundle {
-                    texture: if spawn_player_event.player_no.0 == 1 {
+                Sprite {
+                    image: if spawn_player_event.player_no.0 == 1 {
                         player1_texture_handle.clone()
                     } else {
                         player2_texture_handle.clone()
                     },
-                    atlas: TextureAtlas {
+                    texture_atlas: Some(TextureAtlas {
                         index: 0,
                         layout: if spawn_player_event.player_no.0 == 1 {
                             player1_atlas_layout_handle.clone()
                         } else {
                             player2_atlas_layout_handle.clone()
                         },
-                    },
-                    transform: Transform {
-                        translation: spawn_player_event.pos.extend(SPRITE_PLAYER_ORDER),
-                        scale: Vec3::splat(TANK_SCALE),
-                        ..default()
-                    },
+                    }),
+                    ..default()
+                },
+                Transform {
+                    translation: spawn_player_event.pos.extend(SPRITE_PLAYER_ORDER),
+                    scale: Vec3::splat(TANK_SCALE),
                     ..default()
                 },
                 TankRefreshBulletTimer(Timer::from_seconds(
@@ -203,15 +203,15 @@ pub fn spawn_born(
     commands.spawn((
         Born,
         player_no,
-        SpriteSheetBundle {
-            texture: born_texture_handle,
-            atlas: TextureAtlas {
+        Sprite {
+            image: born_texture_handle,
+            texture_atlas: Some(TextureAtlas {
                 index: 0,
                 layout: born_atlas_layout_handle,
-            },
-            transform: Transform::from_translation(pos),
+            }),
             ..default()
         },
+        Transform::from_translation(pos),
         AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
         AnimationIndices { first: 0, last: 3 },
         BornRemoveTimer(Timer::from_seconds(2.0, TimerMode::Once)),
@@ -225,7 +225,7 @@ pub fn players_move(
         &PlayerNo,
         &mut Velocity,
         &mut common::Direction,
-        &mut TextureAtlas,
+        &mut Sprite,
         &mut AnimationIndices,
     )>,
 ) {
@@ -297,24 +297,26 @@ pub fn players_move(
                 };
             }
         }
-        sprite.index = indices.first;
+        sprite.texture_atlas.as_mut().unwrap().index = indices.first;
     }
 }
 
 // 坦克移动动画播放
 pub fn animate_players(
     time: Res<Time>,
-    mut query: Query<(&mut AnimationTimer, &AnimationIndices, &mut TextureAtlas), With<PlayerNo>>,
+    mut query: Query<(&mut AnimationTimer, &AnimationIndices, &mut Sprite), With<PlayerNo>>,
 ) {
     for (mut timer, indices, mut sprite) in &mut query {
         timer.0.tick(time.delta());
         if timer.0.just_finished() {
             // 切换到下一个sprite
-            sprite.index = if sprite.index == indices.last {
-                indices.first
-            } else {
-                sprite.index + 1
-            };
+            if let Some(atlas) = &mut sprite.texture_atlas {
+                atlas.index = if atlas.index == indices.last {
+                    indices.first
+                } else {
+                    atlas.index + 1
+                };
+            }
         }
     }
 }
@@ -348,10 +350,10 @@ pub fn players_attack(
                     transform.translation,
                     direction.clone(),
                 );
-                commands.spawn(AudioBundle {
-                    source: game_sounds.player_fire.clone(),
-                    settings: PlaybackSettings::DESPAWN,
-                });
+                commands.spawn((
+                    AudioPlayer(game_sounds.player_fire.clone()),
+                    PlaybackSettings::DESPAWN,
+                ));
                 refresh_bullet_timer.reset();
             }
         }
@@ -361,17 +363,19 @@ pub fn players_attack(
 // 保护盾动画播放
 pub fn animate_shield(
     time: Res<Time>,
-    mut query: Query<(&mut AnimationTimer, &AnimationIndices, &mut TextureAtlas), With<Shield>>,
+    mut query: Query<(&mut AnimationTimer, &AnimationIndices, &mut Sprite), With<Shield>>,
 ) {
     for (mut timer, indices, mut sprite) in &mut query {
         timer.0.tick(time.delta());
         if timer.0.just_finished() {
             // 切换到下一个sprite
-            sprite.index = if sprite.index == indices.last {
-                indices.first
-            } else {
-                sprite.index + 1
-            };
+            if let Some(atlas) = &mut sprite.texture_atlas {
+                atlas.index = if atlas.index == indices.last {
+                    indices.first
+                } else {
+                    atlas.index + 1
+                };
+            }
         }
     }
 }
@@ -402,7 +406,7 @@ pub fn animate_born(
             &Transform,
             &mut AnimationTimer,
             &AnimationIndices,
-            &mut TextureAtlas,
+            &mut Sprite,
             &mut BornRemoveTimer,
         ),
         With<Born>,
@@ -416,11 +420,13 @@ pub fn animate_born(
         born_remove_timer.0.tick(time.delta());
         if timer.0.just_finished() {
             // 切换到下一个sprite
-            sprite.index = if sprite.index == indices.last {
-                indices.first
-            } else {
-                sprite.index + 1
-            };
+            if let Some(atlas) = &mut sprite.texture_atlas {
+                atlas.index = if atlas.index == indices.last {
+                    indices.first
+                } else {
+                    atlas.index + 1
+                };
+            }
         }
         if born_remove_timer.0.finished() {
             commands.entity(entity).despawn();

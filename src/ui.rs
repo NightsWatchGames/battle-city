@@ -1,5 +1,4 @@
 use crate::common::{AppState, GameSounds, MultiplayerMode, SPRITE_GAME_OVER_ORDER, TANK_SIZE};
-use bevy::input::keyboard::KeyboardInput;
 use bevy::prelude::*;
 use std::time::Duration;
 
@@ -22,47 +21,46 @@ pub fn setup_start_menu(
     let player1_atlas_layout_handle = atlas_layouts.add(player1_texture_atlas);
 
     commands
-        .spawn(NodeBundle {
-            style: Style {
+        .spawn((
+            Node {
                 width: Val::Percent(100.),
                 height: Val::Percent(100.),
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::Center,
                 ..default()
             },
-            ..default()
-        })
-        .insert(OnStartMenuScreen)
+            OnStartMenuScreen,
+        ))
         .with_children(|parent| {
-            parent.spawn(ImageBundle {
+            parent.spawn(ImageNode {
                 image: asset_server.load("textures/title.bmp").into(),
                 ..default()
             });
             parent.spawn((
-                AtlasImageBundle {
-                    image: player1_texture_handle.into(),
-                    texture_atlas: TextureAtlas {
+                Node {
+                    width: Val::Px(20.),
+                    height: Val::Px(20.),
+                    margin: UiRect::all(Val::Px(10.0)),
+                    position_type: PositionType::Absolute,
+                    top: Val::Px(412.),
+                    left: Val::Px(520.),
+                    ..default()
+                },
+                ImageNode {
+                    image: player1_texture_handle,
+                    texture_atlas: Some(TextureAtlas {
                         index: 0,
                         layout: player1_atlas_layout_handle,
-                    },
-                    style: Style {
-                        width: Val::Px(20.),
-                        height: Val::Px(20.),
-                        margin: UiRect::all(Val::Px(10.0)),
-                        position_type: PositionType::Absolute,
-                        top: Val::Px(412.),
-                        left: Val::Px(520.),
-                        ..default()
-                    },
+                    }),
                     ..default()
                 },
                 OnStartMenuScreenMultiplayerModeFlag,
             ));
         });
-    commands.spawn(AudioBundle {
-        source: asset_server.load("sounds/start_menu.ogg"),
-        settings: PlaybackSettings::DESPAWN,
-    });
+    commands.spawn((
+        AudioPlayer::new(asset_server.load("sounds/start_menu.ogg")),
+        PlaybackSettings::DESPAWN,
+    ));
 }
 
 pub fn setup_game_over(
@@ -71,17 +69,18 @@ pub fn setup_game_over(
     game_sounds: Res<GameSounds>,
 ) {
     let game_over_texture = asset_server.load("textures/game_over.bmp");
-    commands
-        .spawn(SpriteBundle {
-            texture: game_over_texture,
-            transform: Transform::from_translation(Vec3::new(0., -400., SPRITE_GAME_OVER_ORDER)),
+    commands.spawn((
+        Sprite {
+            image: game_over_texture,
             ..default()
-        })
-        .insert(OnGameOverScreen);
-    commands.spawn(AudioBundle {
-        source: game_sounds.game_over.clone(),
-        settings: PlaybackSettings::DESPAWN,
-    });
+        },
+        Transform::from_translation(Vec3::new(0., -400., SPRITE_GAME_OVER_ORDER)),
+        OnGameOverScreen,
+    ));
+    commands.spawn((
+        AudioPlayer(game_sounds.game_over.clone()),
+        PlaybackSettings::DESPAWN,
+    ));
 }
 
 pub fn animate_game_over(
@@ -93,11 +92,11 @@ pub fn animate_game_over(
     for mut transform in &mut q_game_over {
         // 上移game over图片
         if transform.translation.y < 0. {
-            transform.translation.y += time.delta_seconds() * 150.;
+            transform.translation.y += time.delta_secs() * 150.;
             *stop_secs = 0.0;
         } else {
             // 停顿1秒后，切换到Start Menu
-            *stop_secs += time.delta_seconds();
+            *stop_secs += time.delta_secs();
             if *stop_secs > 1.0 {
                 app_state.set(AppState::StartMenu);
             }
@@ -119,22 +118,22 @@ pub fn switch_multiplayer_mode(
     mut commands: Commands,
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut multiplayer_mode: ResMut<MultiplayerMode>,
-    mut q_multiplayer_mode_flag: Query<&mut Style, With<OnStartMenuScreenMultiplayerModeFlag>>,
+    mut q_multiplayer_mode_flag: Query<&mut Node, With<OnStartMenuScreenMultiplayerModeFlag>>,
     game_sounds: Res<GameSounds>,
 ) {
     if keyboard_input.any_just_pressed([KeyCode::ArrowUp, KeyCode::ArrowDown]) {
-        for mut style in &mut q_multiplayer_mode_flag {
+        for mut node in &mut q_multiplayer_mode_flag {
             if *multiplayer_mode == MultiplayerMode::SinglePlayer {
-                style.top = Val::Px(440.);
+                node.top = Val::Px(440.);
                 *multiplayer_mode = MultiplayerMode::TwoPlayers;
             } else if *multiplayer_mode == MultiplayerMode::TwoPlayers {
-                style.top = Val::Px(412.);
+                node.top = Val::Px(412.);
                 *multiplayer_mode = MultiplayerMode::SinglePlayer;
             }
-            commands.spawn(AudioBundle {
-                source: game_sounds.mode_switch.clone(),
-                settings: PlaybackSettings::DESPAWN,
-            });
+            commands.spawn((
+                AudioPlayer(game_sounds.mode_switch.clone()),
+                PlaybackSettings::DESPAWN,
+            ));
         }
     }
 }
@@ -152,10 +151,10 @@ pub fn pause_game(
     if cold_start.as_millis() > 100 {
         if keyboard_input.just_released(KeyCode::Escape) {
             info!("Pause game");
-            commands.spawn(AudioBundle {
-                source: game_sounds.game_pause.clone(),
-                settings: PlaybackSettings::DESPAWN,
-            });
+            commands.spawn((
+                AudioPlayer(game_sounds.game_pause.clone()),
+                PlaybackSettings::DESPAWN,
+            ));
             app_state.set(AppState::Paused);
             *cold_start = Duration::ZERO;
         }

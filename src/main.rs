@@ -135,9 +135,9 @@ fn main() {
 }
 
 fn setup_camera(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn(Camera2d::default());
 }
 
-fn setup_rapier(mut rapier_config: ResMut<RapierConfiguration>) {
+fn setup_rapier(mut rapier_config: Single<&mut RapierConfiguration>) {
     rapier_config.gravity = Vec2::ZERO;
 }
